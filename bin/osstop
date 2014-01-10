@@ -1,0 +1,35 @@
+#!/bin/bash
+############################################################################################################################
+#
+# Outsourcer stop script.  
+# Be sure to have osconfig.sh in your path and set correctly.
+#
+############################################################################################################################
+
+set -e
+source ~/.bashrc
+
+# Set queued jobs to failed so you can stop Outsourcer
+psql -q -c "UPDATE os.queue SET status = 'failed', end_date = now(), error_message = 'Outsourcer stop requested' WHERE status = 'queued'"
+
+# Loop through queue to look for jobs still processing 
+processing=$(psql -A -t -q -c "SELECT COUNT(*) FROM os.queue WHERE status IN ('processing')")
+
+while [ $processing \> 0 ] 
+do
+	echo $processing job\(s\) processing in the queue.... Sleep
+	sleep 5
+	
+	processing=$(psql -A -t -q -c "SELECT COUNT(*) FROM os.queue WHERE status IN ('processing')")
+
+done
+
+# find the pid for Outsourcer and kill it
+pid=$(ps -ef 2> /dev/null | grep Outsourcer.jar | grep ExternalDataD | grep -v grep | awk '{ print $2 }')
+
+if [ $pid ]; then
+	echo Killing $pid
+	kill $pid
+fi
+
+echo Outsourcer has been stopped

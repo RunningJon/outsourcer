@@ -1,0 +1,93 @@
+#!/bin/bash
+set -e
+source ~/.bashrc
+############################################################################################################################
+#
+# Outsourcer start script. 
+# Be sure to have sourced the os_path.sh script.
+#
+############################################################################################################################
+
+if [ -z $PGPORT ]; then 
+	echo "Must set PGPORT in environment variables.  Exiting.";
+	echo Exiting
+	exit 0
+fi
+
+if [ -z $PGDATABASE ]; then 
+	echo "Must set PGDATABASE in environment variables.  Exiting.";
+	echo Exiting
+	exit 0
+fi
+
+if [ -z $OSCLASSPATH ]; then
+	echo "Must source the os_path.sh file first.  Exiting.";
+	echo Exiting
+	exit 0
+fi
+
+gpUserName=`whoami`
+
+############################################################################################################################
+#
+# Make sure Outsourcer hasn't already started
+#
+############################################################################################################################
+check=$(ps -ef 2> /dev/null | grep Outsourcer.jar | grep ExternalDataD | grep -v grep | wc -l)
+
+if [ $check = 1 ]; then
+	echo Outsourcer has already started!
+	exit 0
+fi
+
+############################################################################################################################
+#
+# Sync the environment variables to the database
+#
+############################################################################################################################
+psql -q -c "DELETE FROM os.variables WHERE name = 'Xmx'"
+psql -q -c "DELETE FROM os.variables WHERE name = 'Xms'"
+psql -q -c "DELETE FROM os.variables WHERE name = 'osJar'"
+psql -q -c "DELETE FROM os.variables WHERE name = 'osAgentJar'"
+psql -q -c "DELETE FROM os.variables WHERE name = 'osUIJar'"
+psql -q -c "DELETE FROM os.variables WHERE name = 'gpdbJar'"
+psql -q -c "DELETE FROM os.variables WHERE name = 'msJar'"
+psql -q -c "DELETE FROM os.variables WHERE name = 'oJar'"
+
+psql -q -c "INSERT INTO os.variables VALUES ('Xmx', '$XMX')"
+psql -q -c "INSERT INTO os.variables VALUES ('Xms', '$XMS')"
+psql -q -c "INSERT INTO os.variables VALUES ('osJar', '$OSJAR')"
+psql -q -c "INSERT INTO os.variables VALUES ('osAgentJar', '$OSAGENTJAR')"
+psql -q -c "INSERT INTO os.variables VALUES ('osUIJar', '$OSUIJAR')"
+psql -q -c "INSERT INTO os.variables VALUES ('gpdbJar', '$GPDBJAR')"
+psql -q -c "INSERT INTO os.variables VALUES ('msJar', '$MSJAR')"
+psql -q -c "INSERT INTO os.variables VALUES ('oJar', '$OJAR')"
+
+echo Environment variables updated in Greenplum
+############################################################################################################################
+#
+# Reset the Queue
+#
+############################################################################################################################
+psql -q -c "UPDATE os.queue set status = 'failed', end_date = now(), error_message = 'Restart of Outsourcer'  where status = 'processing'"
+
+echo Queue reset
+############################################################################################################################
+#
+# Analyze the os tables
+#
+############################################################################################################################
+psql -q -c "VACUUM ANALYZE os.variables"
+psql -q -c "VACUUM ANALYZE os.queue"
+psql -q -c "VACUUM ANALYZE os.job"
+echo os tables analyzed 
+
+############################################################################################################################
+#
+# Start Outsourcer
+#
+############################################################################################################################
+echo Starting Outsourcer
+
+nohup java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX ExternalDataD localhost $PGPORT $PGDATABASE $gpUserName > $OSLOG 2>&1 < $OSLOG &
+echo Outsourcer started

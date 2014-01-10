@@ -1,0 +1,20 @@
+#!/bin/bash
+############################################################################################################################
+#
+# Outsourcer UI stop script.  
+# Be sure to have osconfig.sh in your path and set correctly.
+#
+############################################################################################################################
+
+set -e
+source ~/.bashrc
+
+# find the pid for Outsourcer and kill it
+pid=$(ps -ef 2> /dev/null | grep Outsourcer.jar | grep UI | grep -v grep | awk '{ print $2 }')
+
+if [ $pid ]; then
+	echo Killing $pid
+	kill $pid
+fi
+
+echo Outsourcer UI has been stopped

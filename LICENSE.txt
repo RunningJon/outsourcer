@@ -1,0 +1,103 @@
+Copyright (c) 2013 Pivotal Software, Inc.  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+3. Neither the name of Pivotal Software, Inc. nor the names of its
+contributors may be used to endorse or promote products derived from this
+software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+
+=================================================================
+TABLE OF CONTENTS
+=================================================================
+
+Pivotal Outsourcer: 
+
+The following is a listing of the open source components detailed in this document. 
+This list is provided for your convenience; please read further if you wish to 
+review the copyright notice(s) and the full text of the license associated 
+with each component.
+
+
+
+
+SECTION 1: BSD-STYLE, MIT-STYLE, OR SIMILAR STYLE LICENSES
+
+>>> nanohttpd-1.25
+
+
+--------------- SECTION 1:  BSD-STYLE, MIT-STYLE, OR SIMILAR STYLE LICENSES ----------
+
+
+BSD-STYLE, MIT-STYLE, OR SIMILAR STYLE LICENSES are applicable to the following component(s).
+
+
+>>> nanohttpd-1.25
+
+Copyright (C) 2001,2005-2011 by Jarno Elonen <elonen@iki.fi> 
+and Copyright (C) 2010 by Konstantinos Togias <info@ktogias.gr> 
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions 
+are met: 
+
+Redistributions of source code must retain the above copyright notice, 
+this list of conditions and the following disclaimer. Redistributions in 
+binary form must reproduce the above copyright notice, this list of 
+conditions and the following disclaimer in the documentation and/or other 
+materials provided with the distribution. The name of the author may not 
+be used to endorse or promote products derived from this software without 
+specific prior written permission.  
+  
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR 
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+===========================================================================
+
+To the extent any open source components are licensed under the
+GPL and/or LGPL, or other similar licenses that require the
+source code and/or modifications to source code to be made
+available (as would be noted above), you may obtain a copy of
+the source code corresponding to the binaries for such open
+source components and modifications thereto, if any, (the
+"Source Files"), by downloading the Source Files from Pivotal's website at
+http://www.gopivotal.com/open-source, or by sending a request, 
+with your name and address to: Pivotal Software, Inc., 1900 S. Norfolk Street #125, 
+San Mateo, CA 94403, Attention: General Counsel. All such requests should 
+clearly specify: OPEN SOURCE FILES REQUEST,
+Attention General Counsel. Pivotal shall mail a copy of the
+Source Files to you on a CD or equivalent physical medium. This
+offer to obtain a copy of the Source Files is valid for three
+years from the date you acquired this Software product. 
+Alternatively, the Source Files may accompany the Pivotal product.
+
+[OUTSOURCER401GASS123113]

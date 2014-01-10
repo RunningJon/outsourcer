@@ -1,0 +1,8 @@
+# find the pid for Outsourcer and kill it
+pid=$(ps -ef | grep Outsourcer.jar | grep AgentD | grep -v grep | awk '{ print $2 }')
+
+if [ $pid ]; then
+        echo Up
+else
+	echo Down
+fi

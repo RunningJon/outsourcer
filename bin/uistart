@@ -1,0 +1,50 @@
+#!/bin/bash
+set -e
+source ~/.bashrc
+############################################################################################################################
+#
+# Outsourcer UI start script.
+# Be sure to have sourced the os_path.sh script.
+#
+############################################################################################################################
+
+if [ -z $PGPORT ]; then
+        echo "Must set PGPORT in environment variables.  Exiting.";
+        echo Exiting
+        exit 0
+fi
+
+if [ -z $PGDATABASE ]; then
+        echo "Must set PGDATABASE in environment variables.  Exiting.";
+        echo Exiting
+        exit 0
+fi
+
+if [ -z $OSUICLASSPATH ]; then
+        echo "Must source the os_path.sh file first.  Exiting.";
+        echo Exiting
+        exit 0
+fi
+
+gpUserName=`whoami`
+
+set -e
+############################################################################################################################
+#
+# Make sure Outsourcer UI hasn't already started
+#
+############################################################################################################################
+check=$(ps -ef 2> /dev/null | grep Outsourcer.jar | grep UI | grep -v grep | wc -l)
+
+if [ $check = 1 ]; then
+        echo Outsourcer UI has already started!
+        exit 0
+fi
+############################################################################################################################
+#
+# Start Outsourcer UI
+#
+############################################################################################################################
+echo Starting Outsourcer UI
+
+nohup java -classpath $OSUICLASSPATH -Xms16M -Xmx128M UI localhost $PGPORT $PGDATABASE $gpUserName $UIPORT $AUTHSERVER > $UILOG 2>&1 < $UILOG &
