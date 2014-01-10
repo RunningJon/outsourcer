@@ -494,7 +494,7 @@ ALTER TABLE os.ext_connection ADD CONSTRAINT ext_check_port
 
 CREATE OR REPLACE FUNCTION os.fn_create_ext_table(p_table text, p_columns text[], p_connection_id integer, p_sql_text text)
   RETURNS void AS
-$BODY$
+$$
 DECLARE
         v_function_name text := 'os.fn_create_ext_table';
         v_location int;

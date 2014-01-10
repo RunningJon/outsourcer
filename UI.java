@@ -72,6 +72,9 @@ public class UI extends NanoHTTPD
 			sessionID = "0";
 		}
 
+		if (!uri.equals("/favicon.ico")) 
+		{
+
 		if (submit.equals("1") && (!username.equals("")) && (!password.equals(""))) 
 		{
 			try
@@ -118,9 +121,14 @@ public class UI extends NanoHTTPD
 		if (sessionID.equals("0"))
 			msg = UIView.viewLogin(loginMessage);
 
+		}
 		NanoHTTPD.Response out = new NanoHTTPD.Response(msg);
-		out.addHeader("Set-Cookie", sessionID);
-		UIModel.logger(uri, sessionID);
+
+		if (!uri.equals("/favicon.ico")) 
+		{
+			out.addHeader("Set-Cookie", "OutsourcerSessionID=" + sessionID + ";");
+			UIModel.logger(uri, sessionID);
+		}
 		return out;
 	}
 }
