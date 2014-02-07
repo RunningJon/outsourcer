@@ -10,18 +10,21 @@ public class JobModel
 	String refreshType;
 	String targetSchemaName;
 	String targetTableName;
-	String type;
-	String serverName;
-	String instanceName;
-	String port;
-	String databaseName;
-	String schemaName;
-	String tableName;
-	String userName;
-	String pass;
+	boolean targetAppendOnly;
+	boolean targetCompressed;
+	boolean targetRowOrientation;
+	String sourceType;
+	String sourceServerName;
+	String sourceInstanceName;
+	String sourcePort;
+	String sourceDatabaseName;
+	String sourceSchemaName;
+	String sourceTableName;
+	String sourceUserName;
+	String sourcePass;
 	String columnName;
 	String sqlText;
-	String snapshot;  //not sure if I should use boolean or not.
+	boolean snapshot;
 	String scheduleDesc;
 	String scheduleNext;
 
@@ -34,8 +37,8 @@ public class JobModel
 		strSQL += "ELSE\n";
 		strSQL += "	'<button onclick=\"updateQueue(' || j.id || ', ''insert'')\">Queue</button>' END AS manage,\n";
 		strSQL += "j.id, initcap(j.refresh_type) AS refresh_type,\n";
-		strSQL += "CASE WHEN j.refresh_type = 'transform' THEN 'Transform' ELSE initcap((j.source).type) END AS source_info,\n";
-		strSQL += "coalesce(((j.target).schema_name || '.' || (j.target).table_name), '') AS target_table_name,\n";
+		strSQL += "CASE WHEN j.refresh_type = 'transform' THEN 'Transform' ELSE initcap(j.source_type) END AS source_info,\n";
+		strSQL += "coalesce((j.target_schema_name || '.' || j.target_table_name), '') AS target_table_name,\n";
 		strSQL += "coalesce(j.schedule_desc, '') AS schedule_desc,\n";
 		strSQL += "coalesce(schedule_next::text, '') AS schedule_next\n";
  		strSQL += "FROM os.job j\n";
@@ -46,16 +49,16 @@ public class JobModel
 		if (!search.equals(""))
 		{
 			strSQL += "WHERE LOWER(j.refresh_type) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.target).schema_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.target).table_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.source).type) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.source).server_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.source).instance_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.source).port) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.source).database_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.source).schema_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.source).table_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((j.source).user_name) LIKE '%' || LOWER('" + search +"') || '%'\n";
+			strSQL += "OR LOWER(j.target_schema_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(j.target_table_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(j.source_type) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(j.source_server_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(j.source_instance_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(j.source_port) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(j.source_database_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(j.source_schema_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(j.source_table_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(j.source_user_name) LIKE '%' || LOWER('" + search +"') || '%'\n";
 			strSQL += "OR LOWER(j.column_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
 			strSQL += "OR LOWER(j.sql_text) LIKE '%' || LOWER('" + search + "') || '%'\n";
 		}
@@ -82,75 +85,55 @@ public class JobModel
 		}
 	}
 
-	public static void updateTable(String id, String refreshType, String targetSchemaName, String targetTableName, String type, String serverName, String instanceName, String port, String databaseName, String schemaName, String tableName, String userName, String pass, String columnName, String sqlText, String snapshot, String scheduleDesc) throws SQLException
+	public static void insertTable(String id, String refreshType, String targetSchemaName, String targetTableName, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceSchemaName, String sourceTableName, String sourceUserName, String sourcePass, String columnName, String sqlText, boolean snapshot, String scheduleDesc) throws SQLException
 	{
 		refreshType = OutsourcerModel.setSQLString(refreshType);
 		targetSchemaName = OutsourcerModel.setSQLString(targetSchemaName);
 		targetTableName = OutsourcerModel.setSQLString(targetTableName);
-		type = OutsourcerModel.setSQLString(type);
-		serverName = OutsourcerModel.setSQLString(serverName);
-		instanceName = OutsourcerModel.setSQLString(instanceName);
-		port = OutsourcerModel.setSQLInt(port);
-		databaseName = OutsourcerModel.setSQLString(databaseName);
-		schemaName = OutsourcerModel.setSQLString(schemaName);
-		tableName = OutsourcerModel.setSQLString(tableName);
-		userName = OutsourcerModel.setSQLString(userName);
-		pass = OutsourcerModel.setSQLString(pass);
+		String strTargetAppendOnly = OutsourcerModel.setSQLString(targetAppendOnly);
+		String strTargetCompressed = OutsourcerModel.setSQLString(targetCompressed);
+		String strTargetOrientation = OutsourcerModel.setSQLString(targetRowOrientation);
+		sourceType = OutsourcerModel.setSQLString(sourceType);
+		sourceServerName = OutsourcerModel.setSQLString(sourceServerName);
+		sourceInstanceName = OutsourcerModel.setSQLString(sourceInstanceName);
+		sourcePort = OutsourcerModel.setSQLInt(sourcePort);
+		sourceDatabaseName = OutsourcerModel.setSQLString(sourceDatabaseName);
+		sourceSchemaName = OutsourcerModel.setSQLString(sourceSchemaName);
+		sourceTableName = OutsourcerModel.setSQLString(sourceTableName);
+		sourceUserName = OutsourcerModel.setSQLString(sourceUserName);
+		sourcePass = OutsourcerModel.setSQLString(sourcePass);
 		columnName = OutsourcerModel.setSQLString(columnName);
 		sqlText = OutsourcerModel.setSQLString(sqlText);
-		snapshot = OutsourcerModel.setSQLString(snapshot);
-		scheduleDesc = OutsourcerModel.setSQLString(scheduleDesc);
-
-		String strSQL = "UPDATE os.job\n";
-		strSQL += "SET refresh_type = " + refreshType + ",\n";
-		strSQL += "	target = (" + targetSchemaName + ", " + targetTableName + ")::os.type_target,\n";
-		strSQL += "	source = (" + type + ", " + serverName + ", " + instanceName + ", " + port + ", " + databaseName + ", ";
-		strSQL += schemaName + ", " + tableName + ", " + userName + ", " + pass + ")::os.type_source,\n";
-		strSQL += "	column_name  = " + columnName + ",\n";
-		strSQL += "	sql_text  = " + sqlText + ",\n";
-		strSQL += "	snapshot  = " + snapshot + ",\n";
-		strSQL += "	schedule_desc  = " + scheduleDesc + ",\n";
-		strSQL += "	schedule_change  = true\n";
-		strSQL += "WHERE id = " + id;
-
-		try
-		{
-			OutsourcerModel.updateTable(strSQL);
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException(ex.getMessage());
-		}
-	}
-
-	public static void insertTable(String refreshType, String targetSchemaName, String targetTableName, String type, String serverName, String instanceName, String port, String databaseName, String schemaName, String tableName, String userName, String pass, String columnName, String sqlText, String snapshot, String scheduleDesc) throws SQLException
-	{
-		refreshType = OutsourcerModel.setSQLString(refreshType);
-		targetSchemaName = OutsourcerModel.setSQLString(targetSchemaName);
-		targetTableName = OutsourcerModel.setSQLString(targetTableName);
-		type = OutsourcerModel.setSQLString(type);
-		serverName = OutsourcerModel.setSQLString(serverName);
-		instanceName = OutsourcerModel.setSQLString(instanceName);
-		port = OutsourcerModel.setSQLInt(port);
-		databaseName = OutsourcerModel.setSQLString(databaseName);
-		schemaName = OutsourcerModel.setSQLString(schemaName);
-		tableName = OutsourcerModel.setSQLString(tableName);
-		userName = OutsourcerModel.setSQLString(userName);
-		pass = OutsourcerModel.setSQLString(pass);
-		columnName = OutsourcerModel.setSQLString(columnName);
-		sqlText = OutsourcerModel.setSQLString(sqlText);
-		snapshot = OutsourcerModel.setSQLString(snapshot);
+		String strSnapshot = OutsourcerModel.setSQLString(snapshot);
 		scheduleDesc = OutsourcerModel.setSQLString(scheduleDesc);
 		
-		String strSQL = "INSERT INTO os.job\n";
-		strSQL += "(refresh_type, target, source, column_name, sql_text, snapshot, schedule_desc)\n";
-		strSQL += "VALUES (" + refreshType + ",\n";
-		strSQL += "	" + "(" + targetSchemaName + ", " + targetTableName + ")::os.type_target,\n";
-		strSQL += "	" + "(" + type + ", " + serverName + ", " + instanceName + ", " + port + ", " + databaseName + ", ";
-		strSQL += schemaName + ", " + tableName + ", " + userName + ", " + pass + ")::os.type_source,\n";
+		String strSQL = "INSERT INTO os.ao_job\n";
+
+		if (id.equals(""))
+			strSQL += "(";
+		else
+			strSQL += "(id, ";
+		strSQL += "	refresh_type, target_schema_name, target_table_name,\n";
+		strSQL += "	target_append_only, target_compressed, target_row_orientation,\n";
+		strSQL += "	source_type, source_server_name, source_instance_name, source_port, source_database_name,\n";
+		strSQL += "	source_schema_name, source_table_name, source_user_name, source_pass,\n";
+		strSQL += "	column_name, sql_text, snapshot, schedule_desc)\n";
+		strSQL += "VALUES";
+
+		//if id is "", then this is a new job and the sequence will create a new id
+		if (id.equals(""))
+			strSQL += "(";
+		else
+			strSQL += "(" + id + ", ";
+
+	 	strSQL += "	" + refreshType + ",\n";
+		strSQL += "	" + targetSchemaName + ", " + targetTableName + ",\n";
+		strSQL += "	" + strTargetAppendOnly + ", " + strTargetCompressed + ", " + targetRowOrientation + ",\n";
+		strSQL += "	" + sourceType + ", " + sourceServerName + ", " + sourceInstanceName + ", " + sourcePort + ", " + sourceDatabaseName + ",\n";
+		strSQL += "	" + sourceSchemaName + ", " + sourceTableName + ", " + sourceUserName + ", " + sourcePass + ",\n";
 		strSQL += "	" + columnName + ",\n";
 		strSQL += "	" + sqlText + ",\n";
-		strSQL += "	" + snapshot + ",\n";
+		strSQL += "	" + strSnapshot + ",\n";
 		strSQL += "	" + scheduleDesc + ")";
 
 		try
@@ -165,7 +148,19 @@ public class JobModel
 
 	public static void deleteTable(String id) throws SQLException
 	{
-		String strSQL = "DELETE\n";
+		String strSQL = "INSERT INTO os.ao_job\n";
+		strSQL += "(id, refresh_type, target_schema_name, target_table_name, target_append_only,\n";
+		strSQL += "target_compressed, target_row_orientation, source_type, source_server_name,\n";
+		strSQL += "source_instance_name, source_port, source_database_name, source_schema_name,\n";
+		strSQL += "source_table_name, source_user_name, source_pass, column_name,\n";
+		strSQL += "sql_text, snapshot, schedule_desc, schedule_next, schedule_change,\n"; 
+		strSQL += "deleted)\n";
+		strSQL += "SELECT id, refresh_type, target_schema_name, target_table_name, target_append_only,\n";
+		strSQL += "target_compressed, target_row_orientation, source_type, source_server_name,\n";
+		strSQL += "source_instance_name, source_port, source_database_name, source_schema_name,\n";
+		strSQL += "source_table_name, source_user_name, source_pass, column_name,\n";
+		strSQL += "sql_text, snapshot, schedule_desc, schedule_next, schedule_change,\n"; 
+		strSQL += "TRUE AS deleted\n";
 		strSQL += "FROM os.job\n";
 		strSQL += "WHERE id = " + id;
 
@@ -181,10 +176,11 @@ public class JobModel
 	
 	public JobModel (String aId) throws SQLException
 	{
-		String strSQL = "SELECT id, refresh_type, (target).schema_name, (target).table_name,\n";
-		strSQL += "(source).type, (source).server_name, (source).instance_name, (source).port, (source).database_name,\n";
-		strSQL += "(source).schema_name, (source).table_name,\n";
-		strSQL += "(source).user_name, (source).pass,\n";
+		String strSQL = "SELECT id, refresh_type, target_schema_name, target_table_name,\n";
+		strSQL += "target_append_only, target_compressed, target_row_orientation,\n";
+		strSQL += "source_type, source_server_name, source_instance_name, source_port, source_database_name,\n";
+		strSQL += "source_schema_name, source_table_name,\n";
+		strSQL += "source_user_name, source_pass,\n";
 		strSQL += "column_name, sql_text, snapshot, schedule_desc, schedule_next\n";
 		strSQL += "FROM os.job\n";
 		strSQL += "WHERE id = " + aId;
@@ -198,20 +194,23 @@ public class JobModel
 				refreshType = rs.getString(2);
 				targetSchemaName = rs.getString(3);
 				targetTableName = rs.getString(4);
-				type = rs.getString(5);
-				serverName = rs.getString(6);
-				instanceName = rs.getString(7);
-				port = rs.getString(8);
-				databaseName = rs.getString(9);
-				schemaName = rs.getString(10);
-				tableName = rs.getString(11);
-				userName = rs.getString(12);
-				pass = rs.getString(13);
-				columnName = rs.getString(14);
-				sqlText = rs.getString(15);
-				snapshot = rs.getString(16);
-				scheduleDesc = rs.getString(17);
-				scheduleNext = rs.getString(18);
+				targetAppendOnly = rs.getBoolean(5);
+				targetCompressed = rs.getBoolean(6);
+				targetRowOrientation = rs.getBoolean(7);
+				sourceType = rs.getString(8);
+				sourceServerName = rs.getString(9);
+				sourceInstanceName = rs.getString(10);
+				sourcePort = rs.getString(11);
+				sourceDatabaseName = rs.getString(12);
+				sourceSchemaName = rs.getString(13);
+				sourceTableName = rs.getString(14);
+				sourceUserName = rs.getString(15);
+				sourcePass = rs.getString(16);
+				columnName = rs.getString(17);
+				sqlText = rs.getString(18);
+				snapshot = rs.getBoolean(19);
+				scheduleDesc = rs.getString(20);
+				scheduleNext = rs.getString(21);
 			}
 		}
 		catch (SQLException ex)
@@ -235,9 +234,9 @@ public class JobModel
 
 	public static ArrayList<String> getSchemas() throws SQLException
 	{
-		String strSQL = "SELECT (target).schema_name AS schema_name\n";
+		String strSQL = "SELECT target_schema_name AS schema_name\n";
 		strSQL += "FROM os.job\n";
-		strSQL += "GROUP BY (target).schema_name\n"; 
+		strSQL += "GROUP BY target_schema_name\n"; 
 		strSQL += "ORDER BY schema_name";
 
 		ArrayList<String> schemas = new ArrayList<String>();
@@ -260,10 +259,19 @@ public class JobModel
 
 		try
 		{
-			String strSQL = "UPDATE os.job\n";
-			strSQL += "SET schedule_desc = " + scheduleDesc + ",\n";
-			strSQL += "schedule_change = true\n";
-			strSQL += "WHERE (target).schema_name = " + gpSchema;
+			String strSQL = "INSERT INTO os.ao_job\n";
+			strSQL += "(id, refresh_type, target_schema_name, target_table_name, target_append_only,\n";
+			strSQL += "target_compressed, target_row_orientation, source_type, source_server_name,\n";
+			strSQL += "source_instance_name, source_port, source_database_name, source_schema_name,\n";
+			strSQL += "source_table_name, source_user_name, source_pass, column_name,\n";
+			strSQL += "sql_text, snapshot, schedule_desc, schedule_next, schedule_change)\n"; 
+			strSQL += "SELECT id, refresh_type, target_schema_name, target_table_name, target_append_only,\n";
+			strSQL += "target_compressed, target_row_orientation, source_type, source_server_name,\n";
+			strSQL += "source_instance_name, source_port, source_database_name, source_schema_name,\n";
+			strSQL += "source_table_name, source_user_name, source_pass, column_name,\n";
+			strSQL += "sql_text, snapshot, " + scheduleDesc + " AS schedule_desc, schedule_next, TRUE as schedule_change\n"; 
+			strSQL += "FROM os.job\n";
+			strSQL += "WHERE target_schema_name = " + gpSchema;
 
 			OutsourcerModel.updateTable(strSQL);
 		}
@@ -275,7 +283,7 @@ public class JobModel
 
 	public static void deleteTable() throws SQLException
 	{
-		String strSQL = "DELETE FROM os.job";
+		String strSQL = "TRUNCATE os.ao_job";
 
 		try
 		{

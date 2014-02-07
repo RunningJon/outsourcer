@@ -80,7 +80,8 @@ public class ExternalData
 			}
 
 			location = 4000;
-			gpConn.close();
+			if (gpConn != null)
+				gpConn.close();
 		}
 		catch (SQLException ex)
 		{
@@ -126,10 +127,14 @@ public class ExternalData
 				sourcePass = rs.getString(2);	
 			}
 
+
 			location = 3090;
 			if (sourceType.equals("sqlserver"))
 			{
 				location = 3100;
+				gpConn.close();
+
+				location = 3150;
 				conn = CommonDB.connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
 
 				location = 3200;
@@ -149,6 +154,9 @@ public class ExternalData
 				location = 4000;
 				fetchSize = Integer.parseInt(GP.getVariable(gpConn, "oFetchSize"));
 			
+				location = 4050;
+				gpConn.close();
+
 				location = 4100;
 				conn = CommonDB.connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, fetchSize);
 
@@ -174,6 +182,9 @@ public class ExternalData
 		{
 			if (conn != null)
 				conn.close();
+
+			if (gpConn != null)
+				gpConn.close();
 		}
         }
 
@@ -220,6 +231,8 @@ public class ExternalData
 				sourcePass = rs.getString(7);
 			}
 
+			gpConn.close();
+
 			location = 3090;
 			if (sourceType.equals("sqlserver"))
 			{
@@ -260,6 +273,9 @@ public class ExternalData
 		{
 			if (conn != null)
 				conn.close();
+
+			if (gpConn != null)
+				gpConn.close();
 		}
         }
 

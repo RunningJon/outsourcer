@@ -14,18 +14,22 @@ public class ExternalTableControl
 		String sortBy = parms.get("sort_by");
 		String sort = parms.get("sort");
 		String id = parms.get("id");
-		String type = parms.get("type");
-		String serverName = parms.get("server_name");
-		String instanceName = parms.get("instance_name");
-		String port = parms.get("port");
-		String databaseName = parms.get("database_name");
-		String userName = parms.get("user_name");
-		String pass = parms.get("pass");
+		String sourceType = parms.get("source_type");
+		String sourceServerName = parms.get("source_server_name");
+		String sourceInstanceName = parms.get("source_instance_name");
+		String sourcePort = parms.get("source_port");
+		String sourceDatabaseName = parms.get("source_database_name");
+		String sourceUserName = parms.get("source_user_name");
+		String sourcePass = parms.get("source_pass");
 		String submit = parms.get("submit_form");
 		String validate = parms.get("validate");
 		String validateMsg = "";
 		String sourceSchema = parms.get("source_schema");
 		String targetSchema = parms.get("target_schema");
+		String strTargetAppendOnly = parms.get("target_append_only");
+		boolean targetAppendOnly = Boolean.valueOf(parms.get("target_append_only"));
+		boolean targetCompressed = Boolean.valueOf(parms.get("target_compressed"));
+		boolean targetRowOrientation = Boolean.valueOf(parms.get("target_row_orientation"));
 		String refreshType = parms.get("refresh_type");
 
 		String scheduleDesc = parms.get("schedule_desc");
@@ -49,26 +53,26 @@ public class ExternalTableControl
 		if (id == null)
 			id = "";
 
-		if (type == null)
-			type = "";
+		if (sourceType == null)
+			sourceType = "";
 
-		if (serverName == null)
-			serverName = "";
+		if (sourceServerName == null)
+			sourceServerName = "";
 
-		if (instanceName == null)
-			instanceName = "";
+		if (sourceInstanceName == null)
+			sourceInstanceName = "";
 
-		if (port == null)
-			port = "";
+		if (sourcePort == null)
+			sourcePort = "";
 
-		if (databaseName == null)
-			databaseName = "";
+		if (sourceDatabaseName == null)
+			sourceDatabaseName = "";
 
-		if (userName == null)
-			userName = "";
+		if (sourceUserName == null)
+			sourceUserName = "";
 
-		if (pass == null)
-			pass = "";
+		if (sourcePass == null)
+			sourcePass = "";
 
 		if (actionType == null || actionType.equals(""))
 			actionType = "view";
@@ -91,6 +95,13 @@ public class ExternalTableControl
 		if (scheduleDesc == null)
 			scheduleDesc = "";
 
+		if (strTargetAppendOnly == null)
+		{
+			targetAppendOnly = true;
+			targetCompressed = false;
+			targetRowOrientation = true;
+		}
+
 		//need the parsing of parms into local variables to call the right views
 
 		String msg = "";
@@ -99,7 +110,7 @@ public class ExternalTableControl
 		{
 			try
 			{
-				rs = ExternalTableModel.getList(search, limit, offset, sortBy, sort, "external");
+				rs = ExternalTableModel.getList(search, limit, offset, sortBy, sort);
 				msg = ExternalTableView.viewList(search, rs, limit, offset, sortBy, sort);
 			}
 			catch (Exception ex)
@@ -112,7 +123,7 @@ public class ExternalTableControl
 			if (submit.equals("0"))
 			{
 				ExternalTableModel e = ExternalTableModel.getModel(id);
-				msg = ExternalTableView.viewUpdate(e.id, e.type, e.serverName, e.instanceName, e.port, e.databaseName, e.userName, e.pass, "");
+				msg = ExternalTableView.viewUpdate(e.id, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceUserName, e.sourcePass, "");
 			}
 			else
 			{
@@ -120,11 +131,8 @@ public class ExternalTableControl
 				{
 					try
 					{
-						if (id.equals(""))
-							ExternalTableModel.insertTable(type, serverName, instanceName, port, databaseName, userName, pass);
-						else
-							ExternalTableModel.updateTable(id, type, serverName, instanceName, port, databaseName, userName, pass);
-						rs = ExternalTableModel.getList(search, limit, offset, sortBy, sort, "external");
+						ExternalTableModel.insertTable(id, sourceType, sourceServerName, sourceInstanceName, sourcePort, sourceDatabaseName, sourceUserName, sourcePass);
+						rs = ExternalTableModel.getList(search, limit, offset, sortBy, sort);
 						msg = ExternalTableView.viewList(search, rs, limit, offset, sortBy, sort);
 					}
 					catch (Exception ex)
@@ -134,12 +142,12 @@ public class ExternalTableControl
 				}
 				else
 				{
-					if ( ( type.equals("oracle") && (serverName.equals("") || port.equals("") || databaseName.equals("") || userName.equals("") || pass.equals("")) ) || (type.equals("sqlserver") && (serverName.equals("") || userName.equals("") || pass.equals("")) ) )
+					if ( ( sourceType.equals("oracle") && (sourceServerName.equals("") || sourcePort.equals("") || sourceDatabaseName.equals("") || sourceUserName.equals("") || sourcePass.equals("")) ) || (sourceType.equals("sqlserver") && (sourceServerName.equals("") || sourceUserName.equals("") || sourcePass.equals("")) ) )
 						validateMsg = "Please provide correct values for connection and try again.";
 					else
-						validateMsg = ExternalTableModel.validate(type, serverName, instanceName, port, databaseName, userName, pass);
+						validateMsg = ExternalTableModel.validate(sourceType, sourceServerName, sourceInstanceName, sourcePort, sourceDatabaseName, sourceUserName, sourcePass);
 					
-					msg = ExternalTableView.viewUpdate(id, type, serverName, instanceName, port, databaseName, userName, pass, validateMsg);
+					msg = ExternalTableView.viewUpdate(id, sourceType, sourceServerName, sourceInstanceName, sourcePort, sourceDatabaseName, sourceUserName, sourcePass, validateMsg);
 					
 				}
 			}
@@ -150,14 +158,14 @@ public class ExternalTableControl
 			if (submit.equals("0"))
 			{
 				ExternalTableModel e = ExternalTableModel.getModel(id);
-				msg = ExternalTableView.viewDelete(e.id, e.type, e.serverName, e.instanceName, e.port, e.databaseName, e.userName, e.pass);
+				msg = ExternalTableView.viewDelete(e.id, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceUserName, e.sourcePass);
 			}
 			else
 			{
 				try
 				{
 					ExternalTableModel.deleteTable(id);
-					rs = ExternalTableModel.getList(search, limit, offset, sortBy, sort, "external");
+					rs = ExternalTableModel.getList(search, limit, offset, sortBy, sort);
 					msg = ExternalTableView.viewList(search, rs, limit, offset, sortBy, sort);
 				}
 				catch (Exception ex)
@@ -183,30 +191,30 @@ public class ExternalTableControl
 				ExternalTableModel e = ExternalTableModel.getModel(id);
 				try
 				{
-					if (e.type.equals("sqlserver"))
+					if (e.sourceType.equals("sqlserver"))
 					{
-						conn = CommonDB.connectSQLServer(e.serverName, e.instanceName, e.userName, e.pass);
+						conn = CommonDB.connectSQLServer(e.sourceServerName, e.sourceInstanceName, e.sourceUserName, e.sourcePass);
 						//get list of databases
 						databaseList = SQLServer.getDatabaseList(conn);
 
-						if (!(databaseName.equals("")))
+						if (!(sourceDatabaseName.equals("")))
 						{
 							//database picked, now get the schemas in that database
-							//note that for SQLServer, it is databaseName and not e.databaseName
-							schemaList = SQLServer.getSchemaList(conn, databaseName);
+							//note that for SQLServer, it is sourceDatabaseName and not e.sourceDatabaseName
+							schemaList = SQLServer.getSchemaList(conn, sourceDatabaseName);
 						}
 					}
-					else if (e.type.equals("oracle"))
+					else if (e.sourceType.equals("oracle"))
 					{
-						//note that for Oracle, it is e.databaseName
-						databaseName = e.databaseName;
-						int sourcePort = Integer.parseInt(e.port);
-						conn = CommonDB.connectOracle(e.serverName, e.databaseName, sourcePort, e.userName, e.pass, 10);
+						//note that for Oracle, it is e.sourceDatabaseName
+						sourceDatabaseName = e.sourceDatabaseName;
+						int intSourcePort = Integer.parseInt(e.sourcePort);
+						conn = CommonDB.connectOracle(e.sourceServerName, e.sourceDatabaseName, intSourcePort, e.sourceUserName, e.sourcePass, 10);
 						schemaList = Oracle.getSchemaList(conn);
 					}
 
 					scheduleList = ScheduleModel.getDescriptions();
-					msg = ExternalTableView.viewCreate(databaseList, schemaList, e.id, e.type, e.serverName, e.instanceName, e.port, databaseName, e.userName, targetSchema, refreshType, scheduleList);
+					msg = ExternalTableView.viewCreate(databaseList, schemaList, e.id, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, sourceDatabaseName, e.sourceUserName, targetSchema, targetAppendOnly, targetCompressed, targetRowOrientation, refreshType, scheduleList);
 					if (conn != null)
 						conn.close();
 				}
@@ -219,7 +227,7 @@ public class ExternalTableControl
 			{
 				try
 				{
-					int count = ExternalTableModel.createJobs(id, databaseName, sourceSchema, targetSchema, refreshType, scheduleDesc);
+					int count = ExternalTableModel.createJobs(id, sourceDatabaseName, sourceSchema, targetSchema, targetAppendOnly, targetCompressed, targetRowOrientation, refreshType, scheduleDesc);
 					msg = ExternalTableView.viewResults(count);
 				}
 				catch (Exception ex)

@@ -92,11 +92,11 @@ public class ScheduleView
 		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
 		msg += "<form action=\"schedule\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr id=\"r_description\"><td><b>Description</b></td>";
+		msg += "<tr id=\"r_description\"><td width=\"30%\"><b>Description</b></td>";
 		if (description.equals(""))
 			msg += "<td><input type=\"text\" id=\"description\" name=\"description\" value=" + description + "></td></tr>\n";
 		else
-			msg += "<td>" + description + "</td></tr>\n";
+			msg += "<td><input type=\"text\" id=\"description\" name=\"description\" value=\"" + description + "\" readonly></td></tr>\n";
 		msg += "<tr id=\"r_interval_trunc\"><td><b>Interval Trunc</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"interval_trunc\" name=\"interval_trunc\" value=" + intervalTrunc + ">";
 		msg += "</td></tr>\n";
@@ -110,14 +110,13 @@ public class ScheduleView
 		else
 			msg += "<input type=\"hidden\" name=\"action_type\" value=\"update\">\n";
 		msg += "<input type=\"hidden\" name=\"submit_form\" value=\"1\">\n";
-		if (!(description.equals("")))
-			msg += "<input type=\"hidden\" name=\"description\" value=\"" + description + "\">\n";
 		msg += "</form>\n";
 		return msg;
 	}
 
 	public static String viewDelete(String description, String intervalTrunc, String intervalQuantity)
 	{
+		description = OutsourcerView.setHTMLField(description);
 		intervalTrunc = OutsourcerView.setHTMLField(intervalTrunc);
 		intervalQuantity = OutsourcerView.setHTMLField(intervalQuantity);
 		
@@ -126,8 +125,8 @@ public class ScheduleView
 		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
 		msg += "<form action=\"schedule\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr><td><b>Description</b></td>";
-		msg += "<td>" + description + "</td></tr>\n";
+		msg += "<tr><td width=\"30%\"><b>Description</b></td>";
+		msg += "<td><input type=\"text\" id=\"description\" name=\"description\" value=" + description + " readonly></td></tr>\n";
 		msg += "<tr id=\"r_interval_trunc\"><td><b>Interval Trunc</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"interval_trunc\" name=\"interval_trunc\" value=" + intervalTrunc + " readonly>";
 		msg += "</td></tr>\n";
@@ -138,7 +137,6 @@ public class ScheduleView
 		msg += "</table>\n";
 		msg += "<input type=\"hidden\" name=\"action_type\" value=\"delete\">\n";
 		msg += "<input type=\"hidden\" name=\"submit_form\" value=\"1\">\n";
-		msg += "<input type=\"hidden\" name=\"description\" value=\"" + description + "\">\n";
 		msg += "</form>\n";
 
 		return msg;

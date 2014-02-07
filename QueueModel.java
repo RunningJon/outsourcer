@@ -14,28 +14,28 @@ public class QueueModel
 		strSQL += "	WHEN status = 'queued' THEN'&nbsp;<button onclick=\"updateQueue(' || queue_id || ', ''delete'')\">Delete</button>'\n";
 		strSQL += "	WHEN status = 'success' THEN '&nbsp;<button onclick=\"updateQueue(' || queue_id || ', ''update'')\">Rerun</button>'\n";
 		strSQL += "	else ''\n";
-		strSQL += "	END as status,\n";
-		strSQL += "DATE_TRUNC('second', queue_date) as queue_date, \n";
-		strSQL += "COALESCE((DATE_TRUNC('second', start_date))::text, '') as start_date,\n";
-		strSQL += "COALESCE((DATE_TRUNC('second', end_date))::text, '') as end_date,\n";
-		strSQL += "COALESCE((COALESCE(DATE_TRUNC('second', end_date), CURRENT_TIMESTAMP(0)::timestamp) - DATE_TRUNC('second', start_date))::text, '')  as duration,\n";
+		strSQL += "	END AS status,\n";
+		strSQL += "DATE_TRUNC('second', queue_date) AS queue_date, \n";
+		strSQL += "COALESCE((DATE_TRUNC('second', start_date))::text, '') AS start_date,\n";
+		strSQL += "COALESCE((DATE_TRUNC('second', end_date))::text, '') AS end_date,\n";
+		strSQL += "COALESCE((COALESCE(DATE_TRUNC('second', end_date), CURRENT_TIMESTAMP(0)::timestamp) - DATE_TRUNC('second', start_date))::text, '') AS duration,\n";
 		strSQL += "num_rows,\n";
-		strSQL += "'<a href=\"jobs?action_type=update&id=' || id || '\">' || id || '</a>', (target).schema_name || '.' || (target).table_name as target_table_name, COALESCE(error_message, '') as error_message\n";
+		strSQL += "'<a href=\"jobs?action_type=update&id=' || id || '\">' || id || '</a>', COALESCE((target_schema_name || '.' || target_table_name), '') AS target_table_name, COALESCE(error_message, '') AS error_message\n";
  		strSQL += "FROM os.queue\n";
 		if (!search.equals(""))
 		{
 			strSQL += "WHERE LOWER(status) LIKE '%' || LOWER('" + search + "') || '%'\n";
 			strSQL += "OR LOWER(refresh_type) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((target).schema_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((target).table_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((source).type) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((source).server_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((source).instance_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((source).port) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((source).database_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((source).schema_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((source).table_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER((source).user_name) LIKE '%' || LOWER('" + search +"') || '%'\n";
+			strSQL += "OR LOWER(target_schema_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(target_table_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_type) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_server_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_instance_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_port) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_database_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_schema_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_table_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_user_name) LIKE '%' || LOWER('" + search +"') || '%'\n";
 			strSQL += "OR LOWER(column_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
 			strSQL += "OR LOWER(sql_text) LIKE '%' || LOWER('" + search + "') || '%'\n";
 		}
@@ -64,10 +64,23 @@ public class QueueModel
 
 	public static void updateTable(String queueId) throws SQLException 
 	{
-		String strSQL = "UPDATE os.queue\n";
-		strSQL += "SET status = 'queued', error_message = null, start_date = null, end_date = null, num_rows = 0\n";
+		String strSQL = "INSERT INTO os.ao_queue\n";
+		strSQL += "(queue_id, status, queue_date, start_date, end_date, error_message,\n";
+		strSQL += "num_rows, id, refresh_type, target_schema_name, target_table_name,\n";
+		strSQL += "target_append_only, target_compressed, target_row_orientation,\n";
+		strSQL += "source_type, source_server_name, source_instance_name, source_port,\n"; 
+		strSQL += "source_database_name, source_schema_name, source_table_name,\n";
+		strSQL += "source_user_name, source_pass, column_name, sql_text, snapshot)\n";
+		strSQL += "SELECT queue_id, 'queued' as status, queue_date, NULL AS start_date, NULL AS end_date, NULL AS error_message,\n";
+		strSQL += "0 AS num_rows, id, refresh_type, target_schema_name, target_table_name,\n";
+		strSQL += "target_append_only, target_compressed, target_row_orientation,\n";
+		strSQL += "source_type, source_server_name, source_instance_name, source_port,\n"; 
+		strSQL += "source_database_name, source_schema_name, source_table_name,\n";
+		strSQL += "source_user_name, source_pass, column_name, sql_text, snapshot\n";
+		strSQL += "FROM os.queue\n";
 		strSQL += "WHERE queue_id = " + queueId + "\n";
 		strSQL += "AND status <> 'processing'";
+
 
 		try
 		{
@@ -109,10 +122,24 @@ public class QueueModel
 
 	public static void deleteTable(String queueID) throws SQLException
 	{
-		String strSQL = "DELETE\n";
+		String strSQL = "INSERT INTO os.ao_queue\n";
+		strSQL += "(queue_id, status, queue_date, start_date, end_date, error_message,\n";
+		strSQL += "num_rows, id, refresh_type, target_schema_name, target_table_name,\n";
+		strSQL += "target_append_only, target_compressed, target_row_orientation,\n";
+		strSQL += "source_type, source_server_name, source_instance_name, source_port,\n"; 
+		strSQL += "source_database_name, source_schema_name, source_table_name,\n";
+		strSQL += "source_user_name, source_pass, column_name, sql_text, snapshot,\n";
+		strSQL += "deleted)\n";
+		strSQL += "SELECT queue_id, status, queue_date, start_date, end_date, error_message,\n";
+		strSQL += "num_rows, id, refresh_type, target_schema_name, target_table_name,\n";
+		strSQL += "target_append_only, target_compressed, target_row_orientation,\n";
+		strSQL += "source_type, source_server_name, source_instance_name, source_port,\n"; 
+		strSQL += "source_database_name, source_schema_name, source_table_name,\n";
+		strSQL += "source_user_name, source_pass, column_name, sql_text, snapshot,\n";
+		strSQL += "TRUE AS deleted\n";
 		strSQL += "FROM os.queue\n";
 		strSQL += "WHERE queue_id = " + queueID + "\n";
-		strSQL += "AND status IN ('queued', 'failed')";
+		strSQL += "AND status IN ('queued', 'failed')\n";
 
 		try
 		{

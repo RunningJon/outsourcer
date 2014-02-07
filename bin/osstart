@@ -45,23 +45,22 @@ fi
 # Sync the environment variables to the database
 #
 ############################################################################################################################
-psql -q -c "DELETE FROM os.variables WHERE name = 'Xmx'"
-psql -q -c "DELETE FROM os.variables WHERE name = 'Xms'"
-psql -q -c "DELETE FROM os.variables WHERE name = 'osJar'"
-psql -q -c "DELETE FROM os.variables WHERE name = 'osAgentJar'"
-psql -q -c "DELETE FROM os.variables WHERE name = 'osUIJar'"
-psql -q -c "DELETE FROM os.variables WHERE name = 'gpdbJar'"
-psql -q -c "DELETE FROM os.variables WHERE name = 'msJar'"
-psql -q -c "DELETE FROM os.variables WHERE name = 'oJar'"
 
-psql -q -c "INSERT INTO os.variables VALUES ('Xmx', '$XMX')"
-psql -q -c "INSERT INTO os.variables VALUES ('Xms', '$XMS')"
-psql -q -c "INSERT INTO os.variables VALUES ('osJar', '$OSJAR')"
-psql -q -c "INSERT INTO os.variables VALUES ('osAgentJar', '$OSAGENTJAR')"
-psql -q -c "INSERT INTO os.variables VALUES ('osUIJar', '$OSUIJAR')"
-psql -q -c "INSERT INTO os.variables VALUES ('gpdbJar', '$GPDBJAR')"
-psql -q -c "INSERT INTO os.variables VALUES ('msJar', '$MSJAR')"
-psql -q -c "INSERT INTO os.variables VALUES ('oJar', '$OJAR')"
+max_jobs=$(psql -t -A -c "SELECT value FROM os.variables WHERE name = 'max_jobs'")
+o_fetch_size=$(psql -t -A -c "SELECT value FROM os.variables WHERE name = 'oFetchSize'")
+
+psql -q -c "TRUNCATE os.ao_variables"
+
+psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('Xmx', '$XMX')"
+psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('Xms', '$XMS')"
+psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('osJar', '$OSJAR')"
+psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('osAgentJar', '$OSAGENTJAR')"
+psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('osUIJar', '$OSUIJAR')"
+psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('gpdbJar', '$GPDBJAR')"
+psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('msJar', '$MSJAR')"
+psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('oJar', '$OJAR')"
+psql -q -c "INSERT INTO os.ao_variables (name, value, restart) VALUES ('max_jobs', '$max_jobs', false)"
+psql -q -c "INSERT INTO os.ao_variables (name, value, restart) VALUES ('oFetchSize', '$o_fetch_size', false)"
 
 echo Environment variables updated in Greenplum
 ############################################################################################################################
@@ -69,7 +68,7 @@ echo Environment variables updated in Greenplum
 # Reset the Queue
 #
 ############################################################################################################################
-psql -q -c "UPDATE os.queue set status = 'failed', end_date = now(), error_message = 'Restart of Outsourcer'  where status = 'processing'"
+psql -q -c "INSERT INTO os.ao_queue (queue_id, status, queue_date, start_date, end_date, error_message, num_rows, id, refresh_type, target_schema_name, target_table_name, target_append_only, target_compressed, target_row_orientation, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_schema_name, source_table_name, source_user_name, source_pass, column_name, sql_text, snapshot) SELECT queue_id, 'failed' as status, queue_date, start_date, now() as end_date, 'Restart of Outsourcer' as error_message, num_rows, id, refresh_type, target_schema_name, target_table_name, target_append_only, target_compressed, target_row_orientation, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_schema_name, source_table_name, source_user_name, source_pass, column_name, sql_text, snapshot FROM os.queue WHERE status = 'processing'"
 
 echo Queue reset
 ############################################################################################################################
@@ -77,9 +76,9 @@ echo Queue reset
 # Analyze the os tables
 #
 ############################################################################################################################
-psql -q -c "VACUUM ANALYZE os.variables"
-psql -q -c "VACUUM ANALYZE os.queue"
-psql -q -c "VACUUM ANALYZE os.job"
+psql -q -c "VACUUM ANALYZE os.ao_variables"
+psql -q -c "VACUUM ANALYZE os.ao_queue"
+psql -q -c "VACUUM ANALYZE os.ao_job"
 echo os tables analyzed 
 
 ############################################################################################################################

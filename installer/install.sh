@@ -1,3 +1,10 @@
+#!/bin/bash
+############################################################################################################################
+#
+# Outsourcer install script.
+#
+############################################################################################################################
+
 # make sure executing as root
 if [ "`whoami`" != root ]; then
         echo "You MUST run install as root"
@@ -21,6 +28,25 @@ if [ ! -f $os_version.zip ]; then
 	exit 1
 fi
 
+# make backups of Oracle and SQL Server Jar files if exists
+#Microsoft Jar
+if [ -z $MSJAR ]; then
+	MSJAR=/usr/local/os/jar/sqljdbc4.jar
+fi
+
+if [ -f $MSJAR ]; then
+	cp $MSJAR .
+fi
+
+#Oracle Jar
+if [ -z $OJAR ]; then
+	OJAR=/usr/local/os/jar/ojdbc6.jar
+fi
+
+if [ -f $OJAR ]; then
+	cp $OJAR .
+fi
+
 # remove this version if it already exists
 rm -rf /usr/local/$os_version
 
@@ -41,38 +67,22 @@ chmod 755 /usr/local/os/bin/*
 chmod 755 /usr/local/os/os_install.sh
 chmod 755 /usr/local/os/os_path.sh
 
-# Jar files
-echo Installation of Outsourcer version $os_version is complete!
-echo Next Steps
-echo "1.  Download Oracle JDBC driver from http://download.oracle.com/otn/utilities_drivers/jdbc/11203/ojdbc6.jar"
+# copy SQL Server and Oracle jar files back
+for i in $( ls *.jar 2> /dev/null ); do
+	echo cp $i /usr/local/os/jar/
+	cp $i /usr/local/os/jar/
+done
+
+echo "##################################################################"
+echo "Outsourcer operating system installation complete"
+echo "##################################################################"
 echo
-echo "2.  Download Microsoft SQL Server JDBC driver from http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=21599"
-echo
-echo 3.  Put the ojdbc.jar file and the sqljdbc4.jar file in /usr/local/os/jar
-echo
-echo 4.  Change login to gpadmin
-echo
-echo 5.  Edit your .bashrc or .bash_profile and add:
-echo
-echo     source /usr/local/os/os_path.sh
-echo
-echo Note: Be sure to set PGPORT and PGDATABASE environment variables 
-echo Example:
-echo     export PGDATABASE=gpdb
-echo     export PGPORT=5432
-echo
-echo Note 2: For the UI security, export AUTHSERVER for the IP Address/Name of the public facing network.
-echo
-echo Example:
-echo     export AUTHSERVER=10.1.1.2
-echo
-echo 6.  Source the update .bashrc
-echo     source ~/.bashrc
-echo
-echo 7. Install the database components
-echo
-echo     /usr/local/os/os_install.sh
-echo
-echo 8.  Start Outsourcer UI with uistart and stop Outsourcer UI, run uistop
-echo 
-echo 9.  Visit http://mdw:8080 for Outsourcer 
+
+echo "##################################################################"
+echo "Installing database components as gpadmin"
+echo "##################################################################"
+
+su - gpadmin -c '/usr/local/os/os_install.sh'
+
+echo "Installation Complete!"
+

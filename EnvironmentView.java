@@ -96,10 +96,10 @@ public class EnvironmentView
 		msg += "<form action=\"environment\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
 		msg += "<tr>\n";
-		msg += "<td width=\"50%\"><b>Queue Daemon Status</td><td width=\"50%\"><b>" + status + "</b></td>\n";
+		msg += "<td width=\"30%\"><b>Queue Daemon Status</td><td><b>" + status + "</b></td>\n";
 		msg += "</tr>\n";
 		msg += "<tr>\n";
-		msg += "<td width=\"50%\"><b>Start/Stop</b></td><td width=\"50%\"><input type=\"hidden\" name=\"submit_form\" value=\"1\"><input type=\"hidden\" name=\"action_type\" value=\"Daemon\"><input type=\"submit\" value=\"Submit\"></td>\n";
+		msg += "<td><b>Start/Stop</b></td><td><input type=\"hidden\" name=\"submit_form\" value=\"1\"><input type=\"hidden\" name=\"action_type\" value=\"Daemon\"><input type=\"submit\" value=\"Submit\"></td>\n";
 		msg += "</tr>\n";
 		msg += "</table>\n";
 		msg += "</form>\n";
@@ -113,10 +113,10 @@ public class EnvironmentView
 		msg += "<form action=\"environment\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
 		msg += "<tr>\n";
-		msg += "<td width=\"50%\"><b>Scheduler Daemon Status</td><td width=\"50%\"><b>" + status + "</b></td>\n";
+		msg += "<td width=\"30%\"><b>Scheduler Daemon Status</td><td><b>" + status + "</b></td>\n";
 		msg += "</tr>\n";
 		msg += "<tr>\n";
-		msg += "<td width=\"50%\"><b>Start/Stop</b></td><td width=\"50%\"><input type=\"hidden\" name=\"submit_form\" value=\"1\"><input type=\"hidden\" name=\"action_type\" value=\"Agent\"><input type=\"submit\" value=\"Submit\"></td>\n";
+		msg += "<td><b>Start/Stop</b></td><td><input type=\"hidden\" name=\"submit_form\" value=\"1\"><input type=\"hidden\" name=\"action_type\" value=\"Agent\"><input type=\"submit\" value=\"Submit\"></td>\n";
 		msg += "</tr>\n";
 		msg += "</table>\n";
 		msg += "</form>\n";

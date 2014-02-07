@@ -10,6 +10,7 @@ public class UI extends NanoHTTPD
 	public static String gpUserName = "gpadmin";
 	public static int webPort = 8080;
 	public static String authServer = "mdw";
+	public static String gpVersion = "HEAP";
 	
 	public static void main(String[] args) 
 	{
@@ -28,6 +29,7 @@ public class UI extends NanoHTTPD
 			if (i == 5)
 				authServer = args[5];
 		}
+		gpVersion = UIModel.getVersion();
 		ServerRunnerUI.run(UI.class);
 	}
 

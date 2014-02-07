@@ -41,13 +41,7 @@ public class UIModel
 			Connection conn = CommonDB.connectGP(UI.gpServer, UI.gpPort, UI.gpDatabase, UI.gpUserName);
 			Statement stmt = conn.createStatement();
 
-			String strSQL = "DELETE FROM os.sessions WHERE session_id = " + sessionID + " OR expire_date < current_timestamp";
-			stmt.executeUpdate(strSQL);
-
-			strSQL = "VACUUM os.sessions";
-			stmt.executeUpdate(strSQL);
-
-			strSQL = "INSERT INTO os.sessions (session_id) values (" + sessionID + ")";
+			String strSQL = "INSERT INTO os.ao_sessions (session_id) VALUES (" + sessionID + ")";
 			stmt.executeUpdate(strSQL);
 
 			conn.close();
@@ -108,7 +102,7 @@ public class UIModel
 			Statement stmt = conn.createStatement();
 
 			//make sure session is valid
-			String strSQL = "SELECT session_id FROM os.sessions WHERE session_id = " + sessionID + " AND expire_date > current_timestamp LIMIT 1";
+			String strSQL = "SELECT session_id FROM os.ao_sessions WHERE session_id = " + sessionID + " AND expire_date > current_timestamp LIMIT 1";
 			ResultSet rs = stmt.executeQuery(strSQL);
 			while (rs.next())
 			{
@@ -117,7 +111,7 @@ public class UIModel
 
 			if (activeSession)
 			{
-				strSQL = "INSERT INTO os.sessions (session_id) values (" + sessionID + ")";
+				strSQL = "INSERT INTO os.ao_sessions (session_id) VALUES (" + sessionID + ")";
 				stmt.executeUpdate(strSQL);
 
 				alive = true;
@@ -132,4 +126,34 @@ public class UIModel
 		return alive;
 	}
 
+	public static String getVersion() 
+	{
+		String version = "HEAP";
+
+		try
+		{
+			Connection conn = CommonDB.connectGP(UI.gpServer, UI.gpPort, UI.gpDatabase, UI.gpUserName);
+			Statement stmt = conn.createStatement();
+
+			String strSQL = "SELECT CASE WHEN position ('HAWQ' IN version()) > 0 THEN 'HAWQ'\n";
+			strSQL += "	WHEN position ('HAWQ' IN version()) = 0\n";
+			strSQL += "	AND (split_part(split_part(substr(version(), position('Greenplum Database' in version())+19), ' ', 1), '.', 1))::int >= 4\n";
+			strSQL += "	AND (split_part(split_part(substr(version(), position('Greenplum Database' in version())+19), ' ', 1), '.', 2))::int >= 3 THEN 'AO'\n";
+			strSQL += "	ELSE 'HEAP'\n";
+			strSQL += "END";
+
+			ResultSet rs = stmt.executeQuery(strSQL);
+			while (rs.next())
+			{
+				version = rs.getString(1);
+			}
+
+			conn.close();
+		}
+		catch (SQLException ex)
+		{
+		
+		}
+		return version;
+	}
 }

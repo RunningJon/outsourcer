@@ -60,6 +60,17 @@ public class OutsourcerModel
 			throw new SQLException(ex.getMessage());
 		}
 	}
+	public static String setSQLString(boolean columnValue)
+	{
+		String strColumnValue = "";
+
+		if (columnValue)
+			strColumnValue = "true";
+		else
+			strColumnValue = "false";
+
+		return strColumnValue;
+	}
 	public static String setSQLString(String columnValue) 
 	{
 		columnValue = columnValue.replace("'", "\\'");
@@ -69,15 +80,28 @@ public class OutsourcerModel
 		else
 			columnValue = "'" + columnValue + "'";
 
-
 		return columnValue;
 	}
+	public static String setSQLString(int columnValue) 
+	{
+		String strColumnValue = Integer.toString(columnValue);
 
+		if (strColumnValue.equals(""))
+			strColumnValue = "null";
+
+		return strColumnValue;
+	}
 	public static String setSQLInt(String columnValue)
 	{
 		if (columnValue.equals(""))
 			columnValue = "null";
 
 		return columnValue;
+	}
+	public static String setSQLTimestamp(Timestamp columnValue)
+	{
+		String strColumnValue = columnValue.toString();
+
+		return strColumnValue;
 	}
 }

@@ -48,34 +48,13 @@ public class ScheduleModel
 		}
 	}
 
-	public static void updateTable(String description, String intervalTrunc, String intervalQuantity) throws SQLException
-	{
-		description = OutsourcerModel.setSQLString(description);
-		intervalTrunc = OutsourcerModel.setSQLString(intervalTrunc);
-		intervalQuantity = OutsourcerModel.setSQLString(intervalQuantity);
-
-		String strSQL = "UPDATE os.schedule\n";
-		strSQL += "SET interval_trunc = " + intervalTrunc + ",\n";
-		strSQL += "	interval_quantity = " + intervalQuantity + "\n";
-		strSQL += "WHERE description = " + description;
-
-		try
-		{
-			OutsourcerModel.updateTable(strSQL);
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException(ex.getMessage());
-		}
-	}
-
 	public static void insertTable(String description, String intervalTrunc, String intervalQuantity) throws SQLException
 	{
 		description = OutsourcerModel.setSQLString(description);
 		intervalTrunc = OutsourcerModel.setSQLString(intervalTrunc);
 		intervalQuantity = OutsourcerModel.setSQLString(intervalQuantity);
 
-		String strSQL = "INSERT INTO os.schedule\n";
+		String strSQL = "INSERT INTO os.ao_schedule\n";
 		strSQL += "(description, interval_trunc, interval_quantity)\n";
 		strSQL += "VALUES (" + description + ",\n";
 		strSQL += "	" + intervalTrunc + ", " + intervalQuantity + ")";
@@ -95,16 +74,28 @@ public class ScheduleModel
 		description = OutsourcerModel.setSQLString(description);
 
 		// need a check here to make sure there aren't any jobs using this schedule!!!
-
-
 		try
 		{
-			String strSQL = "UPDATE os.job\n";
-			strSQL += "SET schedule_desc = NULL\n";
+			//update jobs.schedule_desc to null if removing a matching schedule
+			String strSQL = "INSERT INTO os.ao_job\n";
+			strSQL += "(id, refresh_type, target_schema_name, target_table_name, target_append_only,\n";
+			strSQL += "target_compressed, target_row_orientation, source_type, source_server_name,\n";
+			strSQL += "source_instance_name, source_port, source_database_name, source_schema_name,\n";
+			strSQL += "source_table_name, source_user_name, source_pass, column_name,\n";
+			strSQL += "sql_text, snapshot, schedule_desc, schedule_next, schedule_change)\n";
+			strSQL += "SELECT id, refresh_type, target_schema_name, target_table_name, target_append_only,\n";
+			strSQL += "target_compressed, target_row_orientation, source_type, source_server_name,\n";
+			strSQL += "source_instance_name, source_port, source_database_name, source_schema_name,\n";
+			strSQL += "source_table_name, source_user_name, source_pass, column_name,\n";
+			strSQL += "sql_text, snapshot, null as schedule_desc, schedule_next, schedule_change\n";
+			strSQL += "FROM os.job\n";
 			strSQL += "WHERE schedule_desc = " + description;
 			OutsourcerModel.updateTable(strSQL);
 
-			strSQL = "DELETE\n";
+			//remove the schedule
+			strSQL = "INSERT INTO os.ao_schedule\n";
+			strSQL += "(description, interval_trunc, interval_quantity, deleted)\n";
+			strSQL += "SELECT description, interval_trunc, interval_quantity, TRUE AS deleted\n";
 			strSQL += "FROM os.schedule\n";
 			strSQL += "WHERE description = " + description;
 			OutsourcerModel.updateTable(strSQL);

@@ -191,17 +191,97 @@ public class GP
 		}
 	}
 
-	public static void updateStatus(Connection conn, int queueId, String status, int numRows, String errorMessage) throws SQLException 
+	private static String setSQLString(boolean columnValue) 
+	{
+		String strColumnValue = "";
+
+		if (columnValue)
+			strColumnValue = "true";
+		else
+			strColumnValue = "false";
+
+		return strColumnValue;
+	}
+
+	private static String setSQLString(int columnValue) 
+	{
+		String strColumnValue = Integer.toString(columnValue);
+
+		return strColumnValue;
+	}
+
+	private static String setSQLString(String columnValue) 
+	{
+		if (columnValue != null)
+		{	
+			if (columnValue.equals(""))
+				columnValue = "null::text";
+			else
+			{
+				columnValue = columnValue.replace("'", "''");
+				columnValue = "'" + columnValue + "'";
+			}
+		}
+		else
+			columnValue = "null";
+
+		return columnValue;
+	}
+
+	public static String setSQLString(Timestamp columnValue)
+	{
+	
+		String strColumnValue = "";
+		if (columnValue != null)
+			strColumnValue = "'" + columnValue.toString() + "'::timestamp";
+		else
+			strColumnValue = "null::timestamp";
+
+		return strColumnValue;
+	}
+
+	public static void updateStatus(Connection conn, int queueId, String status, Timestamp queueDate, Timestamp startDate, String errorMessage, int numRows, int id, String refreshType, String targetSchema, String targetTable, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass, String columnName, String sqlText, boolean snapshot) throws SQLException
 	{
 		String method = "updateStatus";
 		int location = 1000;
+
+		String strQueueId = setSQLString(queueId);
+		status = setSQLString(status);
+		String strQueueDate = setSQLString(queueDate);
+		String strStartDate = setSQLString(startDate);
+		errorMessage = setSQLString(errorMessage);
+		String strNumRows = setSQLString(numRows);
+		String strId = setSQLString(id);
+		refreshType = setSQLString(refreshType);
+		targetSchema = setSQLString(targetSchema);
+		targetTable = setSQLString(targetTable);
+		String strTargetAppendOnly = setSQLString(targetAppendOnly);
+		String strTargetCompressed = setSQLString(targetCompressed);
+		String strTargetRowOrientation = setSQLString(targetRowOrientation);
+		sourceType = setSQLString(sourceType);
+		sourceServer = setSQLString(sourceServer);
+		sourceInstance = setSQLString(sourceInstance);
+		String strSourcePort = setSQLString(sourcePort);
+		sourceDatabase = setSQLString(sourceDatabase);
+		sourceSchema = setSQLString(sourceSchema);
+		sourceTable = setSQLString(sourceTable);
+		sourceUser = setSQLString(sourceUser);
+		sourcePass = setSQLString(sourcePass);
+		columnName = setSQLString(columnName);
+		sqlText = setSQLString(sqlText);
+		String strSnapshot = setSQLString(snapshot);
+		
         	try
 		{
 			location = 2000;
 			Statement stmt = conn.createStatement();
 
 			location = 2400;
-			String strSQL = "SELECT os.fn_update_status(" + queueId + ", '" + status + "', " + numRows + ", '" + errorMessage + "')";
+			String strSQL = "SELECT os.fn_update_status(" + strQueueId + ", " + status + ", " + strQueueDate + ", " + strStartDate + ", ";
+			strSQL += errorMessage + ", " + strNumRows + ", " + strId + ", " + refreshType + ", " + targetSchema + ", " + targetTable + ", ";
+			strSQL += strTargetAppendOnly + ", " + strTargetCompressed + ", " + strTargetRowOrientation + ", " + sourceType + ", ";
+			strSQL += sourceServer + ", " + sourceInstance + ", " + strSourcePort + ", " + sourceDatabase + ", " + sourceSchema + ", ";
+			strSQL += sourceTable + ", " + sourceUser + ", " + sourcePass + ", " + columnName + ", " + sqlText + ", " + strSnapshot + ")";
 
 			if (debug)
 				Logger.printMsg("Updating Status: " + strSQL);
@@ -435,7 +515,7 @@ public class GP
 		}
 	}
 
-	public static boolean createTargetTable(Connection conn, String targetSchema, String targetTable, String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass) throws Exception 
+	public static boolean createTargetTable(Connection conn, String targetSchema, String targetTable, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass) throws Exception 
 	{
 		String method = "createTargetTable";
 		int location = 1000;
@@ -466,7 +546,7 @@ public class GP
 			location = 2400;
 			if (!(found)) 
 			{
-				String tableDDL = CommonDB.getGPTableDDL(sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, targetSchema, targetTable); 
+				String tableDDL = CommonDB.getGPTableDDL(sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation); 
 
 				if (debug)
 					Logger.printMsg("Table DDL: " + tableDDL);
@@ -906,7 +986,7 @@ public class GP
 		try
 		{
 			location = 2000;
-			strSQL = "SELECT (source).user_name, (source).pass \n" +
+			strSQL = "SELECT source_user_name, source_pass \n" +
 				"FROM os.queue \n" +
 				"WHERE queue_id = " + queueId;
 

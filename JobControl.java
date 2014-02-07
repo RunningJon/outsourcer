@@ -17,18 +17,21 @@ public class JobControl
 		String refreshType = parms.get("refresh_type");
 		String targetSchemaName = parms.get("target_schema_name");
 		String targetTableName = parms.get("target_table_name");
-		String type = parms.get("type");
-		String serverName = parms.get("server_name");
-		String instanceName = parms.get("instance_name");
-		String port = parms.get("port");
-		String databaseName = parms.get("database_name");
-		String schemaName = parms.get("schema_name");
-		String tableName = parms.get("table_name");
-		String userName = parms.get("user_name");
-		String pass = parms.get("pass");
+		boolean targetAppendOnly = Boolean.valueOf(parms.get("target_append_only"));
+		boolean targetCompressed = Boolean.valueOf(parms.get("target_compressed"));
+		boolean targetRowOrientation = Boolean.valueOf(parms.get("target_row_orientation"));
+		String sourceType = parms.get("source_type");
+		String sourceServerName = parms.get("source_server_name");
+		String sourceInstanceName = parms.get("source_instance_name");
+		String sourcePort = parms.get("source_port");
+		String sourceDatabaseName = parms.get("source_database_name");
+		String sourceSchemaName = parms.get("source_schema_name");
+		String sourceTableName = parms.get("source_table_name");
+		String sourceUserName = parms.get("source_user_name");
+		String sourcePass = parms.get("source_pass");
 		String columnName = parms.get("column_name");
 		String sqlText = parms.get("sql_text");
-		String snapshot = parms.get("snapshot");
+		boolean snapshot = Boolean.valueOf(parms.get("snapshot"));
 		String submit = parms.get("submit_form");
 		String queueAction = parms.get("queue_action");
 
@@ -62,32 +65,32 @@ public class JobControl
 		if (targetTableName == null)
 			targetTableName = "";
 
-		if (type == null)
-			type = "";
+		if (sourceType == null)
+			sourceType = "";
 
-		if (serverName == null)
-			serverName = "";
+		if (sourceServerName == null)
+			sourceServerName = "";
 
-		if (instanceName == null)
-			instanceName = "";
+		if (sourceInstanceName == null)
+			sourceInstanceName = "";
 
-		if (port == null)
-			port = "";
+		if (sourcePort == null)
+			sourcePort = "";
 
-		if (databaseName == null)
-			databaseName = "";
+		if (sourceDatabaseName == null)
+			sourceDatabaseName = "";
 
-		if (schemaName == null)
-			schemaName = "";
+		if (sourceSchemaName == null)
+			sourceSchemaName = "";
 
-		if (tableName == null)
-			tableName = "";
+		if (sourceTableName == null)
+			sourceTableName = "";
 
-		if (userName == null)
-			userName = "";
+		if (sourceUserName == null)
+			sourceUserName = "";
 
-		if (pass == null)
-			pass = "";
+		if (sourcePass == null)
+			sourcePass = "";
 
 		if (columnName == null)
 			columnName = "";
@@ -95,8 +98,8 @@ public class JobControl
 		if (sqlText == null)
 			sqlText = "";
 
-		if (snapshot == null)
-			snapshot = "";
+		//if (snapshot == null)
+		//	snapshot = false;
 
 		if (actionType == null || actionType.equals(""))
 			actionType = "view";
@@ -127,14 +130,11 @@ public class JobControl
 				{
 					JobModel e = JobModel.getModel(id);
 					scheduleList = ScheduleModel.getDescriptions();
-					msg = JobView.viewUpdate(e.id, e.refreshType, e.targetSchemaName, e.targetTableName, e.type, e.serverName, e.instanceName, e.port, e.databaseName, e.schemaName, e.tableName, e.userName, e.pass, e.columnName, e.sqlText, e.snapshot, e.scheduleDesc, scheduleList);
+					msg = JobView.viewUpdate(e.id, e.refreshType, e.targetSchemaName, e.targetTableName, e.targetAppendOnly, e.targetCompressed, e.targetRowOrientation, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceSchemaName, e.sourceTableName, e.sourceUserName, e.sourcePass, e.columnName, e.sqlText, e.snapshot, e.scheduleDesc, scheduleList);
 				}
 				else
 				{
-					if (id.equals(""))
-						JobModel.insertTable(refreshType, targetSchemaName, targetTableName, type, serverName, instanceName, port, databaseName, schemaName, tableName, userName, pass, columnName, sqlText, snapshot, scheduleDesc);
-					else
-						JobModel.updateTable(id, refreshType, targetSchemaName, targetTableName, type, serverName, instanceName, port, databaseName, schemaName, tableName, userName, pass, columnName, sqlText, snapshot, scheduleDesc);
+					JobModel.insertTable(id, refreshType, targetSchemaName, targetTableName, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServerName, sourceInstanceName, sourcePort, sourceDatabaseName, sourceSchemaName, sourceTableName, sourceUserName, sourcePass, columnName, sqlText, snapshot, scheduleDesc);
 					rs = JobModel.getList(search, limit, offset, sortBy, sort);
 					msg = JobView.viewList(search, rs, limit, offset, sortBy, sort);
 				}
@@ -145,7 +145,7 @@ public class JobControl
 				{
 					JobModel e = JobModel.getModel(id);
 					scheduleList = ScheduleModel.getDescriptions();
-					msg = JobView.viewDelete(e.id, e.refreshType, e.targetSchemaName, e.targetTableName, e.type, e.serverName, e.instanceName, e.port, e.databaseName, e.schemaName, e.tableName, e.userName, e.pass, e.columnName, e.sqlText, e.snapshot, e.scheduleDesc, scheduleList);
+					msg = JobView.viewDelete(e.id, e.refreshType, e.targetSchemaName, e.targetTableName, e.targetAppendOnly, e.targetCompressed, e.targetRowOrientation, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceSchemaName, e.sourceTableName, e.sourceUserName, e.sourcePass, e.columnName, e.sqlText, e.snapshot, e.scheduleDesc, scheduleList);
 				}
 				else
 				{

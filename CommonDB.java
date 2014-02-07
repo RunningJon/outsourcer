@@ -137,7 +137,7 @@ public class CommonDB
 		}
 	}
 
-        public static String getGPCreateTableDDL(Connection conn, String targetSchema, String targetTable, String strSQL) throws SQLException
+        public static String getGPCreateTableDDL(Connection conn, String targetSchema, String targetTable, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String strSQL) throws SQLException
         {
 		String method = "getGPCreateTableDDL";
 		int location = 1000;
@@ -172,9 +172,22 @@ public class CommonDB
                                         output = output + ", \n" +
                                                 "\"" + columnName + "\" " + dataType + " null";
                         }
-                        output = output + ") \n";
+                        output = output + ")\n";
 
 			location = 3000;
+			//set the Append-Only, Compression, and Orientation
+			if (targetAppendOnly)
+			{
+				output += "WITH (APPENDONLY=TRUE";
+				if (targetCompressed)
+					output += ", COMPRESSTYPE=quicklz";
+				if (targetRowOrientation)
+					output += ", ORIENTATION=row";
+				else
+					output += ", ORIENTATION=column";
+				output += ")\n";
+
+			}
 			return output;
                 }
 
@@ -204,7 +217,6 @@ public class CommonDB
 
 			location = 2300;
                         String columnName = "";
-                        String primaryKey = "";
                         String distributedBy = "";
                         String output = "";
 
@@ -216,27 +228,23 @@ public class CommonDB
                                 if (rs.getRow() == 1)
                                 {
                                         distributedBy = "DISTRIBUTED BY (" + columnName;
-                                        primaryKey = "ALTER TABLE \"" + targetSchema + "\".\"" + targetTable + "\" ADD PRIMARY KEY (" + columnName;
                                 }
                                 else
                                 {
                                         distributedBy = distributedBy + ", " + columnName;
-                                        primaryKey = primaryKey + ", " + columnName;
                                 }
                         }
-                        if (primaryKey != "")
+			if (!(distributedBy.equals("")))
                         {
-                                primaryKey = primaryKey + "); \n";
                                 distributedBy = distributedBy + "); \n";
                         }
                         else
                         {
                                 distributedBy = "DISTRIBUTED RANDOMLY; \n";
-                                primaryKey = " \n";
                         }
 
 			location = 3000;
-                        output = distributedBy + primaryKey;
+			output = distributedBy;
 
 			location = 3100;
 			return output;
@@ -250,7 +258,7 @@ public class CommonDB
                 }
 
         }
-	public static String getGPTableDDL(String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass, String targetSchema, String targetTable) throws Exception
+	public static String getGPTableDDL(String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass, String targetSchema, String targetTable, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation) throws Exception
         {
                 String method = "GetGPTableDDL";
                 int location = 1000;
@@ -272,7 +280,7 @@ public class CommonDB
 
 				//Get the GP DDL based on source DDL
 				location = 3200;
-				output = getGPCreateTableDDL(conn, targetSchema, targetTable, strSQL);
+				output = getGPCreateTableDDL(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, strSQL);
 
 				location = 3300;
 				strSQL = SQLServer.getSQLForDistribution(conn, sourceDatabase, sourceSchema, sourceTable);
@@ -296,7 +304,7 @@ public class CommonDB
 
 				location = 4200;
 				//Get the GP DDL based on source DDL
-				output = getGPCreateTableDDL(conn, targetSchema, targetTable, strSQL);
+				output = getGPCreateTableDDL(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, strSQL);
 
 				location = 4300;
 				//Get the SQL needed to generate the table distribution based on Primary Key of source

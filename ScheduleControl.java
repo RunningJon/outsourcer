@@ -78,10 +78,7 @@ public class ScheduleControl
 			{
 				try
 				{
-					if (actionType.equals("insert"))
-						ScheduleModel.insertTable(description, intervalTrunc, intervalQuantity);
-					else
-						ScheduleModel.updateTable(description, intervalTrunc, intervalQuantity);
+					ScheduleModel.insertTable(description, intervalTrunc, intervalQuantity);
 					rs = ScheduleModel.getList(search, limit, offset, sortBy, sort);
 					msg = ScheduleView.viewList(search, rs, limit, offset, sortBy, sort);
 				}

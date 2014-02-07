@@ -11,9 +11,21 @@ public class ExternalDataThread implements Runnable
 	private int gpPort;
 	private String gpDatabase;
 	private String gpUserName;
+
+	private int queueId;
+	private Timestamp queueDate;
+	private Timestamp startDate;
+	private Timestamp endDate;
+	private String status;
+	private String errorMessage;
+	private int numRows;
 	private int id;
+	private String refreshType;
 	private String targetSchema;
 	private String targetTable;
+	private boolean targetAppendOnly;
+	private boolean targetCompressed;
+	private boolean targetRowOrientation;
 	private String sourceType;
 	private String sourceServer;
 	private String sourceInstance;
@@ -23,25 +35,28 @@ public class ExternalDataThread implements Runnable
 	private String sourceTable;
 	private String sourceUser;
 	private String sourcePass;
-	private String refreshType;
 	private String columnName;
 	private String sqlText;
 	private boolean snapshot;
-	private int queueId;
-	private int numRows = 0;
 	private int sqlTextNumRows = 0;
 	private Connection conn;
 
-	ExternalDataThread(String aGpServer, int aGpPort, String aGpDatabase, String aGpUserName, int aId, String aTargetSchema, String aTargetTable, String aSourceType, String aSourceServer, String aSourceInstance, int aSourcePort, String aSourceDatabase, String aSourceSchema, String aSourceTable, String aSourceUser, String aSourcePass, String aRefreshType, String aColumnName, String aSqlText, boolean aSnapshot, int aQueueId) throws Exception
+	ExternalDataThread(String aGpServer, int aGpPort, String aGpDatabase, String aGpUserName, int aQueueId, Timestamp aQueueDate, Timestamp aStartDate, int aId, String aRefreshType, String aTargetSchema, String aTargetTable, boolean aTargetAppendOnly, boolean aTargetCompressed, boolean aTargetRowOrientation, String aSourceType, String aSourceServer, String aSourceInstance, int aSourcePort, String aSourceDatabase, String aSourceSchema, String aSourceTable, String aSourceUser, String aSourcePass, String aColumnName, String aSqlText, boolean aSnapshot) throws Exception
 	{
-
 		gpServer = aGpServer;
 		gpPort = aGpPort;
 		gpDatabase = aGpDatabase;
 		gpUserName = aGpUserName;
+		queueId = aQueueId;
+		queueDate = aQueueDate;
+		startDate = aStartDate;
 		id = aId;
+		refreshType = aRefreshType;
 		targetSchema = aTargetSchema;
 		targetTable = aTargetTable;
+		targetAppendOnly = aTargetAppendOnly;
+		targetCompressed = aTargetCompressed;
+		targetRowOrientation = aTargetRowOrientation;
 		sourceType = aSourceType;
 		sourceServer = aSourceServer;
 		sourceInstance = aSourceInstance;
@@ -51,12 +66,9 @@ public class ExternalDataThread implements Runnable
 		sourceTable = aSourceTable;
 		sourceUser = aSourceUser;
 		sourcePass = aSourcePass;
-		refreshType = aRefreshType;
 		columnName = aColumnName;
 		sqlText = aSqlText;	
 		snapshot = aSnapshot;
-		queueId = aQueueId;
-
 	}
 
 	public void run() 
@@ -108,7 +120,7 @@ public class ExternalDataThread implements Runnable
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " create target table if needed");
 					//Create target table if it doesn't exist based on DDL from external source
-					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
+					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
 
 					location = 4250;
 					//drop external web table
@@ -164,7 +176,7 @@ public class ExternalDataThread implements Runnable
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " create target table");
 					//Create target table if it doesn't exist based on DDL from external source
-					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
+					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
 
 					location = 5300;
 					//Get the Max ID from GP
@@ -240,7 +252,7 @@ public class ExternalDataThread implements Runnable
 					//Create target table if it doesn't exist based on DDL from external source
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " create target table");
-					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
+					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
 
 					location = 7300;	
 					//check to see if stage table exists
@@ -412,14 +424,16 @@ public class ExternalDataThread implements Runnable
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " create target table if needed");
 					//Create target table if it doesn't exist based on DDL from external source
-					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
+					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
 				
 				} else  
 					Logger.printMsg("QueueID: " + queueId + " Unknown refreshType:" + refreshType);
 
 				location = 11000;
 				//Update status to success	
-				GP.updateStatus(conn, queueId, "success", numRows, "");
+				status = "success";
+				errorMessage = "";
+				GP.updateStatus(conn, queueId, status, queueDate, startDate, errorMessage, numRows, id, refreshType, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, columnName, sqlText, snapshot);
 
 				Logger.printMsg("success....");
 
@@ -428,9 +442,10 @@ public class ExternalDataThread implements Runnable
 			{
 				Logger.printMsg("QueueID: " + queueId + " failed....");
 				String errorMessage = exec.getMessage();
-				errorMessage = GP.setErrorMessage(errorMessage);
-
-				GP.updateStatus(conn, queueId, "failed", 0, myclass + ":" + method + ":" + location + ":" + errorMessage);
+				errorMessage = myclass + ":" + method + ":" + location + ":" + GP.setErrorMessage(errorMessage);
+				numRows = 0;
+				status = "failed";
+				GP.updateStatus(conn, queueId, status, queueDate, startDate, errorMessage, numRows, id, refreshType, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, columnName, sqlText, snapshot);
 			}
 			finally
 			{

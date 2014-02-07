@@ -70,23 +70,51 @@ public class ExternalTableView
 	{
 		String myScript = "function disableInputFields()\n";
 		myScript += "{\n";
-		myScript += "	var val = document.getElementById(\"type\").selectedIndex;\n";
+		myScript += "	var ver = \"" + UI.gpVersion + "\";\n";
+		myScript += "	var val = document.getElementById(\"source_type\").selectedIndex;\n";
+		myScript += "	var act = document.getElementById(\"action_type\").value;\n";
+		myScript += " 	document.getElementById(\"r_source_type\").style.display = \"\";\n";
+		myScript += "	document.getElementById(\"r_source_user_name\").style.display = \"\";\n";
+		myScript += "	document.getElementById(\"r_source_pass\").style.display = \"\";\n";
 		myScript += "	if (val == 0) //Oracle\n";
 		myScript += "	{\n";
-		myScript += "		document.getElementById(\"instance_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"port\").disabled = false;\n";
-		myScript += "		document.getElementById(\"database_name\").disabled = false;\n";
-		myScript += "		document.getElementById(\"r_instance_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_port\").style.display = \"\";\n";
-		myScript += "		document.getElementById(\"r_database_name\").style.display = \"\";\n";
+		myScript += "		document.getElementById(\"source_instance_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"r_source_instance_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_database_name\").style.display = \"\";\n";
+		myScript += "		document.getElementById(\"r_source_port\").style.display = \"\";\n";
 		myScript += "	}\n";
 		myScript += "	if (val == 1) //SQL Server\n";
 		myScript += "	{\n";
-		myScript += "		document.getElementById(\"port\").value = \"\";\n";
-		myScript += "		document.getElementById(\"database_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"r_instance_name\").style.display = \"\";\n";
-		myScript += "		document.getElementById(\"r_port\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_database_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"source_port\").value = \"\";\n";
+		myScript += "		document.getElementById(\"r_source_port\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_instance_name\").style.display = \"\";\n";
+		myScript += "		document.getElementById(\"r_source_database_name\").style.display = \"none\";\n";
+		myScript += "	}\n";
+		myScript += "	if (act == \"create\")\n";
+		myScript += "	{\n";
+		myScript += "		document.getElementById(\"r_target_append_only\").style.display = \"\";\n";
+		myScript += "		document.getElementById(\"r_source_database_name\").style.display = \"\";\n";
+		myScript += "		var a = document.getElementById(\"target_append_only\").selectedIndex;\n";
+		myScript += "		if (ver == \"HAWQ\")\n";
+		myScript += "		{\n";
+		myScript += "			document.getElementById(\"r_target_append_only\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"target_append_only\").value = \"true\";\n";
+		myScript += "		}\n";
+		myScript += "		if (a == 0) // Append Only\n";
+		myScript += "		{\n";
+		myScript += "			document.getElementById(\"r_target_compressed\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_target_row_orientation\").style.display = \"\";\n";
+		myScript += "		} else\n";
+		myScript += "		{\n";
+		myScript += "			document.getElementById(\"r_target_compressed\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"r_target_row_orientation\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"target_append_only\").value = \"false\";\n";
+		myScript += "			document.getElementById(\"target_compressed\").value = \"false\";\n";
+		myScript += "			document.getElementById(\"target_row_orientation\").value = \"true\";\n";
+		myScript += "		}\n";
+		myScript += "	} else if (val == 1)\n"; //SQL Server
+		myScript += "	{\n";
+		myScript += "		document.getElementById(\"r_source_database_name\").style.display = \"none\";\n";
 		myScript += "	}\n";
 		myScript += "}\n";
 		myScript += "function submitExternal(validate)\n";
@@ -108,7 +136,7 @@ public class ExternalTableView
 
 	}
 
-	public static String viewUpdate(String id, String type, String serverName, String instanceName, String port, String databaseName, String userName, String pass, String validateMsg)
+	public static String viewUpdate(String id, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass, String validateMsg)
 	{
 
 		String buttonText = "";
@@ -122,48 +150,48 @@ public class ExternalTableView
 			buttonText = "Update";
 		}
 
-		serverName = OutsourcerView.setHTMLField(serverName);
-		instanceName = OutsourcerView.setHTMLField(instanceName);
-		port = OutsourcerView.setHTMLField(port);
-		databaseName = OutsourcerView.setHTMLField(databaseName);
-		userName = OutsourcerView.setHTMLField(userName);
-		pass = OutsourcerView.setHTMLField(pass);
+		sourceServerName = OutsourcerView.setHTMLField(sourceServerName);
+		sourceInstanceName = OutsourcerView.setHTMLField(sourceInstanceName);
+		sourcePort = OutsourcerView.setHTMLField(sourcePort);
+		sourceDatabaseName = OutsourcerView.setHTMLField(sourceDatabaseName);
+		sourceUserName = OutsourcerView.setHTMLField(sourceUserName);
+		sourcePass = OutsourcerView.setHTMLField(sourcePass);
 
 		String myScript = getJavaScriptFunctions();
 		String onLoad="disableInputFields()";
 		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
-		msg += "<form action=\"external\" method=\"post\">\n";
+		msg += "<form id=\"myForm\" action=\"external\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr id=\"r_id\"><td><b>ID</b></td>";
+		msg += "<tr id=\"r_id\"><td width=\"30%\"><b>ID</b></td>";
 		msg += "<td>" + id + "</td></tr>\n";
-		msg += "<tr id=\"r_type\"><td><b>Type</b></td>\n";
-		msg += "<td><select id=\"type\" name=\"type\" onchange=\"disableInputFields()\">\n";
+		msg += "<tr id=\"r_source_type\"><td><b>Source Type</b></td>\n";
+		msg += "<td><select id=\"source_type\" name=\"source_type\" onchange=\"disableInputFields()\">\n";
 		msg += "<option value=\"oracle\"";
-		if (type != null && type.equals("oracle"))
+		if (sourceType != null && sourceType.equals("oracle"))
 			msg += " selected";
 		msg += ">Oracle</option>\n";
 		msg += "<option value=\"sqlserver\"";
-		if (type != null && type.equals("sqlserver"))
+		if (sourceType != null && sourceType.equals("sqlserver"))
 			msg += " selected";
 		msg += ">SQL Server</option>\n";
 		msg += "</select></td></tr>\n";
-		msg += "<tr id=\"r_server_name\"><td><b>Server Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"server_name\" name=\"server_name\" value=" + serverName + ">";
+		msg += "<tr id=\"r_source_server_name\"><td><b>Source Server Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_server_name\" name=\"source_server_name\" value=" + sourceServerName + ">";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_instance_name\"><td><b>Instance Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"instance_name\" name=\"instance_name\" value=" + instanceName + ">";
+		msg += "<tr id=\"r_source_instance_name\"><td><b>Source Instance Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_instance_name\" name=\"source_instance_name\" value=" + sourceInstanceName + ">";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_port\"><td><b>Port</b></td>";
-		msg += "<td><input type=\"text\" id=\"port\" name=\"port\" onkeyup=\"this.value=this.value.replace(/[^\\d]/,'')\" value=" + port + ">";
+		msg += "<tr id=\"r_source_port\"><td><b>Source Port</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_port\" name=\"source_port\" onkeyup=\"this.value=this.value.replace(/[^\\d]/,'')\" value=" + sourcePort + ">";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_database_name\"><td><b>Database Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"database_name\" name=\"database_name\" value=" + databaseName + ">";
+		msg += "<tr id=\"r_source_database_name\"><td><b>Source Database Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_database_name\" name=\"source_database_name\" value=" + sourceDatabaseName + ">";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_user_name\"><td><b>User Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"user_name\" name=\"user_name\" value=" + userName + ">";
+		msg += "<tr id=\"r_source_user_name\"><td><b>Source User Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_user_name\" name=\"source_user_name\" value=" + sourceUserName + ">";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_pass\"><td><b>Password</b></td>";
-		msg += "<td><input type=\"password\" id=\"pass\" name=\"pass\" value=" + pass + ">";
+		msg += "<tr id=\"r_source_pass\"><td><b>Source Password</b></td>";
+		msg += "<td><input type=\"password\" id=\"source_pass\" name=\"source_pass\" value=" + sourcePass + ">";
 		msg += "</td></tr>\n";
 		msg += "<tr><td colspan=\"2\" align=\"center\"><button onclick=\"submitExternal('0')\">" + buttonText + "</button>\n";
 		msg += "<button onclick=\"submitExternal('1')\">Validate</button>\n";
@@ -183,54 +211,54 @@ public class ExternalTableView
 		return msg;
 	}
 	
-	public static String viewDelete(String id, String type, String serverName, String instanceName, String port, String databaseName, String userName, String pass)
+	public static String viewDelete(String id, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass)
 	{
-		serverName = OutsourcerView.setHTMLField(serverName);
-		instanceName = OutsourcerView.setHTMLField(instanceName);
-		port = OutsourcerView.setHTMLField(port);
-		databaseName = OutsourcerView.setHTMLField(databaseName);
-		userName = OutsourcerView.setHTMLField(userName);
-		pass = OutsourcerView.setHTMLField(pass);
+		sourceServerName = OutsourcerView.setHTMLField(sourceServerName);
+		sourceInstanceName = OutsourcerView.setHTMLField(sourceInstanceName);
+		sourcePort = OutsourcerView.setHTMLField(sourcePort);
+		sourceDatabaseName = OutsourcerView.setHTMLField(sourceDatabaseName);
+		sourceUserName = OutsourcerView.setHTMLField(sourceUserName);
+		sourcePass = OutsourcerView.setHTMLField(sourcePass);
 
 		String myScript = getJavaScriptFunctions();
 		String onLoad = "disableInputFields()";
 		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
-		msg += "<form action=\"external\" method=\"post\">\n";
+		msg += "<form id=\"myForm\" action=\"external\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr id=\"r_id\"><td><b>ID</b></td>";
+		msg += "<tr id=\"r_id\"><td width=\"30%\"><b>ID</b></td>";
 		msg += "<td>" + id + "</td></tr>\n";
-		msg += "<tr id=\"r_type\"><td><b>Type</b></td>\n";
-		msg += "<td><select id=\"type\" name=\"type\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+		msg += "<tr id=\"r_source_type\"><td><b>Source Type</b></td>\n";
+		msg += "<td><select id=\"source_type\" name=\"source_type\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
 		msg += "<option value=\"oracle\"";
-		if (type != null && type.equals("oracle"))
+		if (sourceType != null && sourceType.equals("oracle"))
 			msg += " selected";
 		msg += ">Oracle</option>\n";
 		msg += "<option value=\"sqlserver\"";
-		if (type != null && type.equals("sqlserver"))
+		if (sourceType != null && sourceType.equals("sqlserver"))
 			msg += " selected";
 		msg += ">SQL Server</option>\n";
 		msg += "</select></td></tr>\n";
-		msg += "<tr id=\"r_server_name\"><td><b>Server Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"server_name\" name=\"server_name\" value=" + serverName + " readonly>";
+		msg += "<tr id=\"r_source_server_name\"><td><b>Source Server Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_server_name\" name=\"source_server_name\" value=" + sourceServerName + " readonly>";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_instance_name\"><td><b>Instance Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"instance_name\" name=\"instance_name\" value=" + instanceName + " readonly>";
+		msg += "<tr id=\"r_source_instance_name\"><td><b>Source Instance Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_instance_name\" name=\"source_instance_name\" value=" + sourceInstanceName + " readonly>";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_port\"><td><b>Port</b></td>";
-		msg += "<td><input type=\"text\" id=\"port\" name=\"port\" value=" + port + " readonly>";
+		msg += "<tr id=\"r_source_port\"><td><b>Source Port</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_port\" name=\"source_port\" value=" + sourcePort + " readonly>";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_database_name\"><td><b>Database Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"database_name\" name=\"database_name\" value=" + databaseName + " readonly>";
+		msg += "<tr id=\"r_source_database_name\"><td><b>Source Database Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_database_name\" name=\"source_database_name\" value=" + sourceDatabaseName + " readonly>";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_user_name\"><td><b>User Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"user_name\" name=\"user_name\" value=" + userName + " readonly>";
+		msg += "<tr id=\"r_source_user_name\"><td><b>Source User Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_user_name\" name=\"source_user_name\" value=" + sourceUserName + " readonly>";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_pass\"><td><b>Password</b></td>";
-		msg += "<td><input type=\"password\" id=\"pass\" name=\"pass\" value=" + pass + " readonly>";
+		msg += "<tr id=\"r_source_pass\"><td><b>Source Password</b></td>";
+		msg += "<td><input type=\"password\" id=\"source_pass\" name=\"source_pass\" value=" + sourcePass + " readonly>";
 		msg += "</td></tr>\n";
 		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Delete\"></td></tr>\n";
 		msg += "</table>\n";
-		msg += "<input type=\"hidden\" name=\"action_type\" value=\"delete\">\n";
+		msg += "<input type=\"hidden\" id=\"action_type\" name=\"action_type\" value=\"delete\">\n";
 		msg += "<input type=\"hidden\" id=\"submit_form\" name=\"submit_form\" value=\"1\">\n";
 		if (id != null)
 			msg += "<input type=\"hidden\" name=\"id\" value=\"" + id + "\">\n";
@@ -295,7 +323,7 @@ public class ExternalTableView
 				IDArrow = upArrow;
 			}
 		}
-		else if (sortBy.equals("type"))
+		else if (sortBy.equals("sourceType"))
 		{
 			typeFocus = OutsourcerView.focus;
 			if (sort.equals("asc"))
@@ -378,33 +406,46 @@ public class ExternalTableView
 		return msg;
 	}
 
-	public static String viewCreate(ResultSet databaseList, ResultSet schemaList, String id, String type, String serverName, String instanceName, String port, String databaseName, String userName, String targetSchemaName, String refreshType, ArrayList<String> scheduleList)
+	public static String viewCreate(ResultSet databaseList, ResultSet schemaList, String id, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String targetSchemaName, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String refreshType, ArrayList<String> scheduleList)
 	{
-		if (instanceName == null)
-			instanceName = "";
+		if (sourceInstanceName == null)
+			sourceInstanceName = "";
 
 		targetSchemaName = OutsourcerView.setHTMLField(targetSchemaName);
 
 		String myScript = getJavaScriptFunctions();
-		String msg = OutsourcerView.viewHeader(myScript, "", action);
+		String onLoad="disableInputFields()";
+		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
 		msg += "<form id=\"myForm\" action=\"external\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-
-		msg += "<tr><td><b>Type</b></td><td>" + type + "</td></tr>\n";
-		msg += "<tr><td><b>Server Name</b></td><td>" + serverName + "</td></tr>\n";
-		if (type.equals("sqlserver"))
-			msg += "<tr><td><b>Instance Name</b></td><td>" + instanceName + "</td></tr>\n";
-		else if (type.equals("oracle"))
-		{
-			msg += "<tr><td><b>Port</b></td><td>" + port + "</td></tr>\n";
-			msg += "<tr><td><b>Database Name</b></td><td>" + databaseName + "</td></tr>\n";
-		}
+		msg += "<tr id=\"r_id\"><td><b>ID</b></td>";
+		msg += "<td>" + id + "</td></tr>\n";
+		msg += "<tr id=\"r_source_type\"><td><b>Source Type</b></td>\n";
+		msg += "<td><select id=\"source_type\" name=\"source_type\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+		msg += "<option value=\"oracle\"";
+		if (sourceType != null && sourceType.equals("oracle"))
+			msg += " selected";
+		msg += ">Oracle</option>\n";
+		msg += "<option value=\"sqlserver\"";
+		if (sourceType != null && sourceType.equals("sqlserver"))
+			msg += " selected";
+		msg += ">SQL Server</option>\n";
+		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_source_server_name\"><td><b>Source Server Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_server_name\" name=\"source_server_name\" value=" + sourceServerName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_instance_name\"><td><b>Source Instance Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_instance_name\" name=\"source_instance_name\" value=\"" + sourceInstanceName + "\" readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_port\"><td><b>Source Port</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_port\" name=\"source_port\" value=" + sourcePort + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_database_name\"><td><b>Source Database Name</b></td>\n";
 
 		//Only SQL Server has the list of databases
 		if (!(databaseList==null))
 		{
-			msg += "<tr><td><b>Database Name</b></td>";
-			msg += "<td><select onchange=\"submitDatabase()\" id=\"database_name\" name=\"database_name\">\n";
+			msg += "<td><select onchange=\"submitDatabase()\" id=\"source_database_name\" name=\"source_database_name\">\n";
 			msg += "<option value=\"\"></option>\n";
 
 			try
@@ -412,7 +453,7 @@ public class ExternalTableView
 				while (databaseList.next())
 				{
 					msg += "<option value=\"" + databaseList.getString(1) + "\"";
-					if (databaseList.getString(1).equals(databaseName))
+					if (databaseList.getString(1).equals(sourceDatabaseName))
 						msg += " selected";
 					msg += ">"+ databaseList.getString(1) + "</option>\n";
 				}
@@ -423,9 +464,13 @@ public class ExternalTableView
 			}
 			
 			msg += "</select></td></tr>\n";
+		} else
+		{
+			msg += "<td><input type=\"text\" id=\"source_database_name\" name=\"source_database_name\" value=\"" + sourceDatabaseName + "\" readonly>";
+			msg += "</td></tr>\n";
 		}
 
-		msg += "<tr><td><b>Schema</b></td>";
+		msg += "<tr id=\"r_source_schema_name\"><td><b>Source Schema</b></td>";
 		msg += "<td><select id=\"source_schema\" name=\"source_schema\">\n";
 		msg += "<option value=\"\"></option>\n";
 
@@ -445,11 +490,49 @@ public class ExternalTableView
 		}
 		msg += "</select></td></tr>\n";
 
-		msg += "<tr><td><b>User Name</b></td><td>" + userName + "</td></tr>\n";
-		msg += "<tr><td><b>Password</b></td><td>********</td></tr>\n";
-		msg += "<tr><td><b>Target Schema</b></td>\n";
+		msg += "<tr id=\"r_source_user_name\"><td><b>Source User Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_user_name\" name=\"source_user_name\" value=\"" + sourceUserName + "\" readonly>\n";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_pass\"><td><b>Source Password</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_pass\" name=\"source_pass\" value=\"********\" readonly></td></tr>\n";
+		msg += "<tr id=\"r_target_schema_name\"><td><b>Target Schema</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"target_schema\" name=\"target_schema\" value=" + targetSchemaName + "></td></tr>\n";
-		msg += "<tr><td><b>Refresh Type</b></td>\n";
+
+		msg += "<tr id=\"r_target_append_only\"><td><b>Target Append-Only</b></td>\n";
+		msg += "<td><select id=\"target_append_only\" name=\"target_append_only\" onchange=\"disableInputFields()\">\n";
+		msg += "<option value=\"true\"";
+		if (targetAppendOnly == true)
+			msg += " selected";
+		msg += ">True</option>\n";
+		msg += "<option value=\"false\"";
+		if (targetAppendOnly == false)
+			msg += " selected";
+		msg += ">False</option>\n";
+		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_target_compressed\"><td><b>Target Compressed</b></td>\n";
+		msg += "<td><select id=\"target_compressed\" name=\"target_compressed\" onchange=\"disableInputFields()\">\n";
+		msg += "<option value=\"true\"";
+		if (targetCompressed == true)
+			msg += " selected";
+		msg += ">True</option>\n";
+		msg += "<option value=\"false\"";
+		if (targetCompressed == false)
+			msg += " selected";
+		msg += ">False</option>\n";
+		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_target_row_orientation\"><td><b>Target Row Orientation</b></td>\n";
+		msg += "<td><select id=\"target_row_orientation\" name=\"target_row_orientation\" onchange=\"disableInputFields()\">\n";
+		msg += "<option value=\"true\"";
+		if (targetRowOrientation == true)
+			msg += " selected";
+		msg += ">True</option>\n";
+		msg += "<option value=\"false\"";
+		if (targetRowOrientation == false)
+			msg += " selected";
+		msg += ">False</option>\n";
+		msg += "</select></td></tr>\n";
+
+		msg += "<tr id=\"r_refresh_type\"><td><b>Refresh Type</b></td>\n";
 		msg += "<td><select id=\"refresh_type\" name=\"refresh_type\">\n";
 		msg += "<option value=\"\"></option>\n";
 		msg += "<option value=\"ddl\"";
@@ -461,7 +544,7 @@ public class ExternalTableView
 			msg += " selected";
 		msg += ">Refresh</option>\n";
 		msg += "</select></td></tr>\n";
-		msg += "<tr><td><b>Schedule</b></td>\n";
+		msg += "<tr id=\"r_schedule\"><td><b>Schedule</b></td>\n";
 		msg += "<td><select id=\"schedule_desc\" name=\"schedule_desc\">\n";
 		msg += "<option value=\"\"></option>\n";
 		for (int i = 0; i < scheduleList.size(); i++)

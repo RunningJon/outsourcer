@@ -9,7 +9,7 @@ public class EnvironmentModel
 	{
 		String strSQL = "SELECT CASE WHEN restart IS FALSE\n";
 		strSQL += "	THEN '<a href=\"environment?action_type=' || name || '\">' || description || ' (Dynamic)</a>'\n";
-		strSQL += "	ELSE name || ' (Set ' || UPPER(name) || ' in .bashrc and then restart Daemon)'\n";
+		strSQL += "	ELSE name || ' (Set ' || UPPER(name) || ' in .bashrc and then restart Queue Daemon)'\n";
 		strSQL += "END as name,\n";
 		strSQL += "value\n";
 		strSQL += "FROM (SELECT name, name as description, value, restart FROM os.variables\n";
@@ -114,7 +114,14 @@ public class EnvironmentModel
 
 	public static void setVariable(String name, String value) throws SQLException
 	{
-		String strSQL = "UPDATE os.variables SET value = '" + value + "' WHERE name = '" + name + "'";
+		name = OutsourcerModel.setSQLString(name);
+		value = OutsourcerModel.setSQLString(value);
+
+		String strSQL = "INSERT INTO os.ao_variables\n";
+		strSQL += "(name, value, restart)\n";
+		strSQL += "SELECT name, " + value + " as value, restart\n";
+		strSQL += "FROM os.variables\n";
+		strSQL += "WHERE name = " + name; 
 		
 		try
 		{

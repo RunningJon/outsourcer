@@ -56,9 +56,17 @@ public class ExternalDataD
 				Statement stmt;
 				String strSQL = "";
 
+				int queueId = 0;
+				Timestamp queueDate = new Timestamp((new java.util.Date()).getTime());
+				Timestamp startDate = new Timestamp((new java.util.Date()).getTime());
+				int numRows = 0;
 				int id = 0;
+				String refreshType = "";
 				String targetSchema = "";
 				String targetTable = "";
+				boolean targetAppendOnly = false;
+				boolean targetCompressed = false;
+				boolean targetRowOrientation = true;
 				String sourceType = "";
 				String sourceServer = "";
 				String sourceInstance = "";
@@ -68,21 +76,21 @@ public class ExternalDataD
 				String sourceTable = "";
 				String sourceUser = "";
 				String sourcePass = "";
-				String refreshType = "";
 				String columnName = "";
 				String sqlText = "";
 				boolean snapshot = false;
-				int queueId = 0;
 
 				location = 3000;
 				Connection conn = CommonDB.connectGP(gpServer, gpPort, gpDatabase, gpUserName);
 
 				location = 3100;
-				strSQL = "SELECT id, LOWER((target).schema_name), LOWER((target).table_name), \n" + 
-            				"	(source).type, (source).server_name, (source).instance_name, (source).port, (source).database_name, (source).schema_name, \n" +
-            				"	(source).table_name, (source).user_name, (source).pass, refresh_type, column_name, \n" +
-					"	sql_text, snapshot, queue_id \n" +
-					"FROM os.fn_update_status()";
+				strSQL = "SELECT queue_id, queue_date, start_date,\n";
+				strSQL += "	id, refresh_type, LOWER(target_schema_name) as target_schema_name, LOWER(target_table_name) as target_table_name,\n";
+				strSQL += "	target_append_only, target_compressed, target_row_orientation,\n";
+            			strSQL += "	source_type, source_server_name, source_instance_name, source_port, source_database_name, source_schema_name,\n";
+            			strSQL += "	source_table_name, source_user_name, source_pass, column_name,\n";
+				strSQL += "	sql_text, snapshot\n";
+				strSQL += "FROM os.fn_update_status()";
 
 				location = 3200;
     				stmt = conn.createStatement();
@@ -94,23 +102,28 @@ public class ExternalDataD
 				while (rs.next())                        
 				{
 					location = 4000;
-					id  = rs.getInt(1);
-					targetSchema = rs.getString(2);
-					targetTable = rs.getString(3);
-					sourceType = rs.getString(4);
-					sourceServer = rs.getString(5);
-					sourceInstance = rs.getString(6);
-					sourcePort = rs.getInt(7);
-					sourceDatabase = rs.getString(8);
-					sourceSchema = rs.getString(9);
-					sourceTable = rs.getString(10);
-					sourceUser = rs.getString(11);
-					sourcePass = rs.getString(12);
-					refreshType = rs.getString(13);
-					columnName = rs.getString(14);
-					sqlText = rs.getString(15);
-					snapshot = rs.getBoolean(16);
-					queueId  = rs.getInt(17);
+					queueId = rs.getInt(1);
+					queueDate = rs.getTimestamp(2);
+					startDate = rs.getTimestamp(3);
+					id  = rs.getInt(4);
+					refreshType = rs.getString(5);
+					targetSchema = rs.getString(6);
+					targetTable = rs.getString(7);
+					targetAppendOnly = rs.getBoolean(8);
+					targetCompressed = rs.getBoolean(9);
+					targetRowOrientation = rs.getBoolean(10);
+					sourceType = rs.getString(11);
+					sourceServer = rs.getString(12);
+					sourceInstance = rs.getString(13);
+					sourcePort = rs.getInt(14);
+					sourceDatabase = rs.getString(15);
+					sourceSchema = rs.getString(16);
+					sourceTable = rs.getString(17);
+					sourceUser = rs.getString(18);
+					sourcePass = rs.getString(19);
+					columnName = rs.getString(20);
+					sqlText = rs.getString(21);
+					snapshot = rs.getBoolean(22);
 				}
 
 				location = 4100;
@@ -123,7 +136,7 @@ public class ExternalDataD
 					if (debug)	
 						Logger.printMsg("Thread working on ID: " + id);
 
-					ExternalDataThread edt = new ExternalDataThread(gpServer, gpPort, gpDatabase, gpUserName, id, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, refreshType, columnName, sqlText, snapshot, queueId);
+					ExternalDataThread edt = new ExternalDataThread(gpServer, gpPort, gpDatabase, gpUserName, queueId, queueDate, startDate, id, refreshType, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, columnName, sqlText, snapshot);
 
 					location = 5100;
 					if (debug)	

@@ -6,43 +6,34 @@ import java.io.*;
 public class ExternalTableModel
 {
 	String id;
-	String type;
-	String serverName;
-	String instanceName;
-	String port;
-	String databaseName;
-	String userName;
-	String pass;
+	String sourceType;
+	String sourceServerName;
+	String sourceInstanceName;
+	String sourcePort;
+	String sourceDatabaseName;
+	String sourceUserName;
+	String sourcePass;
 
-	public static ResultSet getList(String search, String limit, String offset, String sortBy, String sort, String referrer) throws SQLException
+	public static ResultSet getList(String search, String limit, String offset, String sortBy, String sort) throws SQLException
 	{
-		String strSQL = "";
-		if (referrer.equals("external"))
-		{
-			strSQL = "SELECT '<button onclick=\"updateExternalTable(' || id || ', ''update'')\">Update</button>' ||\n";
-			strSQL += "	'&nbsp;<button onclick=\"updateExternalTable(' || id || ', ''delete'')\">Delete</button>' ||\n";
-			strSQL += "	'&nbsp;<button onclick=\"createJobs(' || id || ')\">Create Jobs</button>' as update_text,\n";
-			strSQL += "id, type, server_name, instance_name, port, database_name, user_name, '<i>password</i>' as pass\n ";
-		}
-		else if (referrer.equals("schema"))
-		{
-			strSQL = "SELECT '<button onclick=\"schemaGrabWithConnection(' || id || ')\">Grab</button>' as update_text, \n";
-			strSQL += "id, type, server_name, instance_name, port, database_name, user_name, '<i>password</i>' as pass\n ";
-		}
-
+		String strSQL = "SELECT '<button onclick=\"updateExternalTable(' || id || ', ''update'')\">Update</button>' ||\n";
+		strSQL += "	'&nbsp;<button onclick=\"updateExternalTable(' || id || ', ''delete'')\">Delete</button>' ||\n";
+		strSQL += "	'&nbsp;<button onclick=\"createJobs(' || id || ')\">Create Jobs</button>' as update_text,\n";
+		strSQL += "id, source_type, source_server_name, coalesce(source_instance_name, '') as source_instance_name, coalesce(source_port::text, '') as source_port,\n";
+		strSQL += "coalesce(source_database_name, '') as source_database_name, source_user_name, '<i>password</i>' as source_pass\n ";
 		strSQL += "FROM os.ext_connection\n";
 		if (!search.equals(""))
 		{
-			strSQL += "WHERE LOWER(type) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER(server_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER(instance_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER(port) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER(database_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
-			strSQL += "OR LOWER(user_name) LIKE '%' || LOWER('" + search +"') || '%'\n";	
+			strSQL += "WHERE LOWER(source_type) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_server_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_instance_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_port) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_database_name) LIKE '%' || LOWER('" + search + "') || '%'\n";
+			strSQL += "OR LOWER(source_user_name) LIKE '%' || LOWER('" + search +"') || '%'\n";	
 		}
 		sortBy = sortBy.toLowerCase();
 
-		if (sortBy.equals("id") || sortBy.equals("type") || sortBy.equals("server_name") || sortBy.equals("instance_name") || sortBy.equals("port") || sortBy.equals("database_name") || sortBy.equals("user_name") || sortBy.equals("pass"))
+		if (sortBy.equals("id") || sortBy.equals("source_type") || sortBy.equals("source_server_name") || sortBy.equals("source_instance_name") || sortBy.equals("source_port") || sortBy.equals("source_database_name") || sortBy.equals("source_user_name") || sortBy.equals("source_pass"))
 			strSQL += "ORDER BY " + sortBy + " " + sort + "\n";
 		else
 			strSQL += "ORDER BY id asc\n";
@@ -64,55 +55,36 @@ public class ExternalTableModel
 		}
 	}
 
-	public static void updateTable(String id, String type, String serverName, String instanceName, String port, String databaseName, String userName, String pass) throws SQLException
+	public static void insertTable(String id, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) throws SQLException
 	{
-		type = OutsourcerModel.setSQLString(type);
-		serverName = OutsourcerModel.setSQLString(serverName);
-		instanceName = OutsourcerModel.setSQLString(instanceName);
-		port = OutsourcerModel.setSQLInt(port);
-		databaseName = OutsourcerModel.setSQLString(databaseName);
-		userName = OutsourcerModel.setSQLString(userName);
-		pass = OutsourcerModel.setSQLString(pass);
+		sourceType = OutsourcerModel.setSQLString(sourceType);
+		sourceServerName = OutsourcerModel.setSQLString(sourceServerName);
+		sourceInstanceName = OutsourcerModel.setSQLString(sourceInstanceName);
+		sourcePort = OutsourcerModel.setSQLInt(sourcePort);
+		sourceDatabaseName = OutsourcerModel.setSQLString(sourceDatabaseName);
+		sourceUserName = OutsourcerModel.setSQLString(sourceUserName);
+		sourcePass = OutsourcerModel.setSQLString(sourcePass);
 
-		String strSQL = "UPDATE os.ext_connection\n ";
-		strSQL += "SET type = " + type + ", \n";
-		strSQL += "	server_name = " + serverName + ", \n";
-		strSQL += "	instance_name = " + instanceName + ", \n";
-		strSQL += "	port = " + port + ", \n";
-		strSQL += "	database_name = " + databaseName + ", \n";
-		strSQL += "	user_name = " + userName + ", \n";
-		strSQL += "	pass = " + pass + " \n";
-		strSQL += "WHERE id = " + id;
+		String strSQL = "INSERT INTO os.ao_ext_connection\n ";
 
-		try
-		{
-			OutsourcerModel.updateTable(strSQL);
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException(ex.getMessage());
-		}
-	}
+		if (id.equals(""))
+			strSQL += "(";
+		else
+			strSQL += "(id, ";
+		strSQL += "source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass)\n ";
+		strSQL += "VALUES";
 
-	public static void insertTable(String type, String serverName, String instanceName, String port, String databaseName, String userName, String pass) throws SQLException
-	{
-		type = OutsourcerModel.setSQLString(type);
-		serverName = OutsourcerModel.setSQLString(serverName);
-		instanceName = OutsourcerModel.setSQLString(instanceName);
-		port = OutsourcerModel.setSQLInt(port);
-		databaseName = OutsourcerModel.setSQLString(databaseName);
-		userName = OutsourcerModel.setSQLString(userName);
-		pass = OutsourcerModel.setSQLString(pass);
-
-		String strSQL = "INSERT INTO os.ext_connection\n ";
-		strSQL += "(type, server_name, instance_name, port, database_name, user_name, pass)\n ";
-		strSQL += "VALUES (" + type + ", \n";
-		strSQL += "	" + serverName + ", \n";
-		strSQL += "	" + instanceName + ", \n";
-		strSQL += "	" + port + ", \n";
-		strSQL += "	" + databaseName + ", \n";
-		strSQL += "	" + userName + ", \n";
-		strSQL += "	" + pass + ")\n";
+		if (id.equals(""))
+			strSQL += "(";
+		else
+			strSQL += "(" + id + ", ";		
+ 		strSQL += "	" + sourceType + ", \n";
+		strSQL += "	" + sourceServerName + ", \n";
+		strSQL += "	" + sourceInstanceName + ", \n";
+		strSQL += "	" + sourcePort + ", \n";
+		strSQL += "	" + sourceDatabaseName + ", \n";
+		strSQL += "	" + sourceUserName + ", \n";
+		strSQL += "	" + sourcePass + ")\n";
 
 		try
 		{
@@ -126,7 +98,11 @@ public class ExternalTableModel
 
 	public static void deleteTable(String id) throws SQLException
 	{
-		String strSQL = "DELETE\n";
+		String strSQL = "INSERT INTO os.ao_ext_connection\n";
+		strSQL += "(id, source_type, source_server_name, source_instance_name, source_port,\n";
+		strSQL += "source_database_name, source_user_name, source_pass, deleted)\n";
+		strSQL += "SELECT id, source_type, source_server_name, source_instance_name, source_port,\n";
+		strSQL += "source_database_name, source_user_name, source_pass, TRUE AS deleted\n";
 		strSQL += "FROM os.ext_connection\n";
 		strSQL += "WHERE id = " + id;
 
@@ -142,8 +118,8 @@ public class ExternalTableModel
 	
 	public ExternalTableModel(String aId) throws SQLException
 	{
-		String strSQL = "SELECT id, type, server_name, instance_name, port, database_name,\n";
-		strSQL += "user_name, pass\n";
+		String strSQL = "SELECT id, source_type, source_server_name, source_instance_name, source_port, source_database_name,\n";
+		strSQL += "source_user_name, source_pass\n";
 		strSQL += "FROM os.ext_connection\n";
 		strSQL += "WHERE id = " + aId;
 
@@ -153,13 +129,13 @@ public class ExternalTableModel
 			while (rs.next())
 			{
 				id = Integer.toString(rs.getInt(1));
-				type = rs.getString(2);
-				serverName = rs.getString(3);
-				instanceName = rs.getString(4);
-				port = rs.getString(5);
-				databaseName = rs.getString(6);
-				userName = rs.getString(7);
-				pass = rs.getString(8);
+				sourceType = rs.getString(2);
+				sourceServerName = rs.getString(3);
+				sourceInstanceName = rs.getString(4);
+				sourcePort = rs.getString(5);
+				sourceDatabaseName = rs.getString(6);
+				sourceUserName = rs.getString(7);
+				sourcePass = rs.getString(8);
 			}
 		}
 		catch (SQLException ex)
@@ -182,7 +158,7 @@ public class ExternalTableModel
 	}
 
 	//validate the connection to the source
-	public static String validate(String type, String serverName, String instanceName, String port, String databaseName, String userName, String pass) 
+	public static String validate(String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass)
 	{
 		String strSQL = "";
 		String msg = "";
@@ -190,16 +166,16 @@ public class ExternalTableModel
 		{
 			Connection conn = null;
 
-			if (type.equals("sqlserver"))
+			if (sourceType.equals("sqlserver"))
 			{
-				conn = CommonDB.connectSQLServer(serverName, instanceName, userName, pass);
+				conn = CommonDB.connectSQLServer(sourceServerName, sourceInstanceName, sourceUserName, sourcePass);
 				msg = SQLServer.validate(conn);
 				conn.close();
 			}
-			else if (type.equals("oracle"))
+			else if (sourceType.equals("oracle"))
 			{
-				int sourcePort = Integer.parseInt(port);
-				conn = CommonDB.connectOracle(serverName, databaseName, sourcePort, userName, pass, 10);
+				int intSourcePort = Integer.parseInt(sourcePort);
+				conn = CommonDB.connectOracle(sourceServerName, sourceDatabaseName, intSourcePort, sourceUserName, sourcePass, 10);
 				msg = Oracle.validate(conn);
 				conn.close();
 			}
@@ -211,7 +187,7 @@ public class ExternalTableModel
 		return msg;
 	}
 
-	public static int createJobs(String id, String databaseName, String sourceSchema, String targetSchema, String refreshType, String scheduleDesc) throws SQLException
+	public static int createJobs(String id, String sourceDatabaseName, String sourceSchema, String targetSchema, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String refreshType, String scheduleDesc) throws SQLException
 	{
 		try 
 		{
@@ -219,19 +195,22 @@ public class ExternalTableModel
 			String aRefreshType = "'" + refreshType + "'";
 			String aTargetSchema = "'" + targetSchema + "'";
 			String aTargetTable = "";
-			String aType = "'" + e.type + "'";
-			String aServerName = "'" + e.serverName + "'";
-			String aInstanceName = "null";
-			if (!(e.instanceName==null))
-				aInstanceName = "'" + e.instanceName + "'";
-			String aPort = e.port;
-			if (e.type.equals("oracle"))
-				databaseName = e.databaseName;
-			String aDatabaseName = "'" + databaseName + "'";
-			String aSchemaName = "'" + sourceSchema + "'";
-			String aTableName = "";
-			String aUserName = "'" + e.userName + "'";
-			String aPassword = "'" + e.pass + "'";
+			String aTargetAppendOnly = String.valueOf(targetAppendOnly);
+			String aTargetCompressed = String.valueOf(targetCompressed);
+			String aTargetRowOrientation = String.valueOf(targetRowOrientation);
+			String aSourceType = "'" + e.sourceType + "'";
+			String aSourceServerName = "'" + e.sourceServerName + "'";
+			String aSourceInstanceName = "null";
+			if (!(e.sourceInstanceName==null))
+				aSourceInstanceName = "'" + e.sourceInstanceName + "'";
+			String aSourcePort = e.sourcePort;
+			if (e.sourceType.equals("oracle"))
+				sourceDatabaseName = e.sourceDatabaseName;
+			String aSourceDatabaseName = "'" + sourceDatabaseName + "'";
+			String aSourceSchemaName = "'" + sourceSchema + "'";
+			String aSourceTableName = "";
+			String aSourceUserName = "'" + e.sourceUserName + "'";
+			String aSourcePassword = "'" + e.sourcePass + "'";
 
 			scheduleDesc = OutsourcerModel.setSQLString(scheduleDesc);
 
@@ -239,20 +218,24 @@ public class ExternalTableModel
 			ResultSet rs = null;
 			int i = 0;
 			String strSQL = "";
-			String strSQLStart = "INSERT INTO os.job(refresh_type, target, source, schedule_desc)\n";
+			String strSQLStart = "INSERT INTO os.ao_job(refresh_type,\n";
+			strSQLStart += "target_schema_name, target_table_name, target_append_only, target_compressed, target_row_orientation,\n";
+			strSQLStart += "source_type, source_server_name, source_instance_name, source_port, source_database_name,\n";
+			strSQLStart += "source_schema_name, source_table_name, source_user_name, source_pass,\n";
+			strSQLStart += "schedule_desc, snapshot)\n";
 			strSQLStart += "VALUES (" + aRefreshType + ",\n";
-			strSQLStart += "(" + aTargetSchema + ", ";
+			strSQLStart += aTargetSchema + ", ";
 
-			if (e.type.equals("sqlserver"))
+			if (e.sourceType.equals("sqlserver"))
 			{	
-				conn = CommonDB.connectSQLServer(e.serverName, e.instanceName, e.userName, e.pass);
+				conn = CommonDB.connectSQLServer(e.sourceServerName, e.sourceInstanceName, e.sourceUserName, e.sourcePass);
 				Statement stmt = conn.createStatement();
-				rs = SQLServer.getTableList(conn, databaseName, sourceSchema);
+				rs = SQLServer.getTableList(conn, sourceDatabaseName, sourceSchema);
 			}
-			else if (e.type.equals("oracle"))
+			else if (e.sourceType.equals("oracle"))
 			{
-				int sourcePort = Integer.parseInt(e.port);
-				conn = CommonDB.connectOracle(e.serverName, e.databaseName, sourcePort, e.userName, e.pass, 10);
+				int intSourcePort = Integer.parseInt(e.sourcePort);
+				conn = CommonDB.connectOracle(e.sourceServerName, e.sourceDatabaseName, intSourcePort, e.sourceUserName, e.sourcePass, 10);
 				rs = Oracle.getTableList(conn, sourceSchema);
 			}
 
@@ -260,11 +243,12 @@ public class ExternalTableModel
 			{
 				i++;
 				aTargetTable = "'" + rs.getString(1).toLowerCase() + "'";
-				aTableName = "'" + rs.getString(1) + "'";
+				aSourceTableName = "'" + rs.getString(1) + "'";
 
-				strSQL = strSQLStart + aTargetTable + "),\n";
-				strSQL += "(" + aType + ", " + aServerName + ", " + aInstanceName + ", " + aPort + ", " + aDatabaseName + ", ";
-				strSQL += aSchemaName + ", " + aTableName + ", " + aUserName + ", " + aPassword + "), " + scheduleDesc + ")";
+				strSQL = strSQLStart + aTargetTable + ",\n";
+				strSQL += aTargetAppendOnly + ", " + aTargetCompressed + ", " + aTargetRowOrientation + ",\n";
+				strSQL += aSourceType + ", " + aSourceServerName + ", " + aSourceInstanceName + ", " + aSourcePort + ", " + aSourceDatabaseName + ",\n";
+				strSQL += aSourceSchemaName + ", " + aSourceTableName + ", " + aSourceUserName + ", " + aSourcePassword + ", " + scheduleDesc + ", false)";
 
 				OutsourcerModel.updateTable(strSQL);
 			}

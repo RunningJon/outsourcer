@@ -69,143 +69,217 @@ public class JobView
 	{
 		String myScript = "function disableInputFields()\n";
 		myScript += "{\n";
-		myScript += "	var val = document.getElementById(\"type\").selectedIndex;\n";
+		myScript += "	var ver = \"" + UI.gpVersion + "\";\n";
+		myScript += "	var val = document.getElementById(\"source_type\").selectedIndex;\n";
 		myScript += "	var t = document.getElementById(\"refresh_type\").selectedIndex;\n";
+		myScript += "	var a = document.getElementById(\"target_append_only\").selectedIndex;\n";
 		myScript += "	if (t == 0)\n";  //refresh_type not set yet.
 		myScript += "	{\n";
 		myScript += "		document.getElementById(\"target_schema_name\").value = \"\";\n";
 		myScript += "		document.getElementById(\"target_table_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"type\").value = \"\";\n";
-		myScript += "		document.getElementById(\"server_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"instance_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"port\").value = \"\";\n";
-		myScript += "		document.getElementById(\"database_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"schema_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"table_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"user_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"pass\").value = \"\";\n";
+		myScript += "		document.getElementById(\"target_append_only\").value = \"true\";\n";
+		myScript += "		document.getElementById(\"target_compressed\").value = \"false\";\n";
+		myScript += "		document.getElementById(\"target_row_orientation\").value = \"true\";\n";
+		myScript += "		document.getElementById(\"source_type\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_server_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_instance_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_port\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_database_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_schema_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_table_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_user_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_pass\").value = \"\";\n";
 		myScript += "		document.getElementById(\"column_name\").value = \"\";\n";
 		myScript += "		document.getElementById(\"sql_text\").value = \"\";\n";
-		myScript += "		document.getElementById(\"snapshot\").value = \"\";\n";
+		myScript += "		document.getElementById(\"snapshot\").value = \"false\";\n";
+		myScript += "		document.getElementById(\"schedule_desc\").value = \"\";\n";
 		myScript += "		document.getElementById(\"r_target_schema_name\").style.display = \"none\";\n";
 		myScript += "		document.getElementById(\"r_target_table_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_type\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_server_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_instance_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_port\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_database_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_schema_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_table_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_user_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_pass\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_target_append_only\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_target_compressed\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_target_row_orientation\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_type\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_server_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_instance_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_port\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_database_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_schema_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_table_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_user_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_pass\").style.display = \"none\";\n";
 		myScript += "		document.getElementById(\"r_column_name\").style.display = \"none\";\n";
 		myScript += "		document.getElementById(\"r_sql_text\").style.display = \"none\";\n";
 		myScript += "		document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
 		myScript += "		document.getElementById(\"r_schedule_desc\").style.display = \"none\";\n";
 		myScript += "	} else \n";
-		myScript += "	if (t < 5 ) // Not a transform\n";
+		myScript += "	if (t != 4) // Not a transform and a value has been picked\n";
 		myScript += "	{\n";
 		myScript += "		document.getElementById(\"r_target_schema_name\").style.display = \"\";\n";
 		myScript += "		document.getElementById(\"r_target_table_name\").style.display = \"\";\n";
-		myScript += "		document.getElementById(\"r_type\").style.display = \"\";\n";
+		myScript += "		document.getElementById(\"r_source_type\").style.display = \"\";\n";
+		myScript += "		document.getElementById(\"r_schedule_desc\").style.display = \"\";\n";
+		myScript += "		if (t == 1) //Append\n";
+		myScript += "		{\n";
+		myScript += "			document.getElementById(\"r_column_name\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"snapshot\").value = \"false\";\n";
+		myScript += "			document.getElementById(\"r_sql_text\").style.display = \"\";\n";
+		myScript += "			if (ver == \"HEAP\" || ver == \"AO\")\n";
+		myScript += "			{\n";
+		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"\";\n";  
+		myScript += "			} else\n";
+		myScript += "			if (ver == \"HAWQ\")\n";  
+		myScript += "			{\n";
+		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"none\";\n";  
+		myScript += "			}\n";
+		myScript += "			if (a == 0) //append-optimized\n";
+		myScript += "				{\n";
+		myScript += "					document.getElementById(\"r_target_compressed\").style.display = \"\";\n";
+		myScript += "					document.getElementById(\"r_target_row_orientation\").style.display = \"\";\n";
+		myScript += "				} else\n";
+		myScript += "				{\n";
+		myScript += "					document.getElementById(\"r_target_compressed\").style.display = \"none\";\n";
+		myScript += "					document.getElementById(\"r_target_row_orientation\").style.display = \"none\";\n";
+		myScript += "				}\n";
+		myScript += "		} else \n";
+		myScript += "		if (t == 2 || t == 3) //DDL and Refresh\n";
+		myScript += "		{\n";
+		myScript += "			document.getElementById(\"r_column_name\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"column_name\").value = \"\";\n";
+		myScript += "			document.getElementById(\"r_sql_text\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"snapshot\").value = \"false\";\n";
+		myScript += "			if (ver == \"HEAP\" || ver == \"AO\")\n";
+		myScript += "			{\n";
+		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"\";\n";  
+		myScript += "			} else\n";
+		myScript += "			if (ver == \"HAWQ\")\n";  
+		myScript += "			{\n";
+		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"none\";\n";  
+		myScript += "			}\n";
+		myScript += "			if (a == 0) //append-optimized\n";
+		myScript += "			{\n";
+		myScript += "				document.getElementById(\"r_target_compressed\").style.display = \"\";\n";
+		myScript += "				document.getElementById(\"r_target_row_orientation\").style.display = \"\";\n";
+		myScript += "			} else\n";
+		myScript += "			{\n";
+		myScript += "				document.getElementById(\"r_target_compressed\").style.display = \"none\";\n";
+		myScript += "				document.getElementById(\"r_target_row_orientation\").style.display = \"none\";\n";
+		myScript += "			}\n";
+		myScript += "		} else \n";
+		myScript += "		if (t == 5) //Replication\n";
+		myScript += "		{\n";
+		myScript += "			document.getElementById(\"r_column_name\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_snapshot\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_sql_text\").style.display = \"\";\n";
+		myScript += "			if (ver == \"HEAP\")\n";
+		myScript += "			{\n";
+		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"none\";\n";  
+		myScript += "				document.getElementById(\"r_target_compressed\").style.display = \"none\";\n";
+		myScript += "				document.getElementById(\"r_target_row_orientation\").style.display = \"none\";\n";
+		myScript += "				document.getElementById(\"target_append_only\").value = \"false\";\n";
+		myScript += "				document.getElementById(\"target_compressed\").value = \"false\";\n";
+		myScript += "			document.getElementById(\"target_row_orientation\").value = \"true\";\n";
+		myScript += "			} else\n";
+		myScript += "			if (ver == \"AO\")\n";  
+		myScript += "			{\n";
+		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"\";\n";  
+		myScript += "				if (a == 0) //append-optimized\n";
+		myScript += "				{\n";
+		myScript += "					document.getElementById(\"r_target_compressed\").style.display = \"\";\n";
+		myScript += "					document.getElementById(\"r_target_row_orientation\").style.display = \"\";\n";
+		myScript += "				} else\n";
+		myScript += "				{\n";
+		myScript += "					document.getElementById(\"r_target_compressed\").style.display = \"none\";\n";
+		myScript += "					document.getElementById(\"r_target_row_orientation\").style.display = \"none\";\n";
+		myScript += "				}\n";
+		myScript += "			} else\n";
+		myScript += "			if (ver == \"HAWQ\")\n";  
+		myScript += "			{\n";
+		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"none\";\n";  
+		myScript += "				document.getElementById(\"r_target_compressed\").style.display = \"\";\n";
+		myScript += "				document.getElementById(\"r_target_row_orientation\").style.display = \"\";\n";
+		myScript += "			}\n";
+		myScript += "		}\n";
 		myScript += "		if (val == 0)\n"; // source type not set yet
 		myScript += "		{\n";
-		myScript += "			document.getElementById(\"r_server_name\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_instance_name\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_port\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_database_name\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_schema_name\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_table_name\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_user_name\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_pass\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_column_name\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_sql_text\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"r_schedule_desc\").style.display = \"none\";\n";
-		myScript += "			document.getElementById(\"server_name\").value = \"\";\n";
-		myScript += "			document.getElementById(\"instance_name\").value = \"\";\n";
-		myScript += "			document.getElementById(\"port\").value = \"\";\n";
-		myScript += "			document.getElementById(\"database_name\").value = \"\";\n";
-		myScript += "			document.getElementById(\"schema_name\").value = \"\";\n";
-		myScript += "			document.getElementById(\"table_name\").value = \"\";\n";
-		myScript += "			document.getElementById(\"user_name\").value = \"\";\n";
-		myScript += "			document.getElementById(\"pass\").value = \"\";\n";
-		myScript += "			document.getElementById(\"column_name\").value = \"\";\n";
-		myScript += "			document.getElementById(\"sql_text\").value = \"\";\n";
+		myScript += "			document.getElementById(\"r_source_server_name\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"r_source_instance_name\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"r_source_port\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"r_source_database_name\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"r_source_schema_name\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"r_source_table_name\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"r_source_user_name\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"r_source_pass\").style.display = \"none\";\n";
+		myScript += "			document.getElementById(\"source_server_name\").value = \"\";\n";
+		myScript += "			document.getElementById(\"source_instance_name\").value = \"\";\n";
+		myScript += "			document.getElementById(\"source_port\").value = \"\";\n";
+		myScript += "			document.getElementById(\"source_database_name\").value = \"\";\n";
+		myScript += "			document.getElementById(\"source_schema_name\").value = \"\";\n";
+		myScript += "			document.getElementById(\"source_table_name\").value = \"\";\n";
+		myScript += "			document.getElementById(\"source_user_name\").value = \"\";\n";
+		myScript += "			document.getElementById(\"source_pass\").value = \"\";\n";
 		myScript += "		} else\n";  //Oracle or SQL Server picked
 		myScript += "		{\n";
-		myScript += "			document.getElementById(\"r_server_name\").style.display = \"\";\n";
-		myScript += "			document.getElementById(\"r_database_name\").style.display = \"\";\n";
-		myScript += "			document.getElementById(\"r_schema_name\").style.display = \"\";\n";
-		myScript += "			document.getElementById(\"r_table_name\").style.display = \"\";\n";
-		myScript += "			document.getElementById(\"r_user_name\").style.display = \"\";\n";
-		myScript += "			document.getElementById(\"r_pass\").style.display = \"\";\n";
-		myScript += "			document.getElementById(\"r_sql_text\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_source_server_name\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_source_database_name\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_source_schema_name\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_source_table_name\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_source_user_name\").style.display = \"\";\n";
+		myScript += "			document.getElementById(\"r_source_pass\").style.display = \"\";\n";
 		myScript += "			document.getElementById(\"r_schedule_desc\").style.display = \"\";\n";
 		myScript += "			if (val == 1) //Oracle\n";
 		myScript += "			{\n";
-		myScript += "				document.getElementById(\"r_instance_name\").style.display = \"none\";\n";
-		myScript += "				document.getElementById(\"r_port\").style.display = \"\";\n";
+		myScript += "				document.getElementById(\"r_source_instance_name\").style.display = \"none\";\n";
+		myScript += "				document.getElementById(\"r_source_port\").style.display = \"\";\n";
 		myScript += "				document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
-		myScript += "				document.getElementById(\"instance_name\").value = \"\";\n";
+		myScript += "				document.getElementById(\"source_instance_name\").value = \"\";\n";
 		myScript += "			} else\n";
 		myScript += "			if (val == 2) //SQL Server\n";
 		myScript += "			{\n";
-		myScript += "				document.getElementById(\"r_instance_name\").style.display = \"\";\n";
-		myScript += "				document.getElementById(\"r_port\").style.display = \"none\";\n";
-		myScript += "				document.getElementById(\"r_port\").style.display = \"none\";\n";
+		myScript += "				document.getElementById(\"r_source_instance_name\").style.display = \"\";\n";
+		myScript += "				document.getElementById(\"r_source_port\").style.display = \"none\";\n";
 		myScript += "				document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
-		myScript += "				document.getElementById(\"port\").value = \"\";\n";
-		myScript += "			}\n";
-		myScript += "			if (t == 1) //Append\n";
-		myScript += "			{\n";
-		myScript += "				document.getElementById(\"r_column_name\").style.display = \"\";\n";
-		myScript += "				document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
-		myScript += "				document.getElementById(\"snapshot\").value = \"\";\n";
-		myScript += "			} else \n";
-		myScript += "			if (t == 2 || t == 3) //DDL and Refresh\n";
-		myScript += "			{\n";
-		myScript += "				document.getElementById(\"r_column_name\").style.display = \"none\";\n";
-		myScript += "				document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
-		myScript += "				document.getElementById(\"column_name\").value = \"\";\n";
-		myScript += "				document.getElementById(\"snapshot\").value = \"none\";\n";
-		myScript += "			} else \n";
-		myScript += "			if (t == 4) //Replication\n";
-		myScript += "			{\n";
-		myScript += "				document.getElementById(\"r_column_name\").style.display = \"\";\n";
-		myScript += "				document.getElementById(\"r_snapshot\").style.display = \"\";\n";
+		myScript += "				document.getElementById(\"source_port\").value = \"\";\n";
 		myScript += "			}\n";
 		myScript += "		}\n";
-		myScript += "	} else //Transform job\n";
+		myScript += "	} else //transform job\n";
 		myScript += "	{\n";
+		myScript += "		document.getElementById(\"r_sql_text\").style.display = \"\";\n";
+		myScript += "		document.getElementById(\"target_schema_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"target_table_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"target_append_only\").value = \"true\";\n";
+		myScript += "		document.getElementById(\"target_compressed\").value = \"false\";\n";
+		myScript += "		document.getElementById(\"target_row_orientation\").value = \"true\";\n";
+		myScript += "		document.getElementById(\"source_type\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_server_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_instance_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_port\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_database_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_schema_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_table_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_user_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"source_pass\").value = \"\";\n";
+		myScript += "		document.getElementById(\"column_name\").value = \"\";\n";
+		myScript += "		document.getElementById(\"snapshot\").value = \"false\";\n";
+		myScript += "		document.getElementById(\"schedule_desc\").value = \"\";\n";
 		myScript += "		document.getElementById(\"r_target_schema_name\").style.display = \"none\";\n";
 		myScript += "		document.getElementById(\"r_target_table_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_type\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_server_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_instance_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_port\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_database_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_schema_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_table_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_user_name\").style.display = \"none\";\n";
-		myScript += "		document.getElementById(\"r_pass\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_target_append_only\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_target_compressed\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_target_row_orientation\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_type\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_server_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_instance_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_port\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_database_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_schema_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_table_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_user_name\").style.display = \"none\";\n";
+		myScript += "		document.getElementById(\"r_source_pass\").style.display = \"none\";\n";
 		myScript += "		document.getElementById(\"r_column_name\").style.display = \"none\";\n";
 		myScript += "		document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
 		myScript += "		document.getElementById(\"r_schedule_desc\").style.display = \"\";\n";
-		myScript += "		document.getElementById(\"target_schema_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"target_table_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"type\").value = \"\";\n";
-		myScript += "		document.getElementById(\"server_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"instance_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"port\").value = \"\";\n";
-		myScript += "		document.getElementById(\"database_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"schema_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"table_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"user_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"pass\").value = \"\";\n";
-		myScript += "		document.getElementById(\"column_name\").value = \"\";\n";
-		myScript += "		document.getElementById(\"snapshot\").value = \"\";\n";
-		myScript += "		document.getElementById(\"r_sql_text\").style.display = \"\";\n";
 		myScript += "	}\n";
 		myScript += "}\n";
 
@@ -213,7 +287,7 @@ public class JobView
 
 	}
 
-	public static String viewUpdate(String id, String refreshType, String targetSchemaName, String targetTableName, String type, String serverName, String instanceName, String port, String databaseName, String schemaName, String tableName, String userName, String pass, String columnName, String sqlText, String snapshot, String scheduleDesc, ArrayList<String> scheduleList)
+	public static String viewUpdate(String id, String refreshType, String targetSchemaName, String targetTableName, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceSchemaName, String sourceTableName, String sourceUserName, String sourcePass, String columnName, String sqlText, boolean snapshot, String scheduleDesc, ArrayList<String> scheduleList)
 	{
 
 		String buttonText = "";
@@ -221,6 +295,10 @@ public class JobView
 		{
 			id = "";
 			buttonText = "Insert";
+			targetAppendOnly = true;
+			targetCompressed = false;
+			targetRowOrientation = true;
+			snapshot = false;
 		}
 		else
 		{
@@ -229,20 +307,17 @@ public class JobView
 
 		targetSchemaName = OutsourcerView.setHTMLField(targetSchemaName);
 		targetTableName = OutsourcerView.setHTMLField(targetTableName);
-		//type is handled with an html select list
-		serverName = OutsourcerView.setHTMLField(serverName);
-		instanceName = OutsourcerView.setHTMLField(instanceName);
-		port = OutsourcerView.setHTMLField(port);
-		databaseName = OutsourcerView.setHTMLField(databaseName);
-		schemaName = OutsourcerView.setHTMLField(schemaName);
-		tableName = OutsourcerView.setHTMLField(tableName);
-		userName = OutsourcerView.setHTMLField(userName);
-		pass = OutsourcerView.setHTMLField(pass);
+		sourceServerName = OutsourcerView.setHTMLField(sourceServerName);
+		sourceInstanceName = OutsourcerView.setHTMLField(sourceInstanceName);
+		sourcePort = OutsourcerView.setHTMLField(sourcePort);
+		sourceDatabaseName = OutsourcerView.setHTMLField(sourceDatabaseName);
+		sourceSchemaName = OutsourcerView.setHTMLField(sourceSchemaName);
+		sourceTableName = OutsourcerView.setHTMLField(sourceTableName);
+		sourceUserName = OutsourcerView.setHTMLField(sourceUserName);
+		sourcePass = OutsourcerView.setHTMLField(sourcePass);
 		columnName = OutsourcerView.setHTMLField(columnName);
 		if (sqlText == null)
 			sqlText = "";
-		//sqlText = OutsourcerView.setHTMLField(sqlText);
-		//snapshot is handled with an html select list
 		
 		String myScript = getJavaScriptFunctions();
 		String onLoad="disableInputFields()";
@@ -250,7 +325,7 @@ public class JobView
 		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
 		msg += "<form action=\"jobs\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr><td><b>ID</b></td>";
+		msg += "<tr><td width=\"30%\"><b>ID</b></td>";
 		msg += "<td>" + id + "</td></tr>\n";
 		msg += "<tr><td><b>Refresh Type</b></td>";
 		msg += "<td><select id=\"refresh_type\" name=\"refresh_type\" onchange=\"disableInputFields()\">\n";
@@ -267,75 +342,81 @@ public class JobView
 		if (refreshType != null && refreshType.equals("refresh"))
 			msg += " selected";
 		msg += ">Refresh</option>\n";
-		msg += "<option value=\"replication\"";
-		if (refreshType != null && refreshType.equals("replication"))
-			msg += " selected";
-		msg += ">Replication</option>\n";
 		msg += "<option value=\"transform\"";
 		if (refreshType != null && refreshType.equals("transform"))
 			msg += " selected";
 		msg += ">Transform</option>\n";
-		msg += "</select></td></tr>\n";
+		if (!(UI.gpVersion.equals("HAWQ")))
+		{
+			msg += "<option value=\"replication\"";
+			if (refreshType != null && refreshType.equals("replication"))
+				msg += " selected";
+			msg += ">Replication</option>\n";
+			msg += "</select>\n";
+		}
+		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_target_schema_name\"><td><b>Target Schema</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"target_schema_name\" name=\"target_schema_name\" value=" + targetSchemaName + ">";
 		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_target_table_name\"><td><b>Target Table</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"target_table_name\" name=\"target_table_name\" value=" + targetTableName + ">";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_type\"><td><b>Source Type</b></td>\n";
-		msg += "<td><select id=\"type\" name=\"type\" onchange=\"disableInputFields()\">\n";
-		msg += "<option value=\"\"></option>\n";
-		msg += "<option value=\"oracle\"";
-		if (type != null && type.equals("oracle"))
+		msg += "<tr id=\"r_target_append_only\"><td><b>";
+		if (UI.gpVersion.equals("AO"))
+			msg += "Target Append-Optimized";
+		else
+			msg += "Target Append-Only";
+		msg += "</b></td>\n";
+		msg += "<td><select id=\"target_append_only\" name=\"target_append_only\" onchange=\"disableInputFields()\">\n";
+		msg += "<option value=\"true\"";
+		if (targetAppendOnly == true)
 			msg += " selected";
-		msg += ">Oracle</option>\n";
-		msg += "<option value=\"sqlserver\"";
-		if (type != null && type.equals("sqlserver"))
+		msg += ">True</option>\n";
+		msg += "<option value=\"false\"";
+		if (targetAppendOnly == false)
 			msg += " selected";
-		msg += ">SQL Server</option>\n";
+		msg += ">False</option>\n";
 		msg += "</select></td></tr>\n";
-		msg += "<tr id=\"r_server_name\"><td><b>Source Server Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"server_name\" name=\"server_name\" value=" + serverName + ">";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_instance_name\"><td><b>Source Instance Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"instance_name\" name=\"instance_name\" value=" + instanceName + ">";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_port\"><td><b>Port</b></td>";
-		msg += "<td><input type=\"text\" id=\"port\" name=\"port\" onkeyup=\"this.value=this.value.replace(/[^\\d]/,'')\" value=" + port + ">";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_database_name\"><td><b>Source Database Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"database_name\" name=\"database_name\" value=" + databaseName + ">";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_schema_name\"><td><b>Source Schema Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"schema_name\" name=\"schema_name\" value=" + schemaName + ">";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_table_name\"><td><b>Source Table Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + ">";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_user_name\"><td><b>Source User Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"user_name\" name=\"user_name\" value=" + userName + ">";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_pass\"><td><b>Source Password</b></td>";
-		msg += "<td><input type=\"password\" id=\"pass\" name=\"pass\" value=" + pass + ">";
-		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_target_compressed\"><td><b>Target Compressed</b></td>\n";
+		msg += "<td><select id=\"target_compressed\" name=\"target_compressed\" onchange=\"disableInputFields()\">\n";
+		msg += "<option value=\"true\"";
+		if (targetCompressed == true)
+			msg += " selected";
+		msg += ">True</option>\n";
+		msg += "<option value=\"false\"";
+		if (targetCompressed == false)
+			msg += " selected";
+		msg += ">False</option>\n";
+		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_target_row_orientation\"><td><b>Target Row Orientation</b></td>\n";
+		msg += "<td><select id=\"target_row_orientation\" name=\"target_row_orientation\" onchange=\"disableInputFields()\">\n";
+		msg += "<option value=\"true\"";
+		if (targetRowOrientation == true)
+			msg += " selected";
+		msg += ">True</option>\n";
+		msg += "<option value=\"false\"";
+		if (targetRowOrientation == false)
+			msg += " selected";
+		msg += ">False</option>\n";
+		msg += "</select></td></tr>\n";
 		msg += "<tr id=\"r_column_name\"><td><b>Column Name</b></td>";
 		msg += "<td><input type=\"column_name\" id=\"column_name\" name=\"column_name\" value=" + columnName + ">";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_sql_text\"><td><b>Transform SQL</b></td>";
-		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>\n";
 		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_snapshot\"><td><b>Snapshot</b></td>\n";
 		msg += "<td><select id=\"snapshot\" name=\"snapshot\" onchange=\"disableInputFields()\">\n";
 		msg += "<option value=\"\"></option>\n";
 		msg += "<option value=\"true\"";
-		if (snapshot != null && snapshot.equals("t"))
+		if (snapshot == true)
 			msg += " selected";
 		msg += ">True</option>\n";
 		msg += "<option value=\"false\"";
-		if (snapshot != null && snapshot.equals("f"))
+		if (snapshot == false)
 			msg += " selected";
 		msg += ">False</option>\n";
 		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_sql_text\"><td><b>Transform SQL</b></td>";
+		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>\n";
+		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_schedule_desc\"><td><b>Schedule</b></td>";
 		msg += "<td><select id=\"schedule_desc\" name=\"schedule_desc\">\n";
 		msg += "<option value=\"\"></option>\n";
@@ -347,6 +428,42 @@ public class JobView
 			msg += ">" + scheduleList.get(i) + "</option>\n";
 		}
 		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_type\"><td><b>Source Type</b></td>\n";
+		msg += "<td><select id=\"source_type\" name=\"source_type\" onchange=\"disableInputFields()\">\n";
+		msg += "<option value=\"\"></option>\n";
+		msg += "<option value=\"oracle\"";
+		if (sourceType != null && sourceType.equals("oracle"))
+			msg += " selected";
+		msg += ">Oracle</option>\n";
+		msg += "<option value=\"sqlserver\"";
+		if (sourceType != null && sourceType.equals("sqlserver"))
+			msg += " selected";
+		msg += ">SQL Server</option>\n";
+		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_source_server_name\"><td><b>Source Server Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_server_name\" name=\"source_server_name\" value=" + sourceServerName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_instance_name\"><td><b>Source Instance Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_instance_name\" name=\"source_instance_name\" value=" + sourceInstanceName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_port\"><td><b>Source Port</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_port\" name=\"source_port\" onkeyup=\"this.value=this.value.replace(/[^\\d]/,'')\" value=" + sourcePort + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_database_name\"><td><b>Source Database Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_database_name\" name=\"source_database_name\" value=" + sourceDatabaseName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_schema_name\"><td><b>Source Schema Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_schema_name\" name=\"source_schema_name\" value=" + sourceSchemaName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_table_name\"><td><b>Source Table Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_table_name\" name=\"source_table_name\" value=" + sourceTableName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_user_name\"><td><b>Source User Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_user_name\" name=\"source_user_name\" value=" + sourceUserName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_pass\"><td><b>Source Password</b></td>";
+		msg += "<td><input type=\"password\" id=\"source_pass\" name=\"source_pass\" value=" + sourcePass + ">";
+		msg += "</td></tr>\n";
 		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"" + buttonText + "\"></td></tr>\n";
 		msg += "</table>\n";
 		msg += "<input type=\"hidden\" name=\"action_type\" value=\"update\">\n";
@@ -357,27 +474,27 @@ public class JobView
 		return msg;
 	}
 
-	public static String viewDelete(String id, String refreshType, String targetSchemaName, String targetTableName, String type, String serverName, String instanceName, String port, String databaseName, String schemaName, String tableName, String userName, String pass, String columnName, String sqlText, String snapshot, String scheduleDesc, ArrayList<String> scheduleList)
+	public static String viewDelete(String id, String refreshType, String targetSchemaName, String targetTableName, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceSchemaName, String sourceTableName, String sourceUserName, String sourcePass, String columnName, String sqlText, boolean snapshot, String scheduleDesc, ArrayList<String> scheduleList)
 	{
 		targetSchemaName = OutsourcerView.setHTMLField(targetSchemaName);
 		targetTableName = OutsourcerView.setHTMLField(targetTableName);
-		serverName = OutsourcerView.setHTMLField(serverName);
-		instanceName = OutsourcerView.setHTMLField(instanceName);
-		port = OutsourcerView.setHTMLField(port);
-		databaseName = OutsourcerView.setHTMLField(databaseName);
-		schemaName = OutsourcerView.setHTMLField(schemaName);
-		tableName = OutsourcerView.setHTMLField(tableName);
-		userName = OutsourcerView.setHTMLField(userName);
-		pass = OutsourcerView.setHTMLField(pass);
+		sourceServerName = OutsourcerView.setHTMLField(sourceServerName);
+		sourceInstanceName = OutsourcerView.setHTMLField(sourceInstanceName);
+		sourcePort = OutsourcerView.setHTMLField(sourcePort);
+		sourceDatabaseName = OutsourcerView.setHTMLField(sourceDatabaseName);
+		sourceSchemaName = OutsourcerView.setHTMLField(sourceSchemaName);
+		sourceTableName = OutsourcerView.setHTMLField(sourceTableName);
+		sourceUserName = OutsourcerView.setHTMLField(sourceUserName);
+		sourcePass = OutsourcerView.setHTMLField(sourcePass);
 		columnName = OutsourcerView.setHTMLField(columnName);
-		//sqlText = OutsourcerView.setHTMLField(sqlText);
-		
+		if (sqlText == null)
+			sqlText = "";
 		String myScript = getJavaScriptFunctions();
 		String onLoad="disableInputFields()";
 		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
 		msg += "<form action=\"jobs\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr><td><b>ID</b></td>";
+		msg += "<tr><td width=\"30%\"><b>ID</b></td>";
 		msg += "<td>" + id + "</td></tr>\n";
 		msg += "<tr><td><b>Refresh Type</b></td>";
 		msg += "<td><select id=\"refresh_type\" name=\"refresh_type\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
@@ -394,75 +511,81 @@ public class JobView
 		if (refreshType != null && refreshType.equals("refresh"))
 			msg += " selected";
 		msg += ">Refresh</option>\n";
-		msg += "<option value=\"replication\"";
-		if (refreshType != null && refreshType.equals("replication"))
-			msg += " selected";
-		msg += ">Replication</option>\n";
 		msg += "<option value=\"transform\"";
 		if (refreshType != null && refreshType.equals("transform"))
 			msg += " selected";
 		msg += ">Transform</option>\n";
-		msg += "</select></td></tr>\n";
+		if (!(UI.gpVersion.equals("HAWQ")))
+		{
+			msg += "<option value=\"replication\"";
+			if (refreshType != null && refreshType.equals("replication"))
+				msg += " selected";
+			msg += ">Replication</option>\n";
+			msg += "</select>\n";
+		}
+		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_target_schema_name\"><td><b>Target Schema</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"target_schema_name\" name=\"target_schema_name\" value=" + targetSchemaName + " readonly>";
 		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_target_table_name\"><td><b>Target Table</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"target_table_name\" name=\"target_table_name\" value=" + targetTableName + " readonly>";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_type\"><td><b>Source Type</b></td>\n";
-		msg += "<td><select id=\"type\" name=\"type\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
-		msg += "<option value=\"\"></option>\n";
-		msg += "<option value=\"oracle\"";
-		if (type != null && type.equals("oracle"))
+		msg += "<tr id=\"r_target_append_only\"><td><b>";
+		if (UI.gpVersion.equals("AO"))
+			msg += "Target Append-Optimized";
+		else
+			msg += "Target Append-Only";
+		msg += "</b></td>\n";
+		msg += "<td><select id=\"target_append_only\" name=\"target_append_only\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+		msg += "<option value=\"true\"";
+		if (targetAppendOnly == true)
 			msg += " selected";
-		msg += ">Oracle</option>\n";
-		msg += "<option value=\"sqlserver\"";
-		if (type != null && type.equals("sqlserver"))
+		msg += ">True</option>\n";
+		msg += "<option value=\"false\"";
+		if (targetAppendOnly == false)
 			msg += " selected";
-		msg += ">SQL Server</option>\n";
+		msg += ">False</option>\n";
 		msg += "</select></td></tr>\n";
-		msg += "<tr id=\"r_server_name\"><td><b>Source Server Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"server_name\" name=\"server_name\" value=" + serverName + " readonly>";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_instance_name\"><td><b>Source Instance Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"instance_name\" name=\"instance_name\" value=" + instanceName + " readonly>";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_port\"><td><b>Port</b></td>";
-		msg += "<td><input type=\"text\" id=\"port\" name=\"port\" value=" + port + " readonly>";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_database_name\"><td><b>Source Database Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"database_name\" name=\"database_name\" value=" + databaseName + " readonly>";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_schema_name\"><td><b>Source Schema Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"schema_name\" name=\"schema_name\" value=" + schemaName + " readonly>";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_table_name\"><td><b>Source Table Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + " readonly>";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_user_name\"><td><b>Source User Name</b></td>";
-		msg += "<td><input type=\"text\" id=\"user_name\" name=\"user_name\" value=" + userName + " readonly>";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_pass\"><td><b>Source Password</b></td>";
-		msg += "<td><input type=\"password\" id=\"pass\" name=\"pass\" value=" + pass + " readonly>";
-		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_target_compressed\"><td><b>Target Compressed</b></td>\n";
+		msg += "<td><select id=\"target_compressed\" name=\"target_compressed\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+		msg += "<option value=\"true\"";
+		if (targetCompressed == true)
+			msg += " selected";
+		msg += ">True</option>\n";
+		msg += "<option value=\"false\"";
+		if (targetCompressed == false)
+			msg += " selected";
+		msg += ">False</option>\n";
+		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_target_row_orientation\"><td><b>Target Row Orientation</b></td>\n";
+		msg += "<td><select id=\"target_row_orientation\" name=\"target_row_orientation\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+		msg += "<option value=\"true\"";
+		if (targetRowOrientation == true)
+			msg += " selected";
+		msg += ">True</option>\n";
+		msg += "<option value=\"false\"";
+		if (targetRowOrientation == false)
+			msg += " selected";
+		msg += ">False</option>\n";
+		msg += "</select></td></tr>\n";
 		msg += "<tr id=\"r_column_name\"><td><b>Column Name</b></td>";
 		msg += "<td><input type=\"column_name\" id=\"column_name\" name=\"column_name\" value=" + columnName + " readonly>";
-		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_sql_text\"><td><b>Transform SQL</b></td>";
-		msg += "<td><textarea readonly cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>\n";
 		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_snapshot\"><td><b>Snapshot</b></td>\n";
 		msg += "<td><select id=\"snapshot\" name=\"snapshot\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
 		msg += "<option value=\"\"></option>\n";
 		msg += "<option value=\"true\"";
-		if (snapshot != null && snapshot.equals("t"))
+		if (snapshot == true)
 			msg += " selected";
 		msg += ">True</option>\n";
 		msg += "<option value=\"false\"";
-		if (snapshot != null && snapshot.equals("f"))
+		if (snapshot == false)
 			msg += " selected";
 		msg += ">False</option>\n";
 		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_sql_text\"><td><b>Transform SQL</b></td>";
+		msg += "<td><textarea readonly cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>\n";
+		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_schedule_desc\"><td><b>Schedule</b></td>";
 		msg += "<td><select id=\"schedule_desc\" name=\"schedule_desc\"i onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
 		msg += "<option value=\"\"></option>\n";
@@ -473,6 +596,43 @@ public class JobView
 				msg += " selected";
 			msg += ">" + scheduleList.get(i) + "</option>\n";
 		}
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_type\"><td><b>Source Type</b></td>\n";
+		msg += "<td><select id=\"source_type\" name=\"source_type\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+		msg += "<option value=\"\"></option>\n";
+		msg += "<option value=\"oracle\"";
+		if (sourceType != null && sourceType.equals("oracle"))
+			msg += " selected";
+		msg += ">Oracle</option>\n";
+		msg += "<option value=\"sqlserver\"";
+		if (sourceType != null && sourceType.equals("sqlserver"))
+			msg += " selected";
+		msg += ">SQL Server</option>\n";
+		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_source_server_name\"><td><b>Source Server Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_server_name\" name=\"source_server_name\" value=" + sourceServerName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_instance_name\"><td><b>Source Instance Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_instance_name\" name=\"source_instance_name\" value=" + sourceInstanceName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_port\"><td><b>Port</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_port\" name=\"source_port\" value=" + sourcePort + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_database_name\"><td><b>Source Database Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_database_name\" name=\"source_database_name\" value=" + sourceDatabaseName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_schema_name\"><td><b>Source Schema Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_schema_name\" name=\"source_schema_name\" value=" + sourceSchemaName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_table_name\"><td><b>Source Table Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_table_name\" name=\"source_table_name\" value=" + sourceTableName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_user_name\"><td><b>Source User Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"source_user_name\" name=\"source_user_name\" value=" + sourceUserName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_pass\"><td><b>Source Password</b></td>";
+		msg += "<td><input type=\"password\" id=\"source_pass\" name=\"source_pass\" value=" + sourcePass + " readonly>";
+		msg += "</td></tr>\n";
 		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Delete\"></td></tr>\n";
 		msg += "</table>\n";
 		msg += "<input type=\"hidden\" name=\"action_type\" value=\"delete\">\n";
