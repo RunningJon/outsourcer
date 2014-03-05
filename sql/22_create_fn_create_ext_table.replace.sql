@@ -44,7 +44,7 @@ BEGIN
 
         v_location := 4000;
         SELECT os.jar || ':' || g.jar || ':' || CASE WHEN ms.jar IS NOT NULL THEN ms.jar || ':'  ELSE '' END || COALESCE(o.jar, '') ||
-                ' -Xms' || s.xms || ' -Xmx' || x.xmx || ' -Djava.security.egd=file:///dev/urandom ExternalData ' || current_database() || ' ' || p.source_port || ' ' || e.id || 
+                ' -Xms' || s.xms || ' -Xmx' || x.xmx || ' -Djava.security.egd=file:///dev/urandom ExternalData ' || current_database() || ' ' || p.port || ' ' || e.id || 
                 ' "' || p_sql_text || '"'
         INTO v_java
         FROM    (SELECT value AS jar FROM os.variables WHERE name = 'gpdbJar') AS g,
@@ -67,3 +67,4 @@ EXCEPTION
 END;
 $$
   LANGUAGE plpgsql VOLATILE;
+

@@ -78,10 +78,6 @@ public class ExternalData
 				location = 3200;
 				executeExt(gpConn, connectionId, selectSQL);
 			}
-
-			location = 4000;
-			if (gpConn != null)
-				gpConn.close();
 		}
 		catch (SQLException ex)
 		{
@@ -231,12 +227,15 @@ public class ExternalData
 				sourcePass = rs.getString(7);
 			}
 
-			gpConn.close();
 
 			location = 3090;
 			if (sourceType.equals("sqlserver"))
 			{
+			
 				location = 3100;
+				gpConn.close();
+
+				location = 3200;
 				conn = CommonDB.connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
 
 				location = 3300;	
@@ -251,11 +250,14 @@ public class ExternalData
 			{
 				location = 4000;
 				fetchSize = Integer.parseInt(GP.getVariable(gpConn, "oFetchSize"));
-			
+
 				location = 4100;
+				gpConn.close();
+			
+				location = 4200;
 				conn = CommonDB.connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, fetchSize);
 
-				location = 4200;
+				location = 4300;
 				//execute the SQL Statement
 				CommonDB.outputData(conn, selectSQL);
 

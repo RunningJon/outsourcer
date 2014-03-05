@@ -1010,8 +1010,8 @@ public class GP
 		{
 			location = 2000;
 
-			strSQL = "SELECT type, server_name, instance_name, port, \n" +
-				"      database_name, user_name, pass \n" +
+			strSQL = "SELECT source_type, source_server_name, source_instance_name, source_port, \n" +
+				"	source_database_name, source_user_name, source_pass \n" +
 				"FROM os.ext_connection \n " +
 				"WHERE id = " + connectionId;
 
