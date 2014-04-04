@@ -46,7 +46,11 @@ fi
 #
 ############################################################################################################################
 
-psql -q -c "TRUNCATE os.ao_sessions"
+if [ -f /usr/local/os/log/sessions.txt ]; then
+	rm /usr/local/os/log/sessions.txt
+fi
+touch /usr/local/os/log/sessions.txt
+
 echo Removed old sessions 
 ############################################################################################################################
 #

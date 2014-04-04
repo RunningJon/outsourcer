@@ -28,6 +28,14 @@ if [ ! -f $os_version.zip ]; then
 	exit 1
 fi
 
+# get username for the installation
+echo "What username is used to manage Greenplum or HAWQ?  Default is [gpadmin]"
+read adminuser
+if [ "$adminuser" = "" ]; then
+        adminuser=gpadmin
+fi
+
+
 # make backups of Oracle and SQL Server Jar files if exists
 #Microsoft Jar
 if [ -z $MSJAR ]; then
@@ -59,8 +67,8 @@ unzip os.zip -d /usr/local/$os_version/
 # create new symbolic link
 ln -s /usr/local/$os_version /usr/local/os 
 
-# change ownership to gpadmin
-chown -R gpadmin /usr/local/$os_version
+# change ownership to $adminuser
+chown -R $adminuser /usr/local/$os_version
 
 # set permissions
 chmod 755 /usr/local/os/bin/*
@@ -79,10 +87,10 @@ echo "##################################################################"
 echo
 
 echo "##################################################################"
-echo "Installing database components as gpadmin"
+echo "Installing database components as $adminuser"
 echo "##################################################################"
 
-su - gpadmin -c '/usr/local/os/os_install.sh'
+su - $adminuser -c '/usr/local/os/os_install.sh'
 
 echo "Installation Complete!"
 

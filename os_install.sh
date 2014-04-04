@@ -67,6 +67,15 @@ if [ $? != 0 ]; then
 fi
 
 ##################################################################
+# Set the UIPORT environment variable
+##################################################################
+echo "What is an available port you want to use for the Outsourcer Web Interface? This will set the UIPORT value in your .bashrc file.  Default is [8080]"
+read uiport
+if [ "$uiport" = "" ]; then
+	uiport=8080
+fi
+
+##################################################################
 # Update the .bash_profile file
 ##################################################################
 if [ -f ~/.bash_profile ]; then
@@ -97,7 +106,9 @@ echo "export PGDATABASE=$pgdatabase" >> ~/.bashrc_os
 echo "Adding export PGPORT=$pgport"
 echo "export PGPORT=$pgport" >> ~/.bashrc_os
 echo "Adding export AUTHSERVER=$ip"
-echo "export AUTHSERVER=$ip" >> ~/.bashrc
+echo "export AUTHSERVER=$ip" >> ~/.bashrc_os
+echo "Adding export UIPORT=$uiport"
+echo "export UIPORT=$uiport" >> ~/.bashrc_os
 i=0
 while [ -z $bashrc_backup ]; do
 	i=`expr $i + 1`

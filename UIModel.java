@@ -2,6 +2,10 @@ import java.util.Map;
 import java.util.Random;
 import java.sql.*;
 import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class UIModel
 {
@@ -38,15 +42,21 @@ public class UIModel
 	{
 		try
 		{
-			Connection conn = CommonDB.connectGP(UI.gpServer, UI.gpPort, UI.gpDatabase, UI.gpUserName);
-			Statement stmt = conn.createStatement();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String expireDate = sdf.format(new Date(System.currentTimeMillis()+15*60*1000));
 
-			String strSQL = "INSERT INTO os.ao_sessions (session_id) VALUES (" + sessionID + ")";
-			stmt.executeUpdate(strSQL);
+			File file = new File("/usr/local/os/log/sessions.txt");
+			if(!file.exists())
+			{
+				file.createNewFile();
+			}
+			FileWriter writer = new FileWriter(file, true);
+			writer.write(sessionID + "|'" + expireDate + "'\n");
+			writer.flush();
+			writer.close();
 
-			conn.close();
 		}
-		catch (SQLException ex)
+		catch (IOException ex)
 		{
 			throw new SQLException(ex.getMessage());
 		}
@@ -59,7 +69,9 @@ public class UIModel
 		{
 			username = username.toLowerCase();
 			//Using the authServer value to prevent TRUST authentication.  
+			//don't use the pool to authenticate
 			Connection conn = CommonDB.connectGP(UI.authServer, UI.gpPort, UI.gpDatabase, username, password);
+			
 			String strSQL = "SELECT rolname FROM pg_roles WHERE rolsuper AND rolcanlogin AND rolname = '" + username + "'";
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -98,26 +110,24 @@ public class UIModel
 
 		try
 		{
-			Connection conn = CommonDB.connectGP(UI.gpServer, UI.gpPort, UI.gpDatabase, UI.gpUserName);
+			Connection conn = UIConnectionFactory.getConnection();
 			Statement stmt = conn.createStatement();
 
 			//make sure session is valid
-			String strSQL = "SELECT session_id FROM os.ao_sessions WHERE session_id = " + sessionID + " AND expire_date > current_timestamp LIMIT 1";
+			String strSQL = "SELECT session_id FROM os.sessions WHERE session_id = " + sessionID + " AND expire_date > current_timestamp LIMIT 1";
 			ResultSet rs = stmt.executeQuery(strSQL);
 			while (rs.next())
 			{
 				activeSession = true;
 			}
+			conn.close();
 
 			if (activeSession)
 			{
-				strSQL = "INSERT INTO os.ao_sessions (session_id) VALUES (" + sessionID + ")";
-				stmt.executeUpdate(strSQL);
-
+				insertSession(sessionID);
 				alive = true;
 			}
 
-			conn.close();
 		}
 		catch (SQLException ex)
 		{
@@ -132,7 +142,7 @@ public class UIModel
 
 		try
 		{
-			Connection conn = CommonDB.connectGP(UI.gpServer, UI.gpPort, UI.gpDatabase, UI.gpUserName);
+			Connection conn = UIConnectionFactory.getConnection();
 			Statement stmt = conn.createStatement();
 
 			String strSQL = "SELECT CASE WHEN position ('HAWQ' IN version()) > 0 THEN 'HAWQ'\n";

@@ -10,7 +10,7 @@ public class OutsourcerModel
 	{
 		try
 		{
-			Connection conn = CommonDB.connectGP(UI.gpServer, UI.gpPort, UI.gpDatabase, UI.gpUserName);
+			Connection conn = UIConnectionFactory.getConnection();
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(strSQL);
 			conn.close();
@@ -29,7 +29,7 @@ public class OutsourcerModel
 		try
 		{
 			int i = 1;
-			Connection conn = CommonDB.connectGP(UI.gpServer, UI.gpPort, UI.gpDatabase, UI.gpUserName);
+			Connection conn = UIConnectionFactory.getConnection();
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(strSQL);
 			while (rs.next())
@@ -50,7 +50,7 @@ public class OutsourcerModel
 	{
 		try
 		{
-			Connection conn = CommonDB.connectGP(UI.gpServer, UI.gpPort, UI.gpDatabase, UI.gpUserName);
+			Connection conn = UIConnectionFactory.getConnection();
 			Statement stmt = conn.createStatement();
 			stmt.executeUpdate(strSQL);
 			conn.close();

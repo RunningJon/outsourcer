@@ -11,7 +11,7 @@ mkdir /usr/local/os/bin
 cp ../bin/* /usr/local/os/bin
 
 mkdir /usr/local/os/jar
-cp ../jar/* /usr/local/os/jar
+cp ../jar/*.jar /usr/local/os/jar
 
 cp ../jar_extra/* /usr/local/os/jar
 

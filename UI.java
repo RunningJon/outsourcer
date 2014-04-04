@@ -76,54 +76,56 @@ public class UI extends NanoHTTPD
 
 		if (!uri.equals("/favicon.ico")) 
 		{
-
-		if (submit.equals("1") && (!username.equals("")) && (!password.equals(""))) 
-		{
-			try
+			if (submit.equals("1") && (!username.equals("")) && (!password.equals(""))) 
 			{
-				auth = UIModel.authenticate(username, password);
-			}
-			catch (SQLException ex)
-			{
-				loginMessage = ex.getMessage();
-			}
-			if (auth)
-			{
-				sessionID = UIModel.setSessionID(header);
 				try
 				{
-					UIModel.insertSession(sessionID);
+					auth = UIModel.authenticate(username, password);
+				}
+				catch (SQLException ex)
+				{
+					loginMessage = ex.getMessage();
+				}
+				if (auth)
+				{
+					sessionID = UIModel.setSessionID(header);
+					try
+					{
+						UIModel.insertSession(sessionID);
+					}
+					catch (SQLException ex)
+					{
+						loginMessage = ex.getMessage();
+					}
+				}
+				else if (loginMessage.equals(""))
+				{
+					loginMessage = "Failed to login.  Must use a valid Greenplum database account that is a SuperUser.";
+				}
+			}
+
+			if (!(sessionID.equals("0")))
+			{
+				try
+				{
+					alive = UIModel.keepAlive(sessionID);
 				}
 				catch (SQLException ex)
 				{
 					loginMessage = ex.getMessage();
 				}
 			}
+			if (alive)
+				msg = OutsourcerControl.buildPage(uri, parms);
 			else
-				if (loginMessage.equals(""))
-					loginMessage = "Failed to login.  Must use a valid Greenplum database account that is a SuperUser.";
-		}
+				sessionID = "0";
 
-		if (!(sessionID.equals("0")))
-		{
-			try
+			if (sessionID.equals("0"))
 			{
-				alive = UIModel.keepAlive(sessionID);
-			}
-			catch (SQLException ex)
-			{
-				loginMessage = ex.getMessage();
+				msg = UIView.viewLogin(loginMessage);
 			}
 		}
-		if (alive)
-			msg = OutsourcerControl.buildPage(uri, parms);
-		else
-			sessionID = "0";
 
-		if (sessionID.equals("0"))
-			msg = UIView.viewLogin(loginMessage);
-
-		}
 		NanoHTTPD.Response out = new NanoHTTPD.Response(msg);
 
 		if (!uri.equals("/favicon.ico")) 

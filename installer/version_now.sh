@@ -49,7 +49,7 @@ cp os_install.sh history/$os_version/
 echo version $os_version created!
 
 echo create new archive
-zip -r os.zip bin/* jar/* log sql/* README.txt LICENSE.txt os_install.sh os_path.sh
+zip -r os.zip bin/* jar/*.jar log sql/* README.txt LICENSE.txt os_install.sh os_path.sh
 
 echo move zip to installer directory
 mv os.zip installer/
