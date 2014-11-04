@@ -295,30 +295,6 @@ public class GP
 		}
 	}
 	
-	public static void analyzeTargetTable(Connection conn, String targetSchema, String targetTable) throws SQLException 
-	{
-		String method = "analyzeTargetTable";
-		int location = 1000;
-         	try
-		{
-			location = 2000;
-			Statement stmt = conn.createStatement();
-
-			location = 2100;
-			String strSQL = "ANALYZE \"" + targetSchema + "\".\"" + targetTable + "\"";
-			
-			if (debug)
-				Logger.printMsg("Analyzing target table: " + strSQL);
-		
-			location = 2200;	
-			stmt.executeUpdate(strSQL);
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-		}
-	}
-
 	public static void dropExternalReplWebTable(Connection conn, String sourceType, String targetSchema, String targetTable, String sourceTable) throws SQLException  
 	{
 		String method = "dropExternalReplWebTable";

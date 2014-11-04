@@ -240,7 +240,7 @@ if [ ! -f $MSJAR ]; then
 	echo "Microsoft SQL Server JDBC driver is missing."
 	echo "Outsourcer is not allowed to redistribute this Microsoft driver."
 	echo "Please download from http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=21599"
-	echo "Then place the sqljdbc4.jar file in /usr/local/os/"
+	echo "Then place the sqljdbc4.jar file in /usr/local/os/jar/"
 	echo "You can rename the jar file but be sure to set this value with MSJAR in your .bashrc file."
 	echo "##############################################################################################"
 	echo
@@ -251,7 +251,7 @@ if [ ! -f $OJAR ]; then
 	echo "Oracle JDBC driver is missing."
 	echo "Outsourcer is not allowed to redistribute this Oracle driver."
 	echo "Please download from http://download.oracle.com/otn/utilities_drivers/jdbc/11203/ojdbc6.jar"
-	echo "Then place the ojdbc6.jar file in /usr/local/os/"
+	echo "Then place the ojdbc6.jar file in /usr/local/os/jar/"
 	echo "You can rename the jar file but be sure to set this value with OJAR in your .bashrc file"
 	echo "##############################################################################################"
 	echo

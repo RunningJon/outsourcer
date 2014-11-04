@@ -154,12 +154,6 @@ public class ExternalDataThread implements Runnable
 						Logger.printMsg("QueueID: " + queueId + " drop external web table if exists");
 					GP.dropExternalWebTable(conn, targetSchema, targetTable);
 
-					location = 4700;
-					//Analyze target table
-					if (debug)
-						Logger.printMsg("QueueID: " + queueId + " analyze target table");
-					GP.analyzeTargetTable(conn, targetSchema, targetTable);
-
 					location = 4800;
 					//execute transform sql if any
 					sqlTextNumRows = GP.executeSQL(conn, sqlText);
@@ -225,15 +219,6 @@ public class ExternalDataThread implements Runnable
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
 						GP.dropExternalWebTable(conn, targetSchema, targetTable);
 
-						location = 6000;
-						if (refreshType.equals("refresh"))
-						{
-							location = 6100;
-							//Analyze target table
-							if (debug)
-								Logger.printMsg("QueueID: " + queueId + " analyze table");
-							GP.analyzeTargetTable(conn, targetSchema, targetTable);
-						}
 					}
 
 					location = 6200;
@@ -329,11 +314,6 @@ public class ExternalDataThread implements Runnable
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
 						GP.dropExternalWebTable(conn, targetSchema, targetTable);
 
-						location = 8200;
-						//Analyze target table
-						if (debug)
-							Logger.printMsg("QueueID: " + queueId + " analyze table");
-						GP.analyzeTargetTable(conn, targetSchema, targetTable);
 					}
 					else 
 					//not a snapshot so get new data from trigger table and load it to GP to be applid by the function

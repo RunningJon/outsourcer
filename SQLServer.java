@@ -133,9 +133,13 @@ public class SQLServer
                         	        "     CASE WHEN sub.datatype = 'char' THEN 'character' \n" +
                                         "          WHEN sub.datatype = 'nchar' THEN 'character' \n" +
                                         "          WHEN sub.datatype = 'datetime' THEN 'timestamp' \n" +
+                                        "          WHEN sub.datatype = 'datetime2' THEN 'timestamp' \n" +
+                                        "          WHEN sub.datatype = 'datetimeoffset' THEN 'timestamptz' \n" +
                                         "          WHEN sub.datatype = 'decimal' THEN 'numeric' \n" +
                                         "          WHEN sub.datatype = 'float' THEN 'float8' \n" +
+                                        "          WHEN sub.datatype = 'real' THEN 'float8' \n" +
                                         "          WHEN sub.datatype = 'int' THEN 'integer' \n" +
+                                        "          WHEN sub.datatype = 'bit' THEN 'boolean' \n" +
                                         "          WHEN sub.datatype = 'nvarchar' THEN 'varchar' \n" +
                                         "          WHEN sub.datatype = 'smalldatetime' THEN 'timestamp' \n" +
                                         "          WHEN sub.datatype = 'smallmoney' THEN 'numeric' \n" +
@@ -157,7 +161,7 @@ public class SQLServer
                                         "      WHERE so.type in ('U', 'V') \n" +
                                         "          AND su.name = '" + sourceSchema + "' \n" +
                                         "          AND so.name = '" + sourceTable + "' ) sub \n" +
-                                        "WHERE sub.datatype not in ('binary', 'image', 'timestamp', 'xml', 'varbinary', 'text', 'ntext', 'sql_variant') \n" +
+                                        "WHERE sub.datatype not in ('binary', 'image', 'timestamp', 'xml', 'varbinary', 'text', 'ntext', 'sql_variant', 'hierarchyid') \n" +
                                         "ORDER BY sub.column_id";
 
 			if (debug)
