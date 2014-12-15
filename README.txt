@@ -1,10 +1,10 @@
 README file for Outsourcer
 *******************************************************************************************************
 Site: http://www.PivotalGuru.com
-Version 4.1.4
+Version 4.1.5
 Author: Jon Roberts
 Email: jgronline@gmail.com
-Date: 2014-10-31
+Date: 2014-12-15
 *******************************************************************************************************
 
 History of Outsourcer

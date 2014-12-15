@@ -106,6 +106,19 @@ public class QueueControl
 				msg = ex.getMessage();
 			}
 		}
+		else if (actionType.equals("cancel"))
+		{
+			try
+			{
+				QueueModel.cancelTable(id);
+				rs = QueueModel.getList(search, limit, offset, sortBy, sort);
+				msg = QueueView.viewList(search, rs, limit, offset, sortBy, sort);
+			}
+			catch (Exception ex)
+			{
+				msg = ex.getMessage();
+			}
+		} 
 		return msg;
 	}
 }

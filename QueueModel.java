@@ -13,6 +13,7 @@ public class QueueModel
 		strSQL += "	'&nbsp;<button onclick=\"updateQueue(' || queue_id || ', ''delete'')\">Delete</button>'\n";
 		strSQL += "	WHEN status = 'queued' THEN'&nbsp;<button onclick=\"updateQueue(' || queue_id || ', ''delete'')\">Delete</button>'\n";
 		strSQL += "	WHEN status = 'success' THEN '&nbsp;<button onclick=\"updateQueue(' || queue_id || ', ''update'')\">Rerun</button>'\n";
+		strSQL += "	WHEN status = 'processing' THEN '&nbsp;<button onclick=\"cancelQueue(' || id || ', ''cancel'')\">Cancel</button>'\n";
 		strSQL += "	else ''\n";
 		strSQL += "	END AS status,\n";
 		strSQL += "DATE_TRUNC('second', queue_date) AS queue_date, \n";
@@ -144,6 +145,20 @@ public class QueueModel
 		try
 		{
 			OutsourcerModel.updateTable(strSQL);
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException(ex.getMessage());
+		}
+	}
+
+	public static void cancelTable(String id) throws SQLException
+	{
+		String strSQL = "SELECT os.fn_cancel_job(" + id + ")";
+
+		try
+		{
+			ResultSet rs = OutsourcerModel.getResults(strSQL);
 		}
 		catch (SQLException ex)
 		{

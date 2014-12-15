@@ -68,7 +68,11 @@ echo Environment variables updated in Greenplum
 # Reset the Queue
 #
 ############################################################################################################################
-psql -q -c "INSERT INTO os.ao_queue (queue_id, status, queue_date, start_date, end_date, error_message, num_rows, id, refresh_type, target_schema_name, target_table_name, target_append_only, target_compressed, target_row_orientation, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_schema_name, source_table_name, source_user_name, source_pass, column_name, sql_text, snapshot) SELECT queue_id, 'failed' as status, queue_date, start_date, now() as end_date, 'Restart of Outsourcer' as error_message, num_rows, id, refresh_type, target_schema_name, target_table_name, target_append_only, target_compressed, target_row_orientation, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_schema_name, source_table_name, source_user_name, source_pass, column_name, sql_text, snapshot FROM os.queue WHERE status = 'processing'"
+# Loop through queue to look for jobs still processing and cancel
+for i in $(psql -A -t -q -c "SELECT id FROM os.queue WHERE status = 'processing'"); do
+	echo "Canceling job_id $i"
+	psql -c "SELECT os.fn_cancel_job($i)" 2>&1 > /dev/null
+done
 
 echo Queue reset
 ############################################################################################################################

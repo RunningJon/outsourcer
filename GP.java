@@ -173,10 +173,10 @@ public class GP
         	try
 		{
 			location = 2000;
-			errorMessage = errorMessage.replace("\"", "\\\"");
+			errorMessage = errorMessage.replace("\"", "");
 
 			location = 2200;
-			errorMessage = errorMessage.replace("'", "\\'");
+			errorMessage = errorMessage.replace("'", "");
 
 			location = 2302;
 			errorMessage = errorMessage.replace("\n", " ");

@@ -27,6 +27,14 @@ public class QueueView
 		myScript += "   document.getElementById(\"id\").value = id;\n";
 		myScript += "   document.getElementById(\"myForm\").submit();\n";
 		myScript += "}\n";
+		myScript += "function cancelQueue(id, myAction)\n";
+		myScript += "{\n";
+		myScript += "   document.myForm.action = 'queue';\n";
+		myScript += "   document.getElementById(\"action_type\").value = myAction;\n";
+		myScript += "   document.getElementById(\"offset\").value = 0;\n";
+		myScript += "   document.getElementById(\"id\").value = id;\n";
+		myScript += "   document.getElementById(\"myForm\").submit();\n";
+		myScript += "}\n";
 
 		return myScript;
 	}

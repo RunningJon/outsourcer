@@ -497,8 +497,14 @@ public class ExternalTableView
 		msg += "<td><input type=\"text\" id=\"source_pass\" name=\"source_pass\" value=\"********\" readonly></td></tr>\n";
 		msg += "<tr id=\"r_target_schema_name\"><td><b>Target Schema</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"target_schema\" name=\"target_schema\" value=" + targetSchemaName + "></td></tr>\n";
+		msg += "<tr id=\"r_target_append_only\"><td><b>";
 
-		msg += "<tr id=\"r_target_append_only\"><td><b>Target Append-Only</b></td>\n";
+		if (UI.gpVersion.equals("AO"))
+			msg += "Target Append-Optimized";
+		else
+			msg += "Target Append-Only";
+		msg += "</b></td>\n";
+
 		msg += "<td><select id=\"target_append_only\" name=\"target_append_only\" onchange=\"disableInputFields()\">\n";
 		msg += "<option value=\"true\"";
 		if (targetAppendOnly == true)

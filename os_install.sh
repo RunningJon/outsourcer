@@ -26,7 +26,7 @@ fi
 # Get the IP address clients use
 ##################################################################
 echo "Which IP address do EXTERNAL clients use?"
-PS3="Type a number or any other key to exit:"
+PS3="Type the number that corresponds to the ip address or any other key to exit:"
 if [ $os = mac ]; then
 	ip_list=$(/sbin/ifconfig | grep "inet " | awk '{print $2}' | grep -v 127.0.0.1)
 else

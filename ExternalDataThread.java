@@ -420,8 +420,8 @@ public class ExternalDataThread implements Runnable
 			}
 			catch (SQLException exec)
 			{
-				Logger.printMsg("QueueID: " + queueId + " failed....");
 				String errorMessage = exec.getMessage();
+				Logger.printMsg("QueueID: " + queueId + " failed....\n" + errorMessage);
 				errorMessage = myclass + ":" + method + ":" + location + ":" + GP.setErrorMessage(errorMessage);
 				numRows = 0;
 				status = "failed";

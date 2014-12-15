@@ -67,9 +67,6 @@ unzip os.zip -d /usr/local/$os_version/
 # create new symbolic link
 ln -s /usr/local/$os_version /usr/local/os 
 
-# change ownership to $adminuser
-chown -R $adminuser /usr/local/$os_version
-
 # set permissions
 chmod 755 /usr/local/os/bin/*
 chmod 755 /usr/local/os/os_install.sh
@@ -80,6 +77,9 @@ for i in $( ls *.jar 2> /dev/null ); do
 	echo cp $i /usr/local/os/jar/
 	cp $i /usr/local/os/jar/
 done
+
+# change ownership to $adminuser
+chown -R $adminuser /usr/local/$os_version
 
 echo "##################################################################"
 echo "Outsourcer operating system installation complete"
