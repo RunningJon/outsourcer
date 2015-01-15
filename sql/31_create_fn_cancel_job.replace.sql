@@ -52,7 +52,7 @@ BEGIN
                 FROM pg_stat_activity p, q
                 WHERE p.datname = current_database()
                 AND p.client_addr IS NOT NULL
-                AND p.current_query like '%' || q.current_query || '%';
+		AND POSITION(p.current_query IN q.current_query) > 0;
 
                 WHILE v_procpid IS NOT NULL LOOP
 
