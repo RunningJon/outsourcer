@@ -1,0 +1,25 @@
+#!/bin/bash
+############################################################################################################################
+#
+# Outsourcer getdata script.
+#
+############################################################################################################################
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
+
+
+############################################################################################################################
+# External Tables using TRANSFORM with gpfdist
+# single parameter is passed to script so this is parsed
+############################################################################################################################
+parm1=`echo $1 | awk -F '+' '{print $1}'`
+parm2=`echo $1 | awk -F '+' '{print $2}'`
+parm3=`echo $1 | awk -F '+' '{print $3}'`
+
+if [ "$parm3" != "" ]; then
+	#Outsourcer built tables have 3 parameters
+	java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX -Djava.security.egd=file:/dev/./urandom ExternalData "$parm1" "$parm2" "$parm3"
+else
+	#User defined custom external tables have 2 parameters	
+	java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX -Djava.security.egd=file:/dev/./urandom ExternalData "$parm1" "$parm2"
+fi

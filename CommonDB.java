@@ -721,17 +721,14 @@ public class CommonDB
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
 		}
 	}
-	
-	public static Connection connectGP(String gpServer, int gpPort, String gpDatabase, String gpUserName) throws SQLException
+
+	public static Connection connectGP(String configFile) throws SQLException
 	{
 		String method = "connectGP";
 		int location = 1000;
-		//using trust in pg_hba.conf file
-		String gpPassword = "";
-
 		try
 		{
-			Connection conn = connectGP(gpServer, gpPort, gpDatabase, gpUserName, gpPassword);
+			Connection conn = connectGP(configFile, null, null);
 			return conn;
 		}
 		catch (SQLException ex)
@@ -739,8 +736,8 @@ public class CommonDB
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
 		}
 	}
-
-	public static Connection connectGP(String gpServer, int gpPort, String gpDatabase, String gpUserName, String gpPassword) throws SQLException
+	
+	public static Connection connectGP(String configFile, String gpUserName, String gpPassword) throws SQLException
 	{
 		String method = "connectGP";
 		int location = 1000;
@@ -757,18 +754,33 @@ public class CommonDB
 				throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + e.getMessage() + ")");
 			}
 
-			location = 2100;	
-			String connectionUrl = "jdbc:postgresql://" + gpServer + ":" + gpPort + "/" + gpDatabase;
+			location = 2100;
+			OSProperties.getPropValues(configFile);
 
 			location = 2200;
-			Connection conn = DriverManager.getConnection(connectionUrl, gpUserName, gpPassword);
+			String connectionUrl = "jdbc:postgresql://" + OSProperties.gpServer + ":" + OSProperties.gpPort + "/" + OSProperties.gpDatabase;
 
 			location = 2300;
+			if (gpUserName == null)
+			{
+				gpUserName = OSProperties.gpUserName;
+				gpPassword = OSProperties.gpPassword;
+			}
+
+			Connection conn = DriverManager.getConnection(connectionUrl, gpUserName, gpPassword);
+
+			location = 2400;
 			return conn;
 		}
 		catch (SQLException ex)
 		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
 		}
+
+		catch (IOException iex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + iex.getMessage() + ")");
+		}
+
 	}
 }

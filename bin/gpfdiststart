@@ -1,0 +1,20 @@
+############################################################################################################################
+#
+# Outsourcer gpfdist start script.
+#       
+############################################################################################################################
+set -e  
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
+
+k=`ps -ef 2> /dev/null | grep gpfdist | grep $OSPORT | grep -v grep | awk -F ' ' '{ print $2 }'`
+
+if [ "$k" != "" ]; then
+	echo "gpfdist already running!  Stop first with gpfdiststop."
+else
+	nohup gpfdist -d $OSHOME -p $OSPORT -c $YML > $GPFDISTLOG 2>&1 < $GPFDISTLOG &
+	echo "Directory: $OSHOME"
+	echo "Port: $OSPORT"
+	echo "YML: $YML"
+	echo "Log: $GPFDISTLOG"
+fi

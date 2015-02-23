@@ -14,6 +14,38 @@ public class ExternalData
 		int location = 1000;
 		int argsCount = args.length;
 
+		String configFile = "";
+		int queueId = 0;
+		int appendColumnMax = 0;
+		int customSQLId = 0;
+
+		location = 2000;
+
+		if (argsCount == 3)
+		{
+			location = 3100;
+			//this is an external table Outsourcer defines
+			configFile = args[0];
+			queueId = Integer.parseInt(args[1]);
+			appendColumnMax = Integer.parseInt(args[2]);
+			executeOS(configFile, queueId, appendColumnMax);
+		}
+		else if (argsCount == 2)
+		{
+			location = 3200;
+			//this is an external table that a user defines
+			configFile = args[0];
+			customSQLId = Integer.parseInt(args[1]);
+			executeExt(configFile, customSQLId);
+		}
+        }
+
+	private static void executeOS(String configFile, int queueId, int appendColumnMax) throws Exception 
+	{
+		String method = "executeOS";
+		int location = 1000;
+
+		String refreshType = "";
 		String sourceType = "";
 		String sourceServer = "";
 		String sourceInstance = "";
@@ -21,85 +53,12 @@ public class ExternalData
 		String sourceDatabase = "";
 		String sourceSchema = "";
 		String sourceTable = "";
-		String refreshType = "";
+		String sourceUser = "";
+		String sourcePass = "";
 		String appendColumnName = "";
-		int appendColumnMax = 0;
-		String gpDatabase = "";
-		int gpPort = 0;
-		int queueId = 0;
-		int connectionId = 0;
-		String selectSQL = "";
-
-		//this is an external table that a user defines
-		if (argsCount == 4) 
-		{
-			gpDatabase = args[0];
-			gpPort = Integer.parseInt(args[1]);
-			connectionId = Integer.parseInt(args[2]);
-			selectSQL = args[3];
-		} 
-		//this is an extrenal table Outsourcer defines
-		else if (argsCount == 13)
-		{
-			sourceType = args[0];
-			sourceServer = args[1];
-			sourceInstance = args[2];
-			sourcePort = Integer.parseInt(args[3]);
-			sourceDatabase = args[4];
-			sourceSchema = args[5];
-			sourceTable = args[6];
-			refreshType = args[7];
-			appendColumnName = args[8];
-			appendColumnMax = Integer.parseInt(args[9]);
-			gpDatabase = args[10];
-			gpPort = Integer.parseInt(args[11]);
-			queueId = Integer.parseInt(args[12]);
-		}
-
-		String gpServer = "localhost";
-		String gpUserName = System.getProperty("user.name");
-		String sourceUser = "";
-		String sourcePass = "";
-		Connection gpConn = null;
-
-		try
-		{
-			location = 3000;
-			gpConn = CommonDB.connectGP(gpServer, gpPort, gpDatabase, gpUserName);
-
-			if (argsCount == 13)
-			{
-				location = 3100;
-				executeOS(sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, refreshType, appendColumnName, appendColumnMax, gpConn, queueId);
-			}
-
-			else if (argsCount == 4)
-			{
-				location = 3200;
-				executeExt(gpConn, connectionId, selectSQL);
-			}
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-		}
-		finally
-		{
-			if (gpConn != null)
-				gpConn.close();
-		}
-        }
-
-	private static void executeOS(String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String refreshType, String appendColumnName, int appendColumnMax, Connection gpConn, int queueId) throws Exception
-	{
-		String method = "executeOS";
-		int location = 1000;
-
-		String sourceUser = "";
-		String sourcePass = "";
 		String strSQL = "";
-		int fetchSize = 10;
 		Connection conn = null;
+		Connection gpConn = null;
 
 		try
 		{
@@ -107,6 +66,8 @@ public class ExternalData
 
 			ResultSet rs;
 			Statement stmt;
+
+			gpConn = CommonDB.connectGP(configFile);
 
 			location = 3010;
 			strSQL = GP.getQueueDetails(gpConn, queueId);
@@ -119,10 +80,18 @@ public class ExternalData
 
 			while (rs.next())
 			{
-				sourceUser = rs.getString(1);
-				sourcePass = rs.getString(2);	
+				refreshType = rs.getString(1);
+				sourceType = rs.getString(2);
+				sourceServer = rs.getString(3);
+				sourceInstance = rs.getString(4);
+				sourcePort = rs.getInt(5);
+				sourceDatabase = rs.getString(6);
+				sourceSchema = rs.getString(7);
+				sourceTable = rs.getString(8);
+				sourceUser = rs.getString(9);
+				sourcePass = rs.getString(10);
+				appendColumnName = rs.getString(11);
 			}
-
 
 			location = 3090;
 			if (sourceType.equals("sqlserver"))
@@ -148,7 +117,7 @@ public class ExternalData
 			else if (sourceType.equals("oracle"))
 			{
 				location = 4000;
-				fetchSize = Integer.parseInt(GP.getVariable(gpConn, "oFetchSize"));
+				int fetchSize = Integer.parseInt(GP.getVariable(gpConn, "oFetchSize"));
 			
 				location = 4050;
 				gpConn.close();
@@ -178,13 +147,12 @@ public class ExternalData
 		{
 			if (conn != null)
 				conn.close();
-
 			if (gpConn != null)
 				gpConn.close();
 		}
         }
 
-	private static void executeExt(Connection gpConn, int connectionId, String selectSQL) throws Exception
+	private static void executeExt(String configFile, int customSQLId) throws Exception
 	{
 		String method = "executeExt";
 		int location = 1000;
@@ -196,19 +164,21 @@ public class ExternalData
 		String sourceDatabase = "";
 		String sourceUser = "";
 		String sourcePass = "";
+		String selectSQL = "";
 		String strSQL = "";
 		Connection conn = null;
-		int fetchSize = 10;
+		Connection gpConn = null;
 
 		try
 		{
 			location = 3000;
+			gpConn = CommonDB.connectGP(configFile);
 
 			ResultSet rs;
 			Statement stmt;
 
 			location = 3010;
-			strSQL = GP.getExtConnectionDetails(gpConn, connectionId);
+			strSQL = GP.getCustomSQLDetails(gpConn, customSQLId);
 
 			location = 3020;
 			stmt = gpConn.createStatement();
@@ -225,8 +195,8 @@ public class ExternalData
 				sourceDatabase = rs.getString(5);
 				sourceUser = rs.getString(6);
 				sourcePass = rs.getString(7);
+				selectSQL = rs.getString(8);
 			}
-
 
 			location = 3090;
 			if (sourceType.equals("sqlserver"))
@@ -249,7 +219,7 @@ public class ExternalData
 			else if (sourceType.equals("oracle"))
 			{
 				location = 4000;
-				fetchSize = Integer.parseInt(GP.getVariable(gpConn, "oFetchSize"));
+				int fetchSize = Integer.parseInt(GP.getVariable(gpConn, "oFetchSize"));
 
 				location = 4100;
 				gpConn.close();
@@ -274,10 +244,9 @@ public class ExternalData
 		finally
 		{
 			if (conn != null)
-				conn.close();
-
+	 			conn.close();
 			if (gpConn != null)
-				gpConn.close();
+	 			gpConn.close();
 		}
         }
 

@@ -1,6 +1,4 @@
-DROP FUNCTION IF EXISTS os.fn_create_ext_table(text, text[], integer, text);
-
-CREATE OR REPLACE FUNCTION os.fn_create_ext_table(p_custom_sql_id integer)
+CREATE OR REPLACE FUNCTION os.fn_create_ext_table(p_table text, p_columns text[], p_connection_id integer, p_sql_text text)
   RETURNS void AS
 $$
 DECLARE
@@ -8,36 +6,35 @@ DECLARE
         v_location int;
         
         v_sql text;
-        v_columns text[];
-        v_table_name text;
+        v_table text;
         v_ext_location text;
         v_count int;
 BEGIN
         v_location := 1000;
-        SELECT LOWER(table_name) as table_name, columns
-        INTO v_table_name, v_columns
-        FROM os.custom_sql
-        WHERE id = p_custom_sql_id;
+        PERFORM NULL
+        FROM os.ext_connection
+        WHERE id = p_connection_id;
 
         GET DIAGNOSTICS v_count = ROW_COUNT;
         
         v_location := 1500;
         IF v_count = 0 THEN
-                RAISE EXCEPTION 'CustomSQLId: "%" is not valid', p_custom_sql_id;
+                RAISE EXCEPTION 'ConnectionID: "%" is not valid', p_connection_id;
         END IF;
 
         v_location := 2000;
-        v_sql := 'DROP EXTERNAL TABLE IF EXISTS ' || v_table_name;
+        v_table := LOWER(p_table);
+        v_sql := 'DROP EXTERNAL TABLE IF EXISTS ' || v_table;
         RAISE INFO '%', v_sql;
         EXECUTE v_sql;
 
         v_location := 3000;
-        FOR i IN array_lower(v_columns, 1)..array_upper(v_columns,1) LOOP
+        FOR i IN array_lower(p_columns, 1)..array_upper(p_columns,1) LOOP
                 IF i = 1 THEN
-                        v_sql := 'CREATE EXTERNAL TABLE ' || v_table_name || E' \n' ||
-                                '(' || v_columns[i];
+                        v_sql := 'CREATE EXTERNAL TABLE ' || v_table || E' \n' ||
+                                '(' || p_columns[i];
                 ELSE
-                        v_sql := v_sql || E', \n' || v_columns[i];
+                        v_sql := v_sql || E', \n' || p_columns[i];
                 END IF;
 
         END LOOP;
@@ -46,13 +43,13 @@ BEGIN
         v_sql := v_sql || E')\n';
 
         v_location := 4000;
-        SELECT 'LOCATION (''' || gpfdisturl || 'config.properties+' || p_custom_sql_id || '#transform=externaldata'')'
+        SELECT 'LOCATION (''' || gpfdisturl || '+' || p_connection_id || '+' || p_sql_text || '#transform=externaldata'')'
         INTO v_ext_location
         FROM 
         (SELECT value AS gpfdisturl FROM os.variables WHERE name = 'gpfdistUrl') AS a;
 
         v_location := 5000;
-        v_sql := v_sql || v_ext_location || ' FORMAT ''TEXT'' (delimiter ''|'' null ''null'')';
+        v_sql := v_sql || v_ext_location || ''' FORMAT ''TEXT'' (delimiter ''|'' null ''null'')';
         RAISE INFO '%', v_sql;
         EXECUTE v_sql;
 EXCEPTION

@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.net.*;
 import java.io.*;
+import java.util.*;
 
 public class GP
 {
@@ -8,6 +9,77 @@ public class GP
 	private static String myclass = "GP";
 	public static boolean debug = false;
 	public static String externalSchema = "ext";
+
+	public static void failJobs(Connection conn) throws SQLException
+	{
+		String method = "failJobs";
+		int location = 1000;
+		try
+		{
+			Statement stmt = conn.createStatement();
+
+			String strSQL = "INSERT INTO os.ao_queue (queue_id, status, queue_date, start_date, end_date, " +
+				"error_message, num_rows, id, refresh_type, target_schema_name, target_table_name, target_append_only, " +
+				"target_compressed, target_row_orientation, source_type, source_server_name, source_instance_name, " +
+				"source_port, source_database_name, source_schema_name, source_table_name, source_user_name, " +
+				"source_pass, column_name, sql_text, snapshot) " +
+				"SELECT queue_id, 'failed' as status, queue_date, start_date, now() as end_date, " +
+				"'Outsourcer stop requested' as error_message, num_rows, id, refresh_type, target_schema_name, " +
+				"target_table_name, target_append_only, target_compressed, target_row_orientation, source_type, " +
+				"source_server_name, source_instance_name, source_port, source_database_name, source_schema_name, " +
+				"source_table_name, source_user_name, source_pass, column_name, sql_text, snapshot " +
+				"FROM os.queue WHERE status = 'queued'";
+
+			stmt.executeUpdate(strSQL);
+
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+	}
+	public static void cancelJobs(Connection conn) throws SQLException
+	{
+		String method = "cancelJobs";
+		int location = 1000;
+		try
+		{
+			List<String> jobIdList = new ArrayList<String>();
+			Statement stmt = conn.createStatement();
+
+			String strSQL = "SELECT id FROM os.queue WHERE status = 'processing'";
+			ResultSet rs = stmt.executeQuery(strSQL);
+			while (rs.next())
+			{
+				jobIdList.add(rs.getString(1));
+			}
+
+			for (String jobId : jobIdList)
+			{
+				strSQL = "SELECT os.fn_cancel_job(" + jobId + ")";
+				rs = stmt.executeQuery(strSQL);
+			}	
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+	}
+	public static void vacuumAnalyzeTable(Connection conn, String tableName) throws SQLException
+	{
+		String method = "vacuumAnalyzeTable";
+		int location = 1000;
+		try
+		{
+			String strSQL = "VACUUM ANALYZE " + tableName;
+			Statement stmt = conn.createStatement();
+			stmt.executeUpdate(strSQL);
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+	}
 
 	public static int executeSQL(Connection conn, String strSQL) throws SQLException
 	{
@@ -295,9 +367,9 @@ public class GP
 		}
 	}
 	
-	public static void dropExternalReplWebTable(Connection conn, String sourceType, String targetSchema, String targetTable, String sourceTable) throws SQLException  
+	public static void dropExternalReplTable(Connection conn, String sourceType, String targetSchema, String targetTable, String sourceTable) throws SQLException  
 	{
-		String method = "dropExternalReplWebTable";
+		String method = "dropExternalReplTable";
 		int location = 1000;
 		try
 		{
@@ -311,7 +383,7 @@ public class GP
 			String replSourceTable = getReplTableName(sourceType, sourceTable);
 
 			location = 2315;
-			dropExternalWebTable(conn, replTargetSchema, replTargetTable);
+			dropExternalTable(conn, replTargetSchema, replTargetTable);
 		}
 		catch (SQLException ex)
 		{
@@ -319,9 +391,9 @@ public class GP
 		}
 	}
 
-	public static void dropExternalWebTable(Connection conn, String targetSchema, String targetTable) throws SQLException  
+	public static void dropExternalTable(Connection conn, String targetSchema, String targetTable) throws SQLException  
 	{
-		String method = "dropExternalWebTable";
+		String method = "dropExternalTable";
 		int location = 1000;
          	try
 		{
@@ -332,9 +404,9 @@ public class GP
 			Statement stmt = conn.createStatement();
 
 			location = 2200;
-			String strSQL = "DROP EXTERNAL WEB TABLE IF EXISTS \"" + externalSchema + "\".\"" + externalTable + "\"";
+			String strSQL = "DROP EXTERNAL TABLE IF EXISTS \"" + externalSchema + "\".\"" + externalTable + "\"";
 			if (debug)
-				Logger.printMsg("Dropping External Web Table (if exists): " + strSQL);
+				Logger.printMsg("Dropping External Table (if exists): " + strSQL);
 		
 			location = 2303;	
 			stmt.executeUpdate(strSQL);
@@ -580,7 +652,7 @@ public class GP
 		}
 	}
 
-	public static void createReplExternalTable(Connection conn, String targetSchema, String targetTable, String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String refreshType, String columnName, int maxId, String gpDatabase, int gpPort, int queueId) throws SQLException 
+	public static void createReplExternalTable(Connection conn, String osServer, int osPort, String targetSchema, String targetTable, String sourceType, String sourceTable, int maxId, int queueId) throws SQLException 
 	{
 		String method = "createReplExternalTable";
 		int location = 1000;
@@ -596,7 +668,7 @@ public class GP
 			String replSourceTable = getReplTableName(sourceType, sourceTable);
 
 			location = 2308;
-			createExternalTable(conn, replTargetSchema, replTargetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, replSourceTable, refreshType, columnName, maxId, gpDatabase, gpPort, queueId);
+			createExternalTable(conn, osServer, osPort, replTargetSchema, replTargetTable, maxId, queueId);
 
 		}
 		catch (SQLException ex)
@@ -605,7 +677,7 @@ public class GP
 		}
 	}	
 
-	public static void createExternalTable(Connection conn, String targetSchema, String targetTable, String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String refreshType, String columnName, int maxId, String gpDatabase, int gpPort, int queueId) throws SQLException 
+	public static void createExternalTable(Connection conn, String osServer, int osPort, String targetSchema, String targetTable, int maxId, int queueId) throws SQLException 
 	{
 		String method = "createExternalTable";
 		int location = 1000;
@@ -615,35 +687,11 @@ public class GP
 			location = 2000;
 			String externalTable = getExternalTableName(targetSchema, targetTable);
 
-			location = 2010;
-			String classPath = getVariable(conn, "osJar");
-
-			location = 2020;
-			classPath = classPath + ":" + getVariable(conn, "gpdbJar");
-
-			location = 2025;
-			classPath = classPath + ":" + getVariable(conn, "oJar");
-
-			location = 2030;
-			classPath = classPath + ":" + getVariable(conn, "msJar");
-
-			location = 2035;
-			classPath = classPath + " -Xms" + getVariable(conn, "Xms");
-
-			location = 2037;
-			classPath = classPath + " -Xmx" + getVariable(conn, "Xmx");
-
-			location = 2039;
-			classPath = classPath + " -Djava.security.egd=file:///dev/urandom";
-
-			location = 2040;
-			classPath = classPath + " ExternalData";
-
 			location = 2100;
 			Statement stmt = conn.createStatement();
 
 			location = 2200;
-			String createSQL = "CREATE EXTERNAL WEB TABLE \"" + externalSchema + "\".\"" + externalTable + "\" \n (";
+			String createSQL = "CREATE EXTERNAL TABLE \"" + externalSchema + "\".\"" + externalTable + "\" \n (";
 
 			location = 2309;
 			String strSQL = "SELECT c.column_name, \n" +
@@ -676,46 +724,26 @@ public class GP
 			createSQL = createSQL + ") \n";
 
 			////////////////////////////////////////////
-			//Create Java command for External Web Table
+			//Create location for External Table
 			////////////////////////////////////////////
 			location = 3000;
-			String javaExecute = "EXECUTE E'java -classpath " + classPath + " " + sourceType + " " + sourceServer + " ";
-			
-			location = 3050;
-			sourceDatabase = sourceDatabase.replaceAll("\\$", "\\\\\\\\\\$");
-			sourceSchema = sourceSchema.replaceAll("\\$", "\\\\\\\\\\$");
-			sourceTable = sourceTable.replaceAll("\\$", "\\\\\\\\\\$");
-
-			if (sourceInstance != null)
-			{
-				location = 3100;
-				sourceInstance = sourceInstance.replaceAll("\\$", "\\\\\\\\\\$");
-				javaExecute = javaExecute + "\"" + sourceInstance + "\" " + sourcePort + " \"" + sourceDatabase + "\" ";
-			}
-			else
-			{
-				location = 3200;
-				javaExecute = javaExecute + "\"\" " + sourcePort + " \"" + sourceDatabase + "\" ";
-			}
-
-			location = 3300;
-			javaExecute = javaExecute + "\"" + sourceSchema + "\" \"" + sourceTable + "\" " + refreshType + " " + columnName + " " + maxId + " " + gpDatabase + " "  + gpPort + " " + queueId + "'";
-
+			String extLocation = 	"LOCATION ('gpfdist://" + osServer + ":" + osPort + 
+						"/config.properties+" + queueId + "+" + maxId + "#transform=externaldata" + "')";
 			location = 3400;
-			javaExecute = javaExecute + "\n" + "ON MASTER FORMAT 'TEXT' (delimiter '|' null 'null' escape '\\\\')";
+			extLocation = extLocation + "\n" + "FORMAT 'TEXT' (delimiter '|' null 'null' escape '\\\\')";
 
 			////////////////////////////////////////////
 			//Add createSQL with Java Command to exec.
 			////////////////////////////////////////////
 			location = 3500;
-			createSQL = createSQL + javaExecute;
+			createSQL = createSQL + extLocation;
 			
 			////////////////////////////////////////////
 			//Create new external web table
 			////////////////////////////////////////////
 			location = 4000;
 			if (debug)
-				Logger.printMsg("Creating External Web Table: " + createSQL);
+				Logger.printMsg("Creating External Table: " + createSQL);
 
 			stmt.executeUpdate(createSQL);
 			
@@ -723,6 +751,10 @@ public class GP
 		catch (SQLException ex)
 		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+		catch (Exception e)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + e.getMessage() + ")");
 		}
 	}	
 
@@ -962,9 +994,12 @@ public class GP
 		try
 		{
 			location = 2000;
-			strSQL = "SELECT source_user_name, source_pass \n" +
+			strSQL = "SELECT refresh_type, source_type, source_server_name, source_instance_name, source_port, source_database_name, " +
+				"source_schema_name, source_table_name, source_user_name, source_pass, column_name \n" +
 				"FROM os.queue \n" +
-				"WHERE queue_id = " + queueId;
+				"WHERE queue_id = " + queueId + "\n" +
+				"AND status = 'processing'";
+				//added processing check
 
 			location = 3000;
 			return strSQL;
@@ -975,9 +1010,9 @@ public class GP
 		}
 	}
 
-	public static String getExtConnectionDetails(Connection conn, int connectionId) throws SQLException
+	public static String getCustomSQLDetails(Connection conn, int customSQLId) throws SQLException
 	{
-		String method = "getExtConnectionDetails";
+		String method = "getCustomSQLDetails";
 		int location = 1000;
 
 		String strSQL = "";
@@ -987,9 +1022,9 @@ public class GP
 			location = 2000;
 
 			strSQL = "SELECT source_type, source_server_name, source_instance_name, source_port, \n" +
-				"	source_database_name, source_user_name, source_pass \n" +
-				"FROM os.ext_connection \n " +
-				"WHERE id = " + connectionId;
+				"	source_database_name, source_user_name, source_pass, sql_text \n" +
+				"FROM os.custom_sql \n" +
+				"WHERE id = " + customSQLId;
 
 			location = 3000;
 			return strSQL;

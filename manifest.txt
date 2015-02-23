@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Main-Class: ExternalData
+Specification-Title: "Outsourcer"
+Specification-Version: "1.0"
+Created-By: 1.6.0_65-b14-462-11M4609
+Build-Date: Wed Feb 18 14:02:10 CST 2015

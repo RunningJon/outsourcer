@@ -45,7 +45,7 @@ public class UIModel
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String expireDate = sdf.format(new Date(System.currentTimeMillis()+15*60*1000));
 
-			File file = new File("/usr/local/os/log/sessions.txt");
+			File file = new File(UI.sessions);
 			if(!file.exists())
 			{
 				file.createNewFile();
@@ -65,12 +65,11 @@ public class UIModel
 	public static boolean authenticate(String username, String password) throws SQLException
 	{
 		boolean authenticated = false;
+		username = username.toLowerCase();
 		try
 		{
-			username = username.toLowerCase();
-			//Using the authServer value to prevent TRUST authentication.  
 			//don't use the pool to authenticate
-			Connection conn = CommonDB.connectGP(UI.authServer, UI.gpPort, UI.gpDatabase, username, password);
+			Connection conn = CommonDB.connectGP(UI.configFile, username, password);
 			
 			String strSQL = "SELECT rolname FROM pg_roles WHERE rolsuper AND rolcanlogin AND rolname = '" + username + "'";
 			Statement stmt = conn.createStatement();
@@ -107,7 +106,6 @@ public class UIModel
 	{
 		boolean alive = false;
 		boolean activeSession = false;
-
 		try
 		{
 			Connection conn = UIConnectionFactory.getConnection();
@@ -131,6 +129,7 @@ public class UIModel
 		}
 		catch (SQLException ex)
 		{
+			System.out.println(ex.getMessage());
 			throw new SQLException(ex.getMessage());
 		}
 		return alive;

@@ -1,5 +1,14 @@
+############################################################################################################################
+#
+# Outsourcer Queue Daemon status script.
+#       
+############################################################################################################################
+set -e  
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
+
 # find the pid for Outsourcer and kill it
-pid=$(ps -ef | grep Outsourcer.jar | grep ExternalDataD | grep -v grep | awk '{ print $2 }')
+pid=$(ps -ef 2> /dev/null | grep $OSJAR | grep ExternalDataD | grep -v grep | awk '{ print $2 }')
 
 if [ $pid ]; then
         echo Up

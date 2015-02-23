@@ -73,7 +73,6 @@ public class ScheduleModel
 	{
 		description = OutsourcerModel.setSQLString(description);
 
-		// need a check here to make sure there aren't any jobs using this schedule!!!
 		try
 		{
 			//update jobs.schedule_desc to null if removing a matching schedule

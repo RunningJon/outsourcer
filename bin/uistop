@@ -7,10 +7,11 @@
 ############################################################################################################################
 
 set -e
-source ~/.bashrc
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
 
 # find the pid for Outsourcer and kill it
-pid=$(ps -ef 2> /dev/null | grep Outsourcer.jar | grep UI | grep -v grep | awk '{ print $2 }')
+pid=$(ps -ef 2> /dev/null | grep $OSJAR | grep UI | grep -v grep | awk '{ print $2 }')
 
 if [ $pid ]; then
 	echo Killing $pid

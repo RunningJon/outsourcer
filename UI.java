@@ -1,35 +1,37 @@
 import java.util.Map;
 import fi.iki.elonen.*;
 import java.sql.*;
+import java.io.IOException;
 
 public class UI extends NanoHTTPD 
 {
-	public static String gpServer = "localhost";
-	public static int gpPort = 5432;
-	public static String gpDatabase = "gpdb";
-	public static String gpUserName = "gpadmin";
 	public static int webPort = 8080;
-	public static String authServer = "mdw";
 	public static String gpVersion = "HEAP";
-	
+	public static String sessions = "";
+	public static String configFile = "";
+
 	public static void main(String[] args) 
 	{
 		for (int i = 0; i < args.length; ++i)
 		{
 			if (i == 0)
-				gpServer = args[0];
+				webPort = Integer.parseInt(args[0]);
 			if (i == 1)
-				gpPort = Integer.parseInt(args[1]);
+				sessions = args[1];
 			if (i == 2)
-				gpDatabase = args[2];
-			if (i == 3)
-				gpUserName = args[3];
-			if (i == 4)
-				webPort = Integer.parseInt(args[4]);
-			if (i == 5)
-				authServer = args[5];
+				configFile = args[2];
 		}
 		gpVersion = UIModel.getVersion();
+/*
+		try
+		{
+			OSProperties.getPropValues(configFile);
+		}
+		catch (IOException iox)
+		{
+			System.out.println("Unable to load config file.  Check environment variables and try again.");	
+		}
+*/
 		ServerRunnerUI.run(UI.class);
 	}
 

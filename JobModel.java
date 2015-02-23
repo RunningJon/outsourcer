@@ -38,9 +38,10 @@ public class JobModel
 		strSQL += "	'<button onclick=\"updateQueue(' || j.id || ', ''insert'')\">Queue</button>' END AS manage,\n";
 		strSQL += "j.id, initcap(j.refresh_type) AS refresh_type,\n";
 		strSQL += "CASE WHEN j.refresh_type = 'transform' THEN 'Transform' ELSE initcap(j.source_type) END AS source_info,\n";
-		strSQL += "coalesce((j.target_schema_name || '.' || j.target_table_name), '') AS target_table_name,\n";
-		strSQL += "coalesce(j.schedule_desc, '') AS schedule_desc,\n";
-		strSQL += "coalesce(schedule_next::text, '') AS schedule_next\n";
+		strSQL += "CASE WHEN refresh_type = 'transform' THEN SUBSTRING(sql_text, 1, 30)\n";
+		strSQL += "ELSE COALESCE((j.target_schema_name || '.' || j.target_table_name), '') END AS target_table_name,\n";
+		strSQL += "COALESCE(j.schedule_desc, '') AS schedule_desc,\n";
+		strSQL += "COALESCE(schedule_next::text, '') AS schedule_next\n";
  		strSQL += "FROM os.job j\n";
 		strSQL += "LEFT OUTER JOIN (\n";
 		strSQL += "SELECT id, status FROM (\n";

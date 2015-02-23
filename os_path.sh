@@ -1,100 +1,87 @@
-############################################################################################################################
+################################################################################################
 #Define the Greenplum environment for Outsourcer
-############################################################################################################################
+################################################################################################
+#Note: Outsourcer server name is set during installation.
 
 #Outsourcer home
-OSHOME=/usr/local/os
+OSHOME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 export OSHOME
 
+#Outsourcer UI Web Port
+export UIPORT=8080
+
+#gpfdist Port
+#If you change this after installation, re-run os_install.sh
+export OSPORT=8999
+
+#yml
+export YML=$OSHOME/yml/outsourcer.yml
+
+#Database configuration
+export CONFIG=$OSHOME/config.properties
+
+################################################################################################
+#Logs
+################################################################################################
 #Outsourcer log file
-OSLOG=$OSHOME/log/Outsourcer.log
-export OSLOG
+export OSLOG=$OSHOME/log/Outsourcer.log
 
 #Outsourcer UI log file
-UILOG=$OSHOME/log/OutsourcerUI.log
-export UILOG
+export UILOG=$OSHOME/log/OutsourcerUI.log
 
 #Outsourcer Agent log file
-AGENTLOG=$OSHOME/log/OutsourcerAgent.log
-export AGENTLOG
+export AGENTLOG=$OSHOME/log/OutsourcerAgent.log
 
-#Outsourcer UI Auth Server for Web UI
-#Should be set to an entry that won't use TRUST but MD5 or LDAP
-if [ -z $AUTHSERVER ]; then
-	export AUTHSERVER=mdw
-fi
+#Outsourcer gpfdist log file
+export GPFDISTLOG=$OSHOME/log/OutsourcerGpfdist.log
 
-#Outsourcer UI Web Port
-if [ -z $UIPORT ]; then
-	export UIPORT=8080
-fi
+#Outsourcer UI Sessions log file
+export SESSIONS=$OSHOME/log/sessions.txt
 
+################################################################################################
+#Java Memory
+################################################################################################
 #Min memory for Outsourcer
-if [ -z $XMS ]; then
-	XMS=128m
-	export XMS
-fi
+export XMS=128m
 
 #Max memory for Outsourcer
-if [ -z $XMX ]; then
-	XMX=256m
-	export XMX
-fi
+XMX=256m
 
+################################################################################################
+#Jar files
+################################################################################################
 #Outsourcer Jar
-if [ -z $OSJAR ]; then
-	OSJAR=$OSHOME/jar/Outsourcer.jar
-	export OSJAR
-fi
+OSJAR=$OSHOME/jar/Outsourcer.jar
 
 #OutsourcerScheduler Jar
-if [ -z $OSAGENTJAR ]; then
-	OSAGENTJAR=$OSHOME/jar/OutsourcerScheduler.jar
-	export OSAGENTJAR
-fi
+export OSAGENTJAR=$OSHOME/jar/OutsourcerScheduler.jar
 
 #OutsourcerUI Jar
-if [ -z $OSUIJAR ]; then
-	OSUIJAR=$OSHOME/jar/OutsourcerUI.jar
-	export OSUIJAR
-fi
+export OSUIJAR=$OSHOME/jar/OutsourcerUI.jar
 
 #GPDB Jar
-if [ -z $GPDBJAR ]; then
-	GPDBJAR=$OSHOME/jar/gpdb.jar
-	export GPDBJAR
-fi
+export GPDBJAR=$OSHOME/jar/gpdb.jar
 
 #Microsoft Jar
-if [ -z $MSJAR ]; then
-	MSJAR=$OSHOME/jar/sqljdbc4.jar
-	export MSJAR
-fi
+export MSJAR=$OSHOME/jar/sqljdbc4.jar
 
 #Oracle Jar
-if [ -z $OJAR ]; then
-	OJAR=$OSHOME/jar/ojdbc6.jar
-	export OJAR
-fi
+export OJAR=$OSHOME/jar/ojdbc6.jar
 
 #Nano Jar
-if [ -z $NANOJAR ]; then
-	NANOJAR=$OSHOME/jar/nanohttpd.jar
-	export NANOJAR
-fi
+export NANOJAR=$OSHOME/jar/nanohttpd.jar
 
+################################################################################################
+#Paths
+################################################################################################
 #Classpath for Outsourcer osstart
-OSCLASSPATH=$OSJAR\:$MSJAR\:$OJAR\:$GPDBJAR
-export OSCLASSPATH
+export OSCLASSPATH=$OSJAR\:$MSJAR\:$OJAR\:$GPDBJAR
 
 #Classpath for Outsourcer uistart
-OSUICLASSPATH=$OSJAR\:$OSUIJAR\:$MSJAR\:$OJAR\:$GPDBJAR\:$NANOJAR
-export OSCLASSPATH
+export OSUICLASSPATH=$OSJAR\:$OSUIJAR\:$MSJAR\:$OJAR\:$GPDBJAR\:$NANOJAR
 
 #Classpath for Outsourcer agentstart
-OSAGENTCLASSPATH=$OSJAR\:$OSAGENTJAR\:$GPDBJAR
-export OSAGENTCLASSPATH
+export OSAGENTCLASSPATH=$OSJAR\:$OSAGENTJAR\:$GPDBJAR
 
 #set new path
-PATH=$OSHOME/bin:$PATH
-export PATH
+export PATH=$OSHOME/bin:$PATH

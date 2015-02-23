@@ -6,32 +6,36 @@ public class ExternalDataD
 {
 	private static String myclass = "ExternalDataD";
 	public static boolean debug = true;
+	public static String configFile = "";
 
 	public static void main(String[] args) throws Exception
 	{
 
 		String method = "main";
 		int location = 1000;
-		String gpServer = args[0];
-		int gpPort = Integer.parseInt(args[1]);
-		String gpDatabase = args[2];
-		String gpUserName = args[3];
+		int argsCount = args.length;
+
+		configFile = args[0];
+		String action = args[1];
 
 		location = 2000;
-		if (debug)
-		{
-			System.out.println("gpServer:" + gpServer);
-			System.out.println("gpPort:" + gpPort);
-			System.out.println("gpDatabase:" + gpDatabase);
-			System.out.println("gpUsername:" + gpUserName);
-		}
-	
 		try
 		{
-			location = 3000;	
-			if (debug)	
-				Logger.printMsg("Start to loop....");	
-			loadLoop(gpServer, gpPort, gpDatabase, gpUserName);
+			location = 3000;
+			if (action.equals("start"))
+			{
+				Connection conn = CommonDB.connectGP(configFile);
+				GP.cancelJobs(conn);
+				conn.close();
+				loadLoop();
+			} 
+			else if (action.equals("stop"))
+			{
+				Connection conn = CommonDB.connectGP(configFile);
+				GP.failJobs(conn);
+				GP.cancelJobs(conn);
+				conn.close();
+			}
 		}
 		catch (SQLException ex)
 		{
@@ -39,7 +43,7 @@ public class ExternalDataD
 		}
         }
 
-	private static void loadLoop(String gpServer, int gpPort, String gpDatabase, String gpUserName) throws Exception
+	private static void loadLoop() throws Exception
 	{
 
 		String method = "loadLoop";
@@ -81,7 +85,7 @@ public class ExternalDataD
 				boolean snapshot = false;
 
 				location = 3000;
-				Connection conn = CommonDB.connectGP(gpServer, gpPort, gpDatabase, gpUserName);
+				Connection conn = CommonDB.connectGP(configFile);
 
 				location = 3100;
 				strSQL = "SELECT queue_id, queue_date, start_date,\n";
@@ -136,7 +140,7 @@ public class ExternalDataD
 					if (debug)	
 						Logger.printMsg("Thread working on ID: " + id);
 
-					ExternalDataThread edt = new ExternalDataThread(gpServer, gpPort, gpDatabase, gpUserName, queueId, queueDate, startDate, id, refreshType, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, columnName, sqlText, snapshot);
+					ExternalDataThread edt = new ExternalDataThread(queueId, queueDate, startDate, id, refreshType, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, columnName, sqlText, snapshot);
 
 					location = 5100;
 					if (debug)	

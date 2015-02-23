@@ -16,7 +16,7 @@ public class UIView
 			loginMessage = loginMessage.substring(0, loginMessage.length() - 1);
 		}
 		msg += "<table class=\"ostable\">\n";
-		msg += "<tr><td><h1><a href=\"/\">Outsourcer</a></h1></td>\n";
+		msg += "<tr><td><h1><a href=\"/\">Outsourcer 5</a></h1></td>\n";
 		msg += "</tr>\n";
 		msg += "</table>\n";
 		msg += "<form action=\"/\" name=\"login\" id=\"login\" method=\"post\">\n";

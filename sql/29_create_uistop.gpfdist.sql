@@ -1,0 +1,5 @@
+DROP EXTERNAL TABLE IF EXISTS os.uistop;
+
+CREATE EXTERNAL TABLE os.uistop
+(foo text) 
+LOCATION (:LOCATION) FORMAT 'text' (DELIMITER '|');

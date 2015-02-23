@@ -1,0 +1,5 @@
+DROP EXTERNAL TABLE IF EXISTS os.osstatus;
+
+CREATE EXTERNAL TABLE os.osstatus
+(status text) 
+LOCATION (:LOCATION) FORMAT 'text' (DELIMITER '|');

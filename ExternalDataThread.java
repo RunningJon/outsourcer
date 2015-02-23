@@ -7,11 +7,6 @@ public class ExternalDataThread implements Runnable
 	private static String myclass = "ExternalDataThread";
 	public static boolean debug = true;
 
-	private String gpServer;
-	private int gpPort;
-	private String gpDatabase;
-	private String gpUserName;
-
 	private int queueId;
 	private Timestamp queueDate;
 	private Timestamp startDate;
@@ -41,12 +36,8 @@ public class ExternalDataThread implements Runnable
 	private int sqlTextNumRows = 0;
 	private Connection conn;
 
-	ExternalDataThread(String aGpServer, int aGpPort, String aGpDatabase, String aGpUserName, int aQueueId, Timestamp aQueueDate, Timestamp aStartDate, int aId, String aRefreshType, String aTargetSchema, String aTargetTable, boolean aTargetAppendOnly, boolean aTargetCompressed, boolean aTargetRowOrientation, String aSourceType, String aSourceServer, String aSourceInstance, int aSourcePort, String aSourceDatabase, String aSourceSchema, String aSourceTable, String aSourceUser, String aSourcePass, String aColumnName, String aSqlText, boolean aSnapshot) throws Exception
+	ExternalDataThread(int aQueueId, Timestamp aQueueDate, Timestamp aStartDate, int aId, String aRefreshType, String aTargetSchema, String aTargetTable, boolean aTargetAppendOnly, boolean aTargetCompressed, boolean aTargetRowOrientation, String aSourceType, String aSourceServer, String aSourceInstance, int aSourcePort, String aSourceDatabase, String aSourceSchema, String aSourceTable, String aSourceUser, String aSourcePass, String aColumnName, String aSqlText, boolean aSnapshot) throws Exception
 	{
-		gpServer = aGpServer;
-		gpPort = aGpPort;
-		gpDatabase = aGpDatabase;
-		gpUserName = aGpUserName;
 		queueId = aQueueId;
 		queueDate = aQueueDate;
 		startDate = aStartDate;
@@ -80,7 +71,12 @@ public class ExternalDataThread implements Runnable
 		try
 		{
 			location = 2000;
-			Connection conn = CommonDB.connectGP(gpServer, gpPort, gpDatabase, gpUserName);
+			String configFile = ExternalDataD.configFile;
+			Connection conn = CommonDB.connectGP(configFile);
+
+			location = 2100;
+			String osServer = OSProperties.osServer;
+			int osPort = OSProperties.osPort;
 
 			try 
 			{
@@ -126,7 +122,7 @@ public class ExternalDataThread implements Runnable
 					//drop external web table
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " drop external web table if exists");
-					GP.dropExternalWebTable(conn, targetSchema, targetTable);
+					GP.dropExternalTable(conn, targetSchema, targetTable);
 
 					location = 4300;
 					//Create the external table 
@@ -134,7 +130,7 @@ public class ExternalDataThread implements Runnable
 					columnName = "column";
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " creating external table");
-					GP.createExternalTable(conn, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, refreshType, columnName, maxGPId, gpDatabase, gpPort, queueId);
+					GP.createExternalTable(conn, osServer, osPort, targetSchema, targetTable, maxGPId, queueId);
 
 					location = 4400;
 					//Truncate the target table if refresh
@@ -152,7 +148,7 @@ public class ExternalDataThread implements Runnable
 					//drop external web table
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " drop external web table if exists");
-					GP.dropExternalWebTable(conn, targetSchema, targetTable);
+					GP.dropExternalTable(conn, targetSchema, targetTable);
 
 					location = 4800;
 					//execute transform sql if any
@@ -199,13 +195,13 @@ public class ExternalDataThread implements Runnable
 						//drop external web table
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
-						GP.dropExternalWebTable(conn, targetSchema, targetTable);
+						GP.dropExternalTable(conn, targetSchema, targetTable);
 
 						location = 5800;	
 						//Create the external table 
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " create external table");
-						GP.createExternalTable(conn, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, refreshType, columnName, maxGPId, gpDatabase, gpPort, queueId);
+						GP.createExternalTable(conn, osServer, osPort, targetSchema, targetTable, maxGPId, queueId);
 
 						location = 5900;	
 						//Insert into target table, selecting from external table	
@@ -217,7 +213,7 @@ public class ExternalDataThread implements Runnable
 						//drop external web table
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
-						GP.dropExternalWebTable(conn, targetSchema, targetTable);
+						GP.dropExternalTable(conn, targetSchema, targetTable);
 
 					}
 
@@ -294,13 +290,13 @@ public class ExternalDataThread implements Runnable
 						//drop external web table
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
-						GP.dropExternalWebTable(conn, targetSchema, targetTable);
+						GP.dropExternalTable(conn, targetSchema, targetTable);
 
 						location = 8000;
 						//Create the external table 
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " create external table");
-						GP.createExternalTable(conn, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, refreshType, columnName, maxGPId, gpDatabase, gpPort, queueId);
+						GP.createExternalTable(conn, osServer, osPort, targetSchema, targetTable, maxGPId, queueId);
 
 						location = 8100;
 						//Insert into target table, selecting from external table	
@@ -312,7 +308,7 @@ public class ExternalDataThread implements Runnable
 						//drop external web table
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
-						GP.dropExternalWebTable(conn, targetSchema, targetTable);
+						GP.dropExternalTable(conn, targetSchema, targetTable);
 
 					}
 					else 
@@ -345,13 +341,13 @@ public class ExternalDataThread implements Runnable
 							//drop repl external web table
 							if (debug)
 								Logger.printMsg("QueueID: " + queueId + " drop external table");
-							GP.dropExternalReplWebTable(conn, sourceType, targetSchema, targetTable, sourceTable);
+							GP.dropExternalReplTable(conn, sourceType, targetSchema, targetTable, sourceTable);
 
 							location = 8600;
 							//Create the external table for replication
 							if (debug)
 								Logger.printMsg("QueueID: " + queueId + " create external table");
-							GP.createReplExternalTable(conn, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, refreshType, columnName, maxGPId, gpDatabase, gpPort, queueId);
+							GP.createReplExternalTable(conn, osServer, osPort, targetSchema, targetTable, sourceType, sourceTable, maxGPId, queueId);
 
 							location = 8700;
 							//Insert into target table, selecting from external table
@@ -364,7 +360,7 @@ public class ExternalDataThread implements Runnable
 							//drop repl external web table
 							if (debug)
 								Logger.printMsg("QueueID: " + queueId + " drop external table");
-							GP.dropExternalReplWebTable(conn, sourceType, targetSchema, targetTable, sourceTable);
+							GP.dropExternalReplTable(conn, sourceType, targetSchema, targetTable, sourceTable);
 
 							//if any row inserted from triggers, apply the changes in GP with the function
 							if (numRows > 0)

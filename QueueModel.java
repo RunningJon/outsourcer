@@ -15,13 +15,16 @@ public class QueueModel
 		strSQL += "	WHEN status = 'success' THEN '&nbsp;<button onclick=\"updateQueue(' || queue_id || ', ''update'')\">Rerun</button>'\n";
 		strSQL += "	WHEN status = 'processing' THEN '&nbsp;<button onclick=\"cancelQueue(' || id || ', ''cancel'')\">Cancel</button>'\n";
 		strSQL += "	else ''\n";
-		strSQL += "	END AS status,\n";
-		strSQL += "DATE_TRUNC('second', queue_date) AS queue_date, \n";
-		strSQL += "COALESCE((DATE_TRUNC('second', start_date))::text, '') AS start_date,\n";
-		strSQL += "COALESCE((DATE_TRUNC('second', end_date))::text, '') AS end_date,\n";
+		strSQL += "	END AS my_status,\n";
+		strSQL += "DATE_TRUNC('second', queue_date) AS my_queue_date, \n";
+		strSQL += "COALESCE((DATE_TRUNC('second', start_date))::text, '') AS my_start_date,\n";
+		strSQL += "COALESCE((DATE_TRUNC('second', end_date))::text, '') AS my_end_date,\n";
 		strSQL += "COALESCE((COALESCE(DATE_TRUNC('second', end_date), CURRENT_TIMESTAMP(0)::timestamp) - DATE_TRUNC('second', start_date))::text, '') AS duration,\n";
 		strSQL += "num_rows,\n";
-		strSQL += "'<a href=\"jobs?action_type=update&id=' || id || '\">' || id || '</a>', COALESCE((target_schema_name || '.' || target_table_name), '') AS target_table_name, COALESCE(error_message, '') AS error_message\n";
+		strSQL += "'<a href=\"jobs?action_type=update&id=' || id || '\">' || id || '</a>',\n";
+		strSQL += "CASE WHEN refresh_type = 'transform' THEN SUBSTRING(sql_text, 1, 30)\n";
+		strSQL += "ELSE COALESCE((target_schema_name || '.' || target_table_name), '') END AS target_table_name,\n";
+		strSQL += "COALESCE(error_message, '') AS my_error_message\n";
  		strSQL += "FROM os.queue\n";
 		if (!search.equals(""))
 		{
@@ -42,7 +45,7 @@ public class QueueModel
 		}
 		sortBy = sortBy.toLowerCase();
 		if (sortBy.equals("queue_id") || sortBy.equals("status") || sortBy.equals("queue_date") || sortBy.equals("start_date") || sortBy.equals("end_date") || sortBy.equals("duration") || sortBy.equals("num_rows") || sortBy.equals("id") || sortBy.equals("target_table_name") || sortBy.equals("error_message"))
-			strSQL += "ORDER BY " + sortBy + " " + sort + ", queue_id DESC\n";
+			strSQL += "ORDER BY " + sortBy + " " + sort + ", start_date DESC\n";
 		else
 			strSQL += "ORDER BY status ASC, queue_id DESC\n";
 

@@ -1,0 +1,5 @@
+DROP EXTERNAL TABLE IF EXISTS os.osstop;
+
+CREATE EXTERNAL TABLE os.osstop
+(foo text) 
+LOCATION (:LOCATION) FORMAT 'text' (DELIMITER '|');

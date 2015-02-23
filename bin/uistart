@@ -1,40 +1,18 @@
-#!/bin/bash
-set -e
-source ~/.bashrc
 ############################################################################################################################
 #
 # Outsourcer UI start script.
-# Be sure to have sourced the os_path.sh script.
-#
+#       
 ############################################################################################################################
+set -e  
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
 
-if [ -z $PGPORT ]; then
-        echo "Must set PGPORT in environment variables.  Exiting.";
-        echo Exiting
-        exit 0
-fi
-
-if [ -z $PGDATABASE ]; then
-        echo "Must set PGDATABASE in environment variables.  Exiting.";
-        echo Exiting
-        exit 0
-fi
-
-if [ -z $OSUICLASSPATH ]; then
-        echo "Must source the os_path.sh file first.  Exiting.";
-        echo Exiting
-        exit 0
-fi
-
-gpUserName=`whoami`
-
-set -e
 ############################################################################################################################
 #
 # Make sure Outsourcer UI hasn't already started
 #
 ############################################################################################################################
-check=$(ps -ef 2> /dev/null | grep Outsourcer.jar | grep UI | grep -v grep | wc -l)
+check=$(ps -ef 2> /dev/null | grep $OSJAR | grep UI | grep -v grep | wc -l)
 
 if [ $check = 1 ]; then
         echo Outsourcer UI has already started!
@@ -46,10 +24,10 @@ fi
 #
 ############################################################################################################################
 
-if [ -f /usr/local/os/log/sessions.txt ]; then
-	rm /usr/local/os/log/sessions.txt
+if [ -f $SESSIONS ]; then
+	rm $SESSIONS
 fi
-touch /usr/local/os/log/sessions.txt
+touch $SESSIONS
 
 echo Removed old sessions 
 ############################################################################################################################
@@ -59,4 +37,4 @@ echo Removed old sessions
 ############################################################################################################################
 echo Starting Outsourcer UI
 
-nohup java -classpath $OSUICLASSPATH -Xms16M -Xmx128M UI localhost $PGPORT $PGDATABASE $gpUserName $UIPORT $AUTHSERVER > $UILOG 2>&1 < $UILOG &
+nohup java -classpath $OSUICLASSPATH -Xms16M -Xmx128M UI $UIPORT $SESSIONS $CONFIG > $UILOG 2>&1 < $UILOG &

@@ -1,39 +1,19 @@
 #!/bin/bash
+############################################################################################################################
+#
+# Outsourcer stop script.
+#
+############################################################################################################################
 set -e
-source ~/.bashrc
-############################################################################################################################
-#
-# Outsourcer start script. 
-# Be sure to have sourced the os_path.sh script.
-#
-############################################################################################################################
-
-if [ -z $PGPORT ]; then 
-	echo "Must set PGPORT in environment variables.  Exiting.";
-	echo Exiting
-	exit 0
-fi
-
-if [ -z $PGDATABASE ]; then 
-	echo "Must set PGDATABASE in environment variables.  Exiting.";
-	echo Exiting
-	exit 0
-fi
-
-if [ -z $OSCLASSPATH ]; then
-	echo "Must source the os_path.sh file first.  Exiting.";
-	echo Exiting
-	exit 0
-fi
-
-gpUserName=`whoami`
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
 
 ############################################################################################################################
 #
 # Make sure Outsourcer hasn't already started
 #
 ############################################################################################################################
-check=$(ps -ef 2> /dev/null | grep Outsourcer.jar | grep ExternalDataD | grep -v grep | wc -l)
+check=$(ps -ef 2> /dev/null | grep $OSJAR | grep ExternalDataD | grep -v grep | wc -l)
 
 if [ $check = 1 ]; then
 	echo Outsourcer has already started!
@@ -42,55 +22,10 @@ fi
 
 ############################################################################################################################
 #
-# Sync the environment variables to the database
-#
-############################################################################################################################
-
-max_jobs=$(psql -t -A -c "SELECT value FROM os.variables WHERE name = 'max_jobs'")
-o_fetch_size=$(psql -t -A -c "SELECT value FROM os.variables WHERE name = 'oFetchSize'")
-
-psql -q -c "TRUNCATE os.ao_variables"
-
-psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('Xmx', '$XMX')"
-psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('Xms', '$XMS')"
-psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('osJar', '$OSJAR')"
-psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('osAgentJar', '$OSAGENTJAR')"
-psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('osUIJar', '$OSUIJAR')"
-psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('gpdbJar', '$GPDBJAR')"
-psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('msJar', '$MSJAR')"
-psql -q -c "INSERT INTO os.ao_variables (name, value) VALUES ('oJar', '$OJAR')"
-psql -q -c "INSERT INTO os.ao_variables (name, value, restart) VALUES ('max_jobs', '$max_jobs', false)"
-psql -q -c "INSERT INTO os.ao_variables (name, value, restart) VALUES ('oFetchSize', '$o_fetch_size', false)"
-
-echo Environment variables updated in Greenplum
-############################################################################################################################
-#
-# Reset the Queue
-#
-############################################################################################################################
-# Loop through queue to look for jobs still processing and cancel
-for i in $(psql -A -t -q -c "SELECT id FROM os.queue WHERE status = 'processing'"); do
-	echo "Canceling job_id $i"
-	psql -c "SELECT os.fn_cancel_job($i)" 2>&1 > /dev/null
-done
-
-echo Queue reset
-############################################################################################################################
-#
-# Analyze the os tables
-#
-############################################################################################################################
-psql -q -c "VACUUM ANALYZE os.ao_variables"
-psql -q -c "VACUUM ANALYZE os.ao_queue"
-psql -q -c "VACUUM ANALYZE os.ao_job"
-echo os tables analyzed 
-
-############################################################################################################################
-#
 # Start Outsourcer
 #
 ############################################################################################################################
-echo Starting Outsourcer
+echo Starting Outsourcer Queue Daemon
 
-nohup java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX ExternalDataD localhost $PGPORT $PGDATABASE $gpUserName > $OSLOG 2>&1 < $OSLOG &
-echo Outsourcer started
+nohup java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX ExternalDataD $CONFIG start > $OSLOG 2>&1 < $OSLOG &
+echo Outsourcer Queue Daemon started

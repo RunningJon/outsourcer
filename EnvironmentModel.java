@@ -9,7 +9,7 @@ public class EnvironmentModel
 	{
 		String strSQL = "SELECT CASE WHEN restart IS FALSE\n";
 		strSQL += "	THEN '<a href=\"environment?action_type=' || name || '\">' || description || ' (Dynamic)</a>'\n";
-		strSQL += "	ELSE name || ' (Set ' || UPPER(name) || ' in .bashrc and then restart Queue Daemon)'\n";
+		strSQL += "	ELSE name || ' (Re-run os_install.sh to change this value)'\n";
 		strSQL += "END as name,\n";
 		strSQL += "value\n";
 		strSQL += "FROM (SELECT name, name as description, value, restart FROM os.variables\n";

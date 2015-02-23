@@ -11,6 +11,7 @@ public class OutsourcerView
 	{
 		String searchHTML = setHTMLField(search);
 
+
 		String msg = viewHeader(myScript, "", formAction);
 		msg += "<form name=\"myForm\" id=\"myForm\" action=\"" + formAction + "\" method=\"post\">\n";
 		msg += "<table class=\"ostable\">\n";
@@ -53,6 +54,10 @@ public class OutsourcerView
 
 	public static String getHead(String myScript, String onLoad)
 	{
+		String tableBgColor= "#8EABD2";
+		String fontColor = "#000080";
+		String borderColor = "#7A9DCC";
+
 		String msg = "<html><head>\n";
 		msg += "<style type=\"text/css\">\n";
 
@@ -63,12 +68,16 @@ public class OutsourcerView
 		msg += "h4{font-family:Arial, Helvetica, sans-serif}\n";
 		msg += "h5{font-family:Arial, Helvetica, sans-serif}\n";
 
-		msg += "a:link    {color:#008000;text-decoration:none;}\n";
-		msg += "a:visited {color:#008000;text-decoration:none;}\n";
+		//msg += "a:link    {color:#008000;text-decoration:none;}\n";
+		//msg += "a:visited {color:#008000;text-decoration:none;}\n";
+		msg += "a:link    {color:" + fontColor + ";text-decoration:none;}\n";
+		msg += "a:visited {color:" + fontColor + ";text-decoration:none;}\n";
 		msg += "a:hover   {color:#000000;text-decoration:none;}\n";
 		msg += "a:active  {color:#000000;text-decoration:none;}\n";
-		msg += "a.m1:link    {color:#008000;text-decoration:none;}\n";
-		msg += "a.m1:visited {color:#008000;text-decoration:none;}\n";
+		//msg += "a.m1:link    {color:#008000;text-decoration:none;}\n";
+		//msg += "a.m1:visited {color:#008000;text-decoration:none;}\n";
+		msg += "a.m1:link    {color:" + fontColor + ";text-decoration:none;}\n";
+		msg += "a.m1:visited {color:" + fontColor + ";text-decoration:none;}\n";
 		msg += "a.m1:hover   {color:#FFFFFF;text-decoration:none;}\n";
 		msg += "a.m1:active  {color:#FFFFFF;text-decoration:none;}\n";
 		msg += "a.m2:link {color:#FFFFFF;text-decoration:none;}\n";
@@ -77,12 +86,16 @@ public class OutsourcerView
 		msg += "a:m2:active  {color:#FFFFFF;text-decoration:none;}\n";
 
 		msg += "table.ostable {font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#333333;width:100%;border-width: 0px;border-collapse: collapse;}\n";
-		msg += "table.tftable {font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#333333;width:100%;border-width: 1px;border-color: #9dcc7a;border-collapse: collapse;}\n";
-		msg += "table.logintable {font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#333333;border-width: 1px;border-color: #9dcc7a;border-collapse: collapse;}\n";
+		//msg += "table.tftable {font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#333333;width:100%;border-width: 1px;border-color: #9dcc7a;border-collapse: collapse;}\n";
+		//msg += "table.logintable {font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#333333;border-width: 1px;border-color: #9dcc7a;border-collapse: collapse;}\n";
+		msg += "table.tftable {font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#333333;width:100%;border-width: 1px;border-color: " + borderColor + ";border-collapse: collapse;}\n";
+		msg += "table.logintable {font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#333333;border-width: 1px;border-color: " + borderColor + ";border-collapse: collapse;}\n";
 		msg += "table.logintable th {font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#FF0000;}\n";
-		msg += "table.tftable th {font-family:Arial, Helvetica, sans-serif;font-size:12px;background-color:#abd28e;border-width: 1px;padding: 8px;border-style: solid;border-color: #9dcc7a;text-align:center;}\n";
+		//msg += "table.tftable th {font-family:Arial, Helvetica, sans-serif;font-size:12px;background-color:#abd28e;border-width: 1px;padding: 8px;border-style: solid;border-color: #9dcc7a;text-align:center;}\n";
+		msg += "table.tftable th {font-family:Arial, Helvetica, sans-serif;font-size:12px;background-color:" + tableBgColor + ";border-width: 1px;padding: 8px;border-style: solid;border-color: " + borderColor + ";text-align:center;}\n";
 		msg += "table.tftable tr {background-color:#ffffff;}\n";
-		msg += "table.tftable td {font-family:Arial, Helvetica, sans-serif;font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: #9dcc7a;}\n";
+		//msg += "table.tftable td {font-family:Arial, Helvetica, sans-serif;font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: #9dcc7a;}\n";
+		msg += "table.tftable td {font-family:Arial, Helvetica, sans-serif;font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: " + borderColor + ";}\n";
 
 		msg += "</style>\n";
 
@@ -128,7 +141,7 @@ public class OutsourcerView
 
 		String msg = getHead(myScript, onLoad);
 		msg += "<table class=\"ostable\">\n";
-		msg += "<tr><td><h1><a href=\"/\">Outsourcer</a></h1></td>\n";
+		msg += "<tr><td><h1><a href=\"/\">Outsourcer 5</a></h1></td>\n";
 		msg += "<td align=\"right\"><a href=\"/?action_type=logout\">Logout</a></td>\n";
 		msg += "</tr>\n";
 		msg += "</table>\n";
@@ -160,7 +173,7 @@ public class OutsourcerView
 	public static String viewMain()
 	{
 		String msg = viewHeader("", "", "");
-		msg += "<p><b><i>Outsourcer</b></i> is a brought to you by <a href=\"http://www.pivotalguru.com\" target=\"_new\">PivotalGuru.com</a></br>\n";
+		msg += "<p><b><i>Outsourcer 5</b></i> is a brought to you by <a href=\"http://www.pivotalguru.com\" target=\"_new\">PivotalGuru.com</a></br>\n";
 		msg += "</p>\n";
 		return msg;
 	}

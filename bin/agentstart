@@ -1,39 +1,19 @@
 #!/bin/bash
-set -e
-source ~/.bashrc
 ############################################################################################################################
 #
 # Outsourcer Agent start script. 
-# Be sure to have sourced the os_path.sh script.
 #
 ############################################################################################################################
-
-if [ -z $PGPORT ]; then 
-	echo "Must set PGPORT in environment variables.  Exiting.";
-	echo Exiting
-	exit 0
-fi
-
-if [ -z $PGDATABASE ]; then 
-	echo "Must set PGDATABASE in environment variables.  Exiting.";
-	echo Exiting
-	exit 0
-fi
-
-if [ -z $OSAGENTCLASSPATH ]; then
-	echo "Must source the os_path.sh file first.  Exiting.";
-	echo Exiting
-	exit 0
-fi
-
-gpUserName=`whoami`
+set -e
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
 
 ############################################################################################################################
 #
 # Make sure Outsourcer Agent hasn't already started
 #
 ############################################################################################################################
-check=$(ps -ef 2> /dev/null | grep Outsourcer.jar | grep AgentD | grep -v grep | wc -l)
+check=$(ps -ef 2> /dev/null | grep $OSJAR | grep AgentD | grep -v grep | wc -l)
 
 if [ $check = 1 ]; then
 	echo Outsourcer Agent has already started!
@@ -44,7 +24,7 @@ fi
 # Start Outsourcer Agent
 #
 ############################################################################################################################
-echo Starting Outsourcer Agent
+echo Starting Outsourcer Scheduler Agent
 
-nohup java -classpath $OSAGENTCLASSPATH -Xms16M -Xmx128M AgentD localhost $PGPORT $PGDATABASE $gpUserName > $AGENTLOG 2>&1 < $AGENTLOG &
-echo Outsourcer Agent started
+nohup java -classpath $OSAGENTCLASSPATH -Xms16M -Xmx128M AgentD $CONFIG > $AGENTLOG 2>&1 < $AGENTLOG &
+echo Outsourcer Agent Scheduler started

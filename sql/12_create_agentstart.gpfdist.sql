@@ -1,0 +1,5 @@
+DROP EXTERNAL TABLE IF EXISTS os.agentstart;
+
+CREATE EXTERNAL TABLE os.agentstart
+(foo text)
+LOCATION (:LOCATION) FORMAT 'text' (DELIMITER '|');

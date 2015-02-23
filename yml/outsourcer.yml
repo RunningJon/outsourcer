@@ -1,0 +1,53 @@
+---
+VERSION: 1.0.0.1
+TRANSFORMATIONS:
+  externaldata:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/getdata %filename%
+  
+  osstop:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/osstop
+
+  osstart:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/osstart
+
+  osstatus:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/osstatus
+
+  agentstop:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/agentstop
+
+  agentstart:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/agentstart
+
+  agentstatus:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/agentstatus
+
+  uistop:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/uistop
+
+  uistart:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/uistart
+
+  sessions:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/cat log/sessions.txt
+
