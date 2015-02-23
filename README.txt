@@ -1,4 +1,5 @@
 README file for Outsourcer
+Note: BETA version that isn't ready yet.
 ***********************************************************************************
 Site: http://www.PivotalGuru.com
 Author: Jon Roberts
