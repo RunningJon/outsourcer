@@ -31,6 +31,10 @@ public class OutsourcerControl
 		{
 			msg += ScheduleControl.buildPage(parms);
 		} 
+		else if (uri.equals("/custom"))
+		{
+			msg += CustomSQLControl.buildPage(parms);
+		} 
 		else 
 		{
 			msg += OutsourcerView.viewPageNotFound();

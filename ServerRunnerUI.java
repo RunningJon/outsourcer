@@ -27,7 +27,6 @@ public class ServerRunnerUI
 			System.exit(-1);
 		}
 
-		//System.out.println("Server started, Hit Enter to stop.\n");
 		System.out.println("Server started.\n");
 
 		boolean loop = true;

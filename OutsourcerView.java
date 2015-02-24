@@ -126,6 +126,7 @@ public class OutsourcerView
 		String queueHighlight = "class=\"m1\" ";
 		String scheduleHighlight = "class=\"m1\" ";
 		String environmentHighlight = "class=\"m1\" ";
+		String customHighlight = "class=\"m1\" ";
 		String highlight = "class=\"m2\" ";
 
 		if (page.equals("external"))
@@ -138,6 +139,8 @@ public class OutsourcerView
 			scheduleHighlight = highlight;
 		else if (page.equals("environment"))
 			environmentHighlight = highlight;
+		else if (page.equals("custom"))
+			customHighlight = highlight;
 
 		String msg = getHead(myScript, onLoad);
 		msg += "<table class=\"ostable\">\n";
@@ -148,11 +151,12 @@ public class OutsourcerView
 		msg += "<table>\n";
 		msg += "<table class=\"tftable\">\n";
 		msg += "<tr>\n";
-		msg += "<th width=\"20%\"><a " + externalHighlight + "href=\"external\"><h3>Sources</h3></a></th>\n";
-		msg += "<th width=\"20%\"><a " + jobsHighlight + "href=\"jobs\"><h3>Jobs</h3></a></th>\n";
-		msg += "<th width=\"20%\"><a " + queueHighlight + "href=\"queue\"><h3>Queue</h3></a></th>\n";
-		msg += "<th width=\"20%\"><a " + scheduleHighlight + "href=\"schedule\"><h3>Schedules</h3></a></th>\n";
-		msg += "<th width=\"20%\"><a " + environmentHighlight + "href=\"environment\"><h3>Environment</h3></a></th>\n";
+		msg += "<th width=\"17%\"><a " + externalHighlight + "href=\"external\"><h3>Sources</h3></a></th>\n";
+		msg += "<th width=\"17%\"><a " + jobsHighlight + "href=\"jobs\"><h3>Jobs</h3></a></th>\n";
+		msg += "<th width=\"17%\"><a " + queueHighlight + "href=\"queue\"><h3>Queue</h3></a></th>\n";
+		msg += "<th width=\"17%\"><a " + scheduleHighlight + "href=\"schedule\"><h3>Schedules</h3></a></th>\n";
+		msg += "<th width=\"17%\"><a " + customHighlight + "href=\"custom\"><h3>Custom Tables</h3></a></th>\n";
+		msg += "<th width=\"17%\"><a " + environmentHighlight + "href=\"environment\"><h3>Environment</h3></a></th>\n";
 		msg += "</tr>\n";
 		msg += "</table>\n";
 		return msg;

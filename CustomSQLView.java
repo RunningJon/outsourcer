@@ -68,7 +68,7 @@ public class CustomSQLView
 		return myScript;
 
 	}
-
+/*
 	public static String viewUpdate(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, int sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) 
 	{
 
@@ -100,16 +100,13 @@ public class CustomSQLView
 		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
 		msg += "<form action=\"custom\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr id=\"r_description\"><td width=\"30%\"><b>Description</b></td>";
-		if (id.equals(""))
-			msg += "<td><input type=\"text\" id=\"id\" name=\"id\" value=" + id + "></td></tr>\n";
-		else
-			msg += "<td><input type=\"text\" id=\"id\" name=\"id\" value=\"" + id + "\" readonly></td></tr>\n";
-		msg += "<tr id=\"r_interval_trunc\"><td><b>Interval Trunc</b></td>\n";
-		msg += "<td><input type=\"text\" id=\"interval_trunc\" name=\"interval_trunc\" value=" + intervalTrunc + ">";
+		msg += "<tr><td width=\"30%\"><b>ID</b></td>";
+		msg += "<td>" + id + "</td></tr>\n";
+		msg += "<tr id=\"r_table_name\"><td><b>Table Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + ">";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_interval_quantity\"><td><b>Interval Quantity</b></td>\n";
-		msg += "<td><input type=\"text\" id=\"interval_quantity\" name=\"interval_quantity\" value=" + intervalQuantity + ">";
+		msg += "<tr id=\"r_columns\"><td><b>Columns</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"columns\" name=\"columns\" value=" + columns + ">";
 		msg += "</td></tr>\n";
 		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"" + buttonText + "\"></td></tr>\n";
 		msg += "</table>\n";
@@ -122,10 +119,10 @@ public class CustomSQLView
 		return msg;
 	}
 
-	public static String viewDelete(String description, String intervalTrunc, String intervalQuantity)
+	public static String viewDelete(String description, String tableName, String intervalQuantity)
 	{
 		description = OutsourcerView.setHTMLField(description);
-		intervalTrunc = OutsourcerView.setHTMLField(intervalTrunc);
+		tableName = OutsourcerView.setHTMLField(tableName);
 		intervalQuantity = OutsourcerView.setHTMLField(intervalQuantity);
 		
 		String myScript = "";
@@ -135,8 +132,8 @@ public class CustomSQLView
 		msg += "<table class=\"tftable\" border=\"1\">\n";
 		msg += "<tr><td width=\"30%\"><b>Description</b></td>";
 		msg += "<td><input type=\"text\" id=\"description\" name=\"description\" value=" + description + " readonly></td></tr>\n";
-		msg += "<tr id=\"r_interval_trunc\"><td><b>Interval Trunc</b></td>\n";
-		msg += "<td><input type=\"text\" id=\"interval_trunc\" name=\"interval_trunc\" value=" + intervalTrunc + " readonly>";
+		msg += "<tr id=\"r_table_name\"><td><b>Interval Trunc</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + " readonly>";
 		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_interval_quantity\"><td><b>Interval Quantity</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"interval_quantity\" name=\"interval_quantity\" value=" + intervalQuantity + " readonly>";
@@ -149,7 +146,7 @@ public class CustomSQLView
 
 		return msg;
 	}
-
+*/
 	private static String getHeader(String sortBy, String sort)
 	{
 
@@ -159,67 +156,67 @@ public class CustomSQLView
 
 		String manageHeader = "<th><b>Manage</b></th>\n";
 
-		String descriptionHeader = "<th><b>Description</b><button ";
-		String descriptionFocus = "";
-		String descriptionArrow = downArrow;
-		String descriptionSort = defaultSort;
+		String idHeader = "<th><b>ID</b><button ";
+		String idFocus = "";
+		String idArrow = downArrow;
+		String idSort = defaultSort;
 
-		String intervalTruncHeader = "<th><b>Interval Trunc</b><button ";
-		String intervalTruncFocus = "";
-		String intervalTruncArrow = downArrow;
-		String intervalTruncSort = defaultSort;
+		String tableNameHeader = "<th><b>Table Name</b><button ";
+		String tableNameFocus = "";
+		String tableNameArrow = downArrow;
+		String tableNameSort = defaultSort;
 
-		String intervalQuantityHeader = "<th><b>Interval Quantity</b><button ";
-		String intervalQuantityFocus = "";
-		String intervalQuantityArrow = downArrow;
-		String intervalQuantitySort = defaultSort;
+		String sourceTypeHeader = "<th><b>Source Type</b><button ";
+		String sourceTypeFocus = "";
+		String sourceTypeArrow = downArrow;
+		String sourceTypeSort = defaultSort;
 
-		if (sortBy.equals("description"))
+		if (sortBy.equals("id"))
 		{
-			descriptionFocus = OutsourcerView.focus;
+			idFocus = OutsourcerView.focus;
 			if (sort.equals("asc"))
-				descriptionSort = "desc";
+				idSort = "desc";
 			else
 			{
-				descriptionSort = "asc";
-				descriptionArrow = upArrow;
+				idSort = "asc";
+				idArrow = upArrow;
 			}
 		}
-		else if (sortBy.equals("interval_trunc"))
+		else if (sortBy.equals("table_name"))
 		{
-			intervalTruncFocus = OutsourcerView.focus;
+			tableNameFocus = OutsourcerView.focus;
 			if (sort.equals("asc"))
-				intervalTruncSort = "desc";
+				tableNameSort = "desc";
 			else
 			{
-				intervalTruncSort = "asc";
-				intervalTruncArrow = upArrow;
+				tableNameSort = "asc";
+				tableNameArrow = upArrow;
 			}
 		}
-		else if (sortBy.equals("interval_quantity"))
+		else if (sortBy.equals("source_type"))
 		{
-			intervalQuantityFocus = OutsourcerView.focus;
+			sourceTypeFocus = OutsourcerView.focus;
 			if (sort.equals("asc"))
-				intervalQuantitySort = "desc";
+				sourceTypeSort = "desc";
 			else
 			{
-				intervalQuantitySort = "asc";
-				intervalQuantityArrow = upArrow;
+				sourceTypeSort = "asc";
+				sourceTypeArrow = upArrow;
 			}
 		}
 
-		descriptionHeader += descriptionFocus + "onclick=\"sortRS('description', '" + descriptionSort + "')\">" + descriptionArrow + "</button></th>\n";
-		intervalTruncHeader += intervalTruncFocus + "onclick=\"sortRS('interval_trunc', '" + intervalTruncSort + "')\">" + intervalTruncArrow + "</button></th>\n";
-		intervalQuantityHeader += intervalQuantityFocus + "onclick=\"sortRS('interval_quantity', '" + intervalQuantitySort + "')\">" + intervalQuantityArrow + "</button></th>\n";
+		idHeader += idFocus + "onclick=\"sortRS('id', '" + idSort + "')\">" + idArrow + "</button></th>\n";
+		tableNameHeader += tableNameFocus + "onclick=\"sortRS('table_name', '" + tableNameSort + "')\">" + tableNameArrow + "</button></th>\n";
+		sourceTypeHeader += sourceTypeFocus + "onclick=\"sortRS('source_type', '" + sourceTypeSort + "')\">" + sourceTypeArrow + "</button></th>\n";
 		
 		String msg = "<table class=\"tftable\" border=\"1\">\n";
 		msg += "<tr>\n";
-		msg += manageHeader + descriptionHeader + intervalTruncHeader + intervalQuantityHeader;
+		msg += manageHeader + idHeader + tableNameHeader + sourceTypeHeader;
 		msg += "</tr>\n";
 
 		return msg;
 	}
-
+/*
 	public static String viewCreate(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass)
 
 	{
@@ -244,5 +241,5 @@ public class CustomSQLView
 		msg += "</form>\n";	
 		return msg;
 	}
-
+*/
 }

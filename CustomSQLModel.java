@@ -22,7 +22,8 @@ public class CustomSQLModel
 	{
 		String strSQL = "SELECT '<button onclick=\"updateCustomSQL(''' || id || ''', ''update'')\">Update</button>' ||\n";
 		strSQL += "'&nbsp;<button onclick=\"updateCustomSQL(''' || id || ''', ''delete'')\">Delete</button>' AS manage,\n";
-		strSQL += "LOWER(table_name) AS table_name, source_type\n";
+		strSQL += "id,\n";
+		strSQL += "LOWER(table_name) AS table_name, initcap(source_type) as source_type\n";
 		strSQL += "FROM os.custom_sql\n";
 		
 		if (!search.equals(""))
@@ -150,25 +151,6 @@ public class CustomSQLModel
 		catch (Exception ex)
 		{
 			return null;
-		}
-	}
-
-	public static ArrayList<String> getDescriptions() throws SQLException
-	{
-		String strSQL = "SELECT description\n";
-		strSQL += "FROM os.schedule\n";
-		strSQL += "ORDER BY description";
-
-		ArrayList<String> descriptions = new ArrayList<String>();
-
-		try
-		{
-			descriptions = OutsourcerModel.getStringArray(strSQL);
-			return descriptions;
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException(ex.getMessage());
 		}
 	}
 }

@@ -19,7 +19,7 @@ public class ExternalTableModel
 		String strSQL = "SELECT '<button onclick=\"updateExternalTable(' || id || ', ''update'')\">Update</button>' ||\n";
 		strSQL += "	'&nbsp;<button onclick=\"updateExternalTable(' || id || ', ''delete'')\">Delete</button>' ||\n";
 		strSQL += "	'&nbsp;<button onclick=\"createJobs(' || id || ')\">Create Jobs</button>' as update_text,\n";
-		strSQL += "id, source_type, source_server_name, coalesce(source_instance_name, '') as source_instance_name, coalesce(source_port::text, '') as source_port,\n";
+		strSQL += "id, initcap(source_type) as source_type, source_server_name, coalesce(source_instance_name, '') as source_instance_name, coalesce(source_port::text, '') as source_port,\n";
 		strSQL += "coalesce(source_database_name, '') as source_database_name, source_user_name, '<i>password</i>' as source_pass\n ";
 		strSQL += "FROM os.ext_connection\n";
 		if (!search.equals(""))

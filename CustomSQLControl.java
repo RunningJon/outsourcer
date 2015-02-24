@@ -13,9 +13,9 @@ public class CustomSQLControl
 		String actionType = parms.get("action_type");
 		String sortBy = parms.get("sort_by");
 		String sort = parms.get("sort");
-		String description = parms.get("description");
-		String intervalTrunc = parms.get("interval_trunc");
-		String intervalQuantity = parms.get("interval_quantity");
+		String id = parms.get("id");
+		String tableName = parms.get("table_name");
+		String columns = parms.get("columns");
 		String submit = parms.get("submit_form");
 		String schema = parms.get("schema");
 		ArrayList<String> schemaList = new ArrayList<String>();
@@ -33,16 +33,16 @@ public class CustomSQLControl
 			sort = "asc";
 
 		if (sortBy == null || sortBy.equals(""))
-			sortBy = "description";
+			sortBy = "id";
 
-		if (description == null)
-			description = "";
+		if (id == null)
+			id = "";
 
-		if (intervalTrunc == null)
-			intervalTrunc = "";
+		if (tableName == null)
+			tableName = "";
 
-		if (intervalQuantity == null)
-			intervalQuantity = "";
+		if (columns == null)
+			columns = "";
 
 		if (actionType == null || actionType.equals(""))
 			actionType = "view";
@@ -66,19 +66,20 @@ public class CustomSQLControl
 			{
 				msg += ex.getMessage();
 			}
-		} 
+		}
+/* 
 		else if (actionType.equals("update") || actionType.equals("insert"))
 		{
 			if (submit.equals("0"))
 			{
-				CustomSQLModel e = CustomSQLModel.getModel(description);
-				msg = CustomSQLView.viewUpdate(e.description, e.intervalTrunc, e.intervalQuantity);
+				CustomSQLModel e = CustomSQLModel.getModel(id);
+				msg = CustomSQLView.viewUpdate(e.id, e.tableName, e.columns);
 			}
 			else
 			{
 				try
 				{
-					CustomSQLModel.insertTable(description, intervalTrunc, intervalQuantity);
+					CustomSQLModel.insertTable(id, tableName, columns);
 					rs = CustomSQLModel.getList(search, limit, offset, sortBy, sort);
 					msg = CustomSQLView.viewList(search, rs, limit, offset, sortBy, sort);
 				}
@@ -92,14 +93,14 @@ public class CustomSQLControl
 		{	
 			if (submit.equals("0"))
 			{
-				CustomSQLModel e = CustomSQLModel.getModel(description);
-				msg = CustomSQLView.viewDelete(e.description, e.intervalTrunc, e.intervalQuantity);
+				CustomSQLModel e = CustomSQLModel.getModel(id);
+				msg = CustomSQLView.viewDelete(e.id, e.tableName, e.columns);
 			}
 			else
 			{
 				try
 				{
-					CustomSQLModel.deleteTable(description);
+					CustomSQLModel.deleteTable(id);
 					rs = CustomSQLModel.getList(search, limit, offset, sortBy, sort);
 					msg = CustomSQLView.viewList(search, rs, limit, offset, sortBy, sort);
 				}
@@ -116,11 +117,11 @@ public class CustomSQLControl
 				if (submit.equals("0"))
 				{
 					schemaList = JobModel.getSchemas();
-					msg = CustomSQLView.viewCreate(description, schemaList);
+					msg = CustomSQLView.viewCreate(id, schemaList);
 				}
 				else
 				{
-					JobModel.updateJobsCustomSQL(description, schema);
+					JobModel.updateJobsCustomSQL(id, schema);
 					rs = CustomSQLModel.getList(search, limit, offset, sortBy, sort);
 					msg = CustomSQLView.viewList(search, rs, limit, offset, sortBy, sort);
 				}
@@ -130,6 +131,7 @@ public class CustomSQLControl
 				msg = ex.getMessage();
 			}
 		}
+*/
 		return msg;
 	}
 }

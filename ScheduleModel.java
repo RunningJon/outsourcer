@@ -16,7 +16,7 @@ public class ScheduleModel
 		String strSQL = "SELECT '<button onclick=\"updateSchedule(''' || description || ''', ''update'')\">Update</button>' ||\n";
 		strSQL += "'&nbsp;<button onclick=\"updateSchedule(''' || description || ''', ''delete'')\">Delete</button>' ||\n";
 		strSQL += "'&nbsp;<button onclick=\"updateSchedule(''' || description || ''', ''create'')\">Assign to Jobs</button>' AS manage,\n";
-		strSQL += "description, interval_trunc, interval_quantity\n";
+		strSQL += "description, initcap(interval_trunc) as interval_trunc, initcap(interval_quantity) as interval_quantity\n";
 		strSQL += "FROM os.schedule\n";
 		
 		if (!search.equals(""))
