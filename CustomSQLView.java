@@ -20,7 +20,7 @@ public class CustomSQLView
 		myScript += "   document.getElementById(\"sort\").value = sort;\n";
 		myScript += "   document.getElementById(\"myForm\").submit();\n";
 		myScript += "}\n";
-		myScript += "function updateCustomSQL(description, myAction)\n";
+		myScript += "function updateCustomSQL(id, myAction)\n";
 		myScript += "{\n";
 		myScript += "   document.getElementById(\"action_type\").value = myAction;\n";
 		myScript += "   document.getElementById(\"offset\").value = 0;\n";
@@ -68,14 +68,14 @@ public class CustomSQLView
 		return myScript;
 
 	}
-/*
-	public static String viewUpdate(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, int sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) 
+
+	public static String viewUpdate(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) 
 	{
 
 		String buttonText = "";
 		if (id == null)
 		{
-			description = "";
+			id = "";
 			buttonText = "Insert";
 		}
 		else
@@ -84,8 +84,8 @@ public class CustomSQLView
 		}
 
 		tableName = OutsourcerView.setHTMLField(tableName);
-		columns = OutsourcerView.setHTMLField(columns);
-		sqlText = OutsourcerView.setHTMLField(sqlText);
+		columns = OutsourcerView.setHTMLTextArea(columns);
+		sqlText = OutsourcerView.setHTMLTextArea(sqlText);
 		sourceType = OutsourcerView.setHTMLField(sourceType);
 		sourceServerName = OutsourcerView.setHTMLField(sourceServerName);
 		sourceInstanceName = OutsourcerView.setHTMLField(sourceInstanceName);
@@ -106,11 +106,35 @@ public class CustomSQLView
 		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + ">";
 		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_columns\"><td><b>Columns</b></td>\n";
-		msg += "<td><input type=\"text\" id=\"columns\" name=\"columns\" value=" + columns + ">";
+		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"columns\" name=\"columns\">" + columns + "</textarea>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_sql_text\"><td><b>SQL Text</b></td>\n";
+		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_type\"><td><b>Source Type</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_type\" name=\"source_type\" value=" + sourceType + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_server_name\"><td><b>Source Server Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_server_name\" name=\"source_server_name\" value=" + sourceServerName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_instance_name\"><td><b>Source Instance Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_instance_name\" name=\"source_instance_name\" value=" + sourceInstanceName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_port\"><td><b>Source Port</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_port\" name=\"source_port\" value=" + sourcePort + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_database_name\"><td><b>Source Database Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_database_name\" name=\"source_database_name\" value=" + sourceDatabaseName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_user_name\"><td><b>Source User Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_user_name\" name=\"source_user_name\" value=" + sourceUserName + ">";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_password\"><td><b>Source Password</b></td>\n";
+		msg += "<td><input type=\"password\" id=\"source_password\" name=\"source_password\" value=" + sourcePass + ">";
 		msg += "</td></tr>\n";
 		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"" + buttonText + "\"></td></tr>\n";
 		msg += "</table>\n";
-		if (description.equals(""))
+		if (id.equals(""))
 			msg += "<input type=\"hidden\" name=\"action_type\" value=\"insert\">\n";
 		else
 			msg += "<input type=\"hidden\" name=\"action_type\" value=\"update\">\n";
@@ -118,7 +142,7 @@ public class CustomSQLView
 		msg += "</form>\n";
 		return msg;
 	}
-
+/*
 	public static String viewDelete(String description, String tableName, String intervalQuantity)
 	{
 		description = OutsourcerView.setHTMLField(description);

@@ -67,14 +67,14 @@ public class CustomSQLControl
 				msg += ex.getMessage();
 			}
 		}
-/* 
 		else if (actionType.equals("update") || actionType.equals("insert"))
 		{
 			if (submit.equals("0"))
 			{
 				CustomSQLModel e = CustomSQLModel.getModel(id);
-				msg = CustomSQLView.viewUpdate(e.id, e.tableName, e.columns);
+				msg = CustomSQLView.viewUpdate(e.id, e.tableName, e.columns, e.sqlText, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceUserName, e.sourcePass);
 			}
+/*
 			else
 			{
 				try
@@ -88,7 +88,9 @@ public class CustomSQLControl
 					msg = ex.getMessage();
 				}
 			}
-		} 
+*/
+		}
+ /*
 		else if (actionType.equals("delete"))
 		{	
 			if (submit.equals("0"))

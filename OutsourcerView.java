@@ -247,11 +247,23 @@ public class OutsourcerView
 
 	public static String setHTMLField(String val) 
 	{
-
 		if (val != null)
+		{
+			val = val.replace("\"", "'");
 			val = "\"" + val + "\"";
+		}
 		else
 			val = "\"\"";
+
+		return val;
+	}
+
+	public static String setHTMLTextArea(String val) 
+	{
+		if (val != null)
+		{
+			val = val.replace("\"", "'");
+		}
 
 		return val;
 	}

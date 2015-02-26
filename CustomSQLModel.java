@@ -119,17 +119,12 @@ public class CustomSQLModel
 			{
 				id = Integer.toString(rs.getInt(1));
 				tableName = rs.getString(2);
-				// double check this........
-				////////////////////////////
-				////////////////////////////
-				////////////////////////////
-				////////////////////////////
 				columns = rs.getString(3);
 				sqlText = rs.getString(4);
 				sourceType = rs.getString(5);
 				sourceServerName = rs.getString(6);
 				sourceInstanceName = rs.getString(7);
-				sourcePort = rs.getString(8);
+				sourcePort = Integer.toString(rs.getInt(8));
 				sourceDatabaseName = rs.getString(9);
 				sourceUserName = rs.getString(10);
 				sourcePass = rs.getString(11);
