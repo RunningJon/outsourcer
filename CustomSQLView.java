@@ -60,7 +60,11 @@ public class CustomSQLView
 	private static String getJavaScriptFunctions()
 	{
 
-		String myScript = "function loadPage()\n";
+		String myScript = "function disableInputFields()\n";
+		myScript += "{\n";
+		myScript += "   var val = document.getElementById(\"source_type\").selectedIndex;\n";
+		myScript += "}\n";
+		myScript += "function loadPage()\n";
 		myScript += "{\n";
 		myScript += "   document.getElementById(\"table_name\").focus()\n";
 		myScript += "}\n";
@@ -112,8 +116,17 @@ public class CustomSQLView
 		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>";
 		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_source_type\"><td><b>Source Type</b></td>\n";
-		msg += "<td><input type=\"text\" id=\"source_type\" name=\"source_type\" value=" + sourceType + ">";
-		msg += "</td></tr>\n";
+		msg += "<td><select id=\"source_type\" name=\"source_type\" onchange=\"disableInputFields()\">\n";
+		msg += "<option value=\"\"></option>\n";
+		msg += "<option value=\"oracle\"";
+		if (sourceType != null && sourceType.equals("oracle"))
+		        msg += " selected";
+		msg += ">Oracle</option>\n";
+		msg += "<option value=\"sqlserver\"";
+		if (sourceType != null && sourceType.equals("sqlserver"))
+		        msg += " selected";
+		msg += ">SQL Server</option>\n";
+		msg += "</select></td></tr>\n";
 		msg += "<tr id=\"r_source_server_name\"><td><b>Source Server Name</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"source_server_name\" name=\"source_server_name\" value=" + sourceServerName + ">";
 		msg += "</td></tr>\n";
@@ -121,7 +134,7 @@ public class CustomSQLView
 		msg += "<td><input type=\"text\" id=\"source_instance_name\" name=\"source_instance_name\" value=" + sourceInstanceName + ">";
 		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_source_port\"><td><b>Source Port</b></td>\n";
-		msg += "<td><input type=\"text\" id=\"source_port\" name=\"source_port\" value=" + sourcePort + ">";
+		msg += "<td><input type=\"text\" id=\"source_port\" name=\"source_port\" onkeyup=\"this.value=this.value.replace(/[^\\d]/,'')\" value=" + sourcePort + ">";
 		msg += "</td></tr>\n";
 		msg += "<tr id=\"r_source_database_name\"><td><b>Source Database Name</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"source_database_name\" name=\"source_database_name\" value=" + sourceDatabaseName + ">";

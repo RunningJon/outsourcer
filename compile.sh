@@ -10,3 +10,6 @@ javac -cp .:jar/gpdb.jar *.java
 jar cfm jar/Outsourcer.jar manifest.txt Logger.class CommonDB.class Oracle.class SQLServer.class ExternalData.class GP.class ExternalDataD.class ExternalDataThread.class OSProperties.class
 jar cfm jar/OutsourcerUI.jar manifest.txt *Model.class *View.class *Control.class UI*.class ServerRunnerUI.class
 jar cfm jar/OutsourcerScheduler.jar manifest.txt AgentD.class
+stop_all
+sleep 1
+start_all

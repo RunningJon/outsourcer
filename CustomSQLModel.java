@@ -124,7 +124,7 @@ public class CustomSQLModel
 				sourceType = rs.getString(5);
 				sourceServerName = rs.getString(6);
 				sourceInstanceName = rs.getString(7);
-				sourcePort = Integer.toString(rs.getInt(8));
+				sourcePort = rs.getString(8);
 				sourceDatabaseName = rs.getString(9);
 				sourceUserName = rs.getString(10);
 				sourcePass = rs.getString(11);
