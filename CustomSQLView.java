@@ -39,7 +39,7 @@ public class CustomSQLView
 		String msg = OutsourcerView.viewSearch(action, search, limit, offset, sortBy, sort, myScript);
 		msg += "<table class=\"tftable\" border=\"0\">\n";
 		msg += "<tr>\n";
-		msg += "<td><h4><a href=\"?action_type=update\">Define New CustomSQL</a></h4></td>\n";
+		msg += "<td><h4><a href=\"?action_type=create\">Define New CustomSQL</a></h4></td>\n";
 		msg += "</tr>\n";
 		msg += "</table>\n";
 		msg += "<br>\n";
@@ -63,6 +63,24 @@ public class CustomSQLView
 		String myScript = "function disableInputFields()\n";
 		myScript += "{\n";
 		myScript += "   var val = document.getElementById(\"source_type\").selectedIndex;\n";
+		myScript += "   document.getElementById(\"r_source_type\").style.display = \"\";\n";
+		myScript += "   document.getElementById(\"r_source_user_name\").style.display = \"\";\n";
+		myScript += "   document.getElementById(\"r_source_pass\").style.display = \"\";\n";
+		myScript += "   //0 is the first entry which is blank\n";
+		myScript += "   if (val == 1) //Oracle\n";
+		myScript += "   {\n";
+		myScript += "           document.getElementById(\"source_instance_name\").value = \"\";\n";
+		myScript += "           document.getElementById(\"r_source_instance_name\").style.display = \"none\";\n";
+		myScript += "           document.getElementById(\"r_source_database_name\").style.display = \"\";\n";
+		myScript += "           document.getElementById(\"r_source_port\").style.display = \"\";\n";
+		myScript += "   }\n";
+		myScript += "   if (val == 2) //SQL Server\n";
+		myScript += "   {\n";
+		myScript += "           document.getElementById(\"source_port\").value = \"\";\n";
+		myScript += "           document.getElementById(\"r_source_port\").style.display = \"none\";\n";
+		myScript += "           document.getElementById(\"r_source_instance_name\").style.display = \"\";\n";
+		myScript += "           document.getElementById(\"r_source_database_name\").style.display = \"none\";\n";
+		myScript += "   }\n";
 		myScript += "}\n";
 		myScript += "function loadPage()\n";
 		myScript += "{\n";
@@ -76,21 +94,9 @@ public class CustomSQLView
 	public static String viewUpdate(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) 
 	{
 
-		String buttonText = "";
-		if (id == null)
-		{
-			id = "";
-			buttonText = "Insert";
-		}
-		else
-		{
-			buttonText = "Update";
-		}
-
+		String buttonText = "Update";
 		tableName = OutsourcerView.setHTMLField(tableName);
 		columns = OutsourcerView.setHTMLTextArea(columns);
-		sqlText = OutsourcerView.setHTMLTextArea(sqlText);
-		sourceType = OutsourcerView.setHTMLField(sourceType);
 		sourceServerName = OutsourcerView.setHTMLField(sourceServerName);
 		sourceInstanceName = OutsourcerView.setHTMLField(sourceInstanceName);
 		sourcePort = OutsourcerView.setHTMLField(sourcePort);
@@ -99,12 +105,12 @@ public class CustomSQLView
 		sourcePass = OutsourcerView.setHTMLField(sourcePass);
 		
 		String myScript = getJavaScriptFunctions();
-		String onLoad="loadPage()";
+		String onLoad="disableInputFields()";
 
 		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
 		msg += "<form action=\"custom\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr><td width=\"30%\"><b>ID</b></td>";
+		msg += "<tr id=\"r_id\"><td width=\"30%\"><b>ID</b></td>";
 		msg += "<td>" + id + "</td></tr>\n";
 		msg += "<tr id=\"r_table_name\"><td><b>Table Name</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + ">";
@@ -120,11 +126,11 @@ public class CustomSQLView
 		msg += "<option value=\"\"></option>\n";
 		msg += "<option value=\"oracle\"";
 		if (sourceType != null && sourceType.equals("oracle"))
-		        msg += " selected";
+			msg += " selected";
 		msg += ">Oracle</option>\n";
 		msg += "<option value=\"sqlserver\"";
 		if (sourceType != null && sourceType.equals("sqlserver"))
-		        msg += " selected";
+			msg += " selected";
 		msg += ">SQL Server</option>\n";
 		msg += "</select></td></tr>\n";
 		msg += "<tr id=\"r_source_server_name\"><td><b>Source Server Name</b></td>\n";
@@ -142,48 +148,86 @@ public class CustomSQLView
 		msg += "<tr id=\"r_source_user_name\"><td><b>Source User Name</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"source_user_name\" name=\"source_user_name\" value=" + sourceUserName + ">";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_source_password\"><td><b>Source Password</b></td>\n";
-		msg += "<td><input type=\"password\" id=\"source_password\" name=\"source_password\" value=" + sourcePass + ">";
+		msg += "<tr id=\"r_source_pass\"><td><b>Source Password</b></td>\n";
+		msg += "<td><input type=\"password\" id=\"source_pass\" name=\"source_pass\" value=" + sourcePass + ">";
 		msg += "</td></tr>\n";
 		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"" + buttonText + "\"></td></tr>\n";
 		msg += "</table>\n";
-		if (id.equals(""))
-			msg += "<input type=\"hidden\" name=\"action_type\" value=\"insert\">\n";
-		else
-			msg += "<input type=\"hidden\" name=\"action_type\" value=\"update\">\n";
+		msg += "<input type=\"hidden\" name=\"id\" value=\"" + id + "\">\n";
 		msg += "<input type=\"hidden\" name=\"submit_form\" value=\"1\">\n";
+		msg += "<input type=\"hidden\" name=\"action_type\" value=\"update\">\n";
 		msg += "</form>\n";
 		return msg;
 	}
-/*
-	public static String viewDelete(String description, String tableName, String intervalQuantity)
+
+	public static String viewDelete(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) 
 	{
-		description = OutsourcerView.setHTMLField(description);
+		String buttonText = "Delete";
 		tableName = OutsourcerView.setHTMLField(tableName);
-		intervalQuantity = OutsourcerView.setHTMLField(intervalQuantity);
+		columns = OutsourcerView.setHTMLTextArea(columns);
+		sourceServerName = OutsourcerView.setHTMLField(sourceServerName);
+		sourceInstanceName = OutsourcerView.setHTMLField(sourceInstanceName);
+		sourcePort = OutsourcerView.setHTMLField(sourcePort);
+		sourceDatabaseName = OutsourcerView.setHTMLField(sourceDatabaseName);
+		sourceUserName = OutsourcerView.setHTMLField(sourceUserName);
+		sourcePass = OutsourcerView.setHTMLField(sourcePass);
 		
 		String myScript = "";
-		String onLoad="";
+		String onLoad= "";
+
 		String msg = OutsourcerView.viewHeader(myScript, onLoad, action);
 		msg += "<form action=\"custom\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr><td width=\"30%\"><b>Description</b></td>";
-		msg += "<td><input type=\"text\" id=\"description\" name=\"description\" value=" + description + " readonly></td></tr>\n";
-		msg += "<tr id=\"r_table_name\"><td><b>Interval Trunc</b></td>\n";
+		msg += "<tr id=\"r_id\"><td width=\"30%\"><b>ID</b></td>";
+		msg += "<td>" + id + "</td></tr>\n";
+		msg += "<tr id=\"r_table_name\"><td><b>Table Name</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + " readonly>";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_interval_quantity\"><td><b>Interval Quantity</b></td>\n";
-		msg += "<td><input type=\"text\" id=\"interval_quantity\" name=\"interval_quantity\" value=" + intervalQuantity + " readonly>";
+		msg += "<tr id=\"r_columns\"><td><b>Columns</b></td>\n";
+		msg += "<td><textarea readonly cols=\"50\" rows=\"10\" id=\"columns\" name=\"columns\">" + columns + "</textarea>";
 		msg += "</td></tr>\n";
-		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Delete\"></td></tr>\n";
+		msg += "<tr id=\"r_sql_text\"><td><b>SQL Text</b></td>\n";
+		msg += "<td><textarea readonly cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_type\"><td><b>Source Type</b></td>\n";
+		msg += "<td><select id=\"source_type\" name=\"source_type\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+		msg += "<option value=\"\"></option>\n";
+		msg += "<option value=\"oracle\"";
+		if (sourceType != null && sourceType.equals("oracle"))
+			msg += " selected";
+		msg += ">Oracle</option>\n";
+		msg += "<option value=\"sqlserver\"";
+		if (sourceType != null && sourceType.equals("sqlserver"))
+			msg += " selected";
+		msg += ">SQL Server</option>\n";
+		msg += "</select></td></tr>\n";
+		msg += "<tr id=\"r_source_server_name\"><td><b>Source Server Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_server_name\" name=\"source_server_name\" value=" + sourceServerName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_instance_name\"><td><b>Source Instance Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_instance_name\" name=\"source_instance_name\" value=" + sourceInstanceName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_port\"><td><b>Source Port</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_port\" name=\"source_port\" value=" + sourcePort + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_database_name\"><td><b>Source Database Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_database_name\" name=\"source_database_name\" value=" + sourceDatabaseName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_user_name\"><td><b>Source User Name</b></td>\n";
+		msg += "<td><input type=\"text\" id=\"source_user_name\" name=\"source_user_name\" value=" + sourceUserName + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr id=\"r_source_pass\"><td><b>Source Password</b></td>\n";
+		msg += "<td><input type=\"password\" id=\"source_pass\" name=\"source_pass\" value=" + sourcePass + " readonly>";
+		msg += "</td></tr>\n";
+		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"" + buttonText + "\"></td></tr>\n";
 		msg += "</table>\n";
-		msg += "<input type=\"hidden\" name=\"action_type\" value=\"delete\">\n";
+		msg += "<input type=\"hidden\" name=\"id\" value=\"" + id + "\">\n";
 		msg += "<input type=\"hidden\" name=\"submit_form\" value=\"1\">\n";
+		msg += "<input type=\"hidden\" name=\"action_type\" value=\"delete\">\n";
 		msg += "</form>\n";
-
 		return msg;
 	}
-*/
+
 	private static String getHeader(String sortBy, String sort)
 	{
 
@@ -253,30 +297,50 @@ public class CustomSQLView
 
 		return msg;
 	}
-/*
-	public static String viewCreate(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass)
 
+	//public static String viewCreate(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) 
+	public static String viewCreate(String tableName, String columns, String sqlText, ArrayList<String> extConnectionIdList)
 	{
 		String myScript = getHead();
-		String msg = OutsourcerView.viewHeader(myScript, "", action);
+		String[] parts;
+		String optionValue = "";
+		String extConnectionId = "";
+
+		//String msg = OutsourcerView.viewHeader(myScript, "", action);
+		String msg = OutsourcerView.viewHeader(myScript, "", "");
 		msg += "<form id=\"myForm\" action=\"custom\" method=\"post\">\n";
 		msg += "<table class=\"tftable\" border=\"1\">\n";
-		msg += "<tr><td><b>CustomSQL</b></td><td>" + scheduleDesc + "</td></tr>\n";
-		msg += "<tr><td><b>Greenplum Schema</b></td>";
-		msg += "<td><select id=\"schema\" name=\"schema\">\n";
+
+		msg += "<tr><td><b>Table Name</b></td>";
+		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + ">";
+		msg += "</td></tr>\n";
+
+		msg += "<tr id=\"r_columns\"><td><b>Columns</b></td>\n";
+		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"columns\" name=\"columns\">" + columns + "</textarea>";
+		msg += "</td></tr>\n";
+
+		msg += "<tr id=\"r_sql_text\"><td><b>SQL Text</b></td>\n";
+		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>";
+		msg += "</td></tr>\n";
+
+		msg += "<tr><td><b>External Connection ID</b></td>";
+		msg += "<td><select id=\"ext_connection_id\" name=\"ext_connection_id\">\n";
+		//msg += "<td><input type=\"text\" id=\"ext_connection_id\" name=\"ext_connection_id\" value=" + extConnectionId + ">";
 		msg += "<option value=\"\"></option>\n";
-		for (int i = 0; i < schemaList.size(); i++)
+		for (int i = 0; i < extConnectionIdList.size(); i++)
 		{
-			msg += "<option value=\"" + schemaList.get(i) + "\">" + schemaList.get(i) + "</option>\n";
+			optionValue = extConnectionIdList.get(i); 	
+			parts = optionValue.split(";");
+			extConnectionId = parts[0];
+
+			msg += "<option value=\"" + extConnectionId + "\">" + optionValue + "</option>\n";
 		}
 		msg += "</td></tr>\n";
-		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Update CustomSQLs\"></td></tr>\n";
+		msg += "<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Insert\"></td></tr>\n";
 		msg += "</table>\n";
 		msg += "<input type=\"hidden\" id=\"submit_form\" name=\"submit_form\" value=\"1\">\n";
-		msg += "<input type=\"hidden\" id=\"description\" name=\"description\" value=\"" + scheduleDesc + "\">\n";
 		msg += "<input type=\"hidden\" id=\"action_type\" name=\"action_type\" value=\"create\">\n";
 		msg += "</form>\n";	
 		return msg;
 	}
-*/
 }

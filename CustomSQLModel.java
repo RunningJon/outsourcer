@@ -2,7 +2,6 @@ import java.util.Map;
 import java.sql.*;
 import java.net.*;
 import java.io.*;
-import java.util.ArrayList;
 
 public class CustomSQLModel
 {
@@ -54,28 +53,43 @@ public class CustomSQLModel
 		}
 	}
 
-	//public static void insertTable(String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, int sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) throws SQLException
-	public static void insertTable(String tableName, String columns, String sqlText, int extConnectionId) throws SQLException
+	public static void insertTable(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) throws SQLException
 	{
 		tableName = OutsourcerModel.setSQLString(tableName.toLowerCase());
-		////////////////////////////////////
-		//Need to change this as the UI gets enhanced
-		////////////////////////////////////
 		columns = OutsourcerModel.setSQLString(columns);
-		////////////////////////////////////
-		//need to fix this...
-		////////////////////////////////////
-		////////////////////////////////////
-		////////////////////////////////////
-		////////////////////////////////////
 		sqlText = OutsourcerModel.setSQLString(sqlText);
+		sourceType = OutsourcerModel.setSQLString(sourceType);
+		sourceServerName = OutsourcerModel.setSQLString(sourceServerName);
+		sourceInstanceName = OutsourcerModel.setSQLString(sourceInstanceName);
+		sourcePort = OutsourcerModel.setSQLInt(sourcePort);
+		sourceDatabaseName = OutsourcerModel.setSQLString(sourceDatabaseName);
+		sourceUserName = OutsourcerModel.setSQLString(sourceUserName);
+		sourcePass = OutsourcerModel.setSQLString(sourcePass);
 
 		String strSQL = "INSERT INTO os.ao_custom_sql\n";
-		strSQL += "(table_name, columns, sql_text, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass)\n";
-		strSQL += "SELECT " + tableName + ", " + columns + ", " + sqlText + ", \n";
-		strSQL += "source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass\n";
-		strSQL += "FROM os.ext_connection\n";
-		strSQL += "WHERE id = " + extConnectionId;
+
+		if (id.equals(""))
+			strSQL += "(";
+		else
+			strSQL += "(id, ";
+
+		strSQL += "table_name, columns, sql_text, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass)\n";
+		strSQL += "VALUES";
+
+		if (id.equals(""))
+			strSQL += "(";
+		else
+			strSQL += "(" + id + ", ";
+		strSQL += "     " + tableName + ", \n";
+		strSQL += "     " + columns + ", \n";
+		strSQL += "     " + sqlText + ", \n";
+		strSQL += "     " + sourceType + ", \n";
+		strSQL += "     " + sourceServerName + ", \n";
+		strSQL += "     " + sourceInstanceName + ", \n";
+		strSQL += "     " + sourcePort + ", \n";
+		strSQL += "     " + sourceDatabaseName + ", \n";
+		strSQL += "     " + sourceUserName + ", \n";
+		strSQL += "     " + sourcePass + ")\n";
 
 		try
 		{
@@ -87,14 +101,14 @@ public class CustomSQLModel
 		}
 	}
 
-	public static void deleteTable(int id) throws SQLException
+	public static void deleteTable(String id) throws SQLException
 	{
 
 		try
 		{
 			String strSQL = "INSERT INTO os.ao_custom_sql\n";
-			strSQL += "(table_name, columns, sql_text, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass, deleted)\n";
-			strSQL += "SELECT table_name, columns, sql_text, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass, TRUE AS deleted\n";
+			strSQL += "(id, table_name, columns, sql_text, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass, deleted)\n";
+			strSQL += "SELECT id, table_name, columns, sql_text, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass, TRUE AS deleted\n";
 			strSQL += "FROM os.custom_sql\n";
 			strSQL += "WHERE id = " + id;
 			OutsourcerModel.updateTable(strSQL);
@@ -146,6 +160,30 @@ public class CustomSQLModel
 		catch (Exception ex)
 		{
 			return null;
+		}
+	}
+
+	public static void insertTable(String tableName, String columns, String sqlText, String extConnectionId) throws SQLException
+	{
+		tableName = OutsourcerModel.setSQLString(tableName.toLowerCase());
+		columns = OutsourcerModel.setSQLString(columns);
+		sqlText = OutsourcerModel.setSQLString(sqlText);
+
+		String strSQL = "INSERT INTO os.ao_custom_sql\n";
+		strSQL += "(table_name, columns, sql_text, \n";
+		strSQL += "source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass)\n";
+		strSQL += "SELECT " + tableName + ", " + columns + ", " + sqlText + ", \n";
+		strSQL += "source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass\n";
+		strSQL += "FROM os.ext_connection\n";
+		strSQL += "WHERE id = " + extConnectionId;
+
+		try
+		{
+			OutsourcerModel.updateTable(strSQL);
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException(ex.getMessage());
 		}
 	}
 }

@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e
+
 echo "Manifest-Version: 1.0" > manifest.txt
 echo "Main-Class: ExternalData" >> manifest.txt
 echo "Specification-Title: \"Outsourcer\"" >> manifest.txt

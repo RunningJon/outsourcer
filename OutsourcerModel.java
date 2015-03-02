@@ -28,14 +28,26 @@ public class OutsourcerModel
 		ArrayList<String> stringArray = new ArrayList<String>();
 		try
 		{
-			int i = 1;
+			String output = "";
+			String columnValue = "";
 			Connection conn = UIConnectionFactory.getConnection();
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int numberOfColumns = rsmd.getColumnCount();
 			while (rs.next())
 			{
-				stringArray.add(rs.getString(1));
-				i++;
+				output = "";
+				for (int i=1; i<numberOfColumns+1; i++)
+				{
+					columnValue = rs.getString(i);
+					if (i == 1)
+						output = columnValue;
+					else
+						output += ';' + columnValue;
+				}
+				
+				stringArray.add(output);
 			}
 			conn.close();
 			return stringArray;

@@ -16,9 +16,20 @@ public class CustomSQLControl
 		String id = parms.get("id");
 		String tableName = parms.get("table_name");
 		String columns = parms.get("columns");
+		String sqlText = parms.get("sql_text");
+		String sourceType = parms.get("source_type");
+		String sourceServerName = parms.get("source_server_name");
+		String sourceInstanceName = parms.get("source_instance_name");
+		String sourcePort = parms.get("source_port");
+		String sourceDatabaseName = parms.get("source_database_name");
+		String sourceUserName = parms.get("source_user_name");
+		String sourcePass = parms.get("source_pass");
 		String submit = parms.get("submit_form");
 		String schema = parms.get("schema");
-		ArrayList<String> schemaList = new ArrayList<String>();
+		ArrayList<String> extConnectionIdList = new ArrayList<String>();
+
+		String extConnectionId = parms.get("ext_connection_id");
+
 
 		if (search == null)
 			search = "";
@@ -38,11 +49,38 @@ public class CustomSQLControl
 		if (id == null)
 			id = "";
 
+		if (extConnectionId == null)
+			extConnectionId = "";
+
 		if (tableName == null)
 			tableName = "";
 
 		if (columns == null)
 			columns = "";
+
+		if (sqlText == null)
+			sqlText = "";
+
+		if (sourceType == null)
+			sourceType = "";
+
+		if (sourceServerName == null)
+			sourceServerName = "";
+
+		if (sourceInstanceName == null)
+			sourceInstanceName = "";
+
+		if (sourcePort == null)
+			sourcePort = "";
+
+		if (sourceDatabaseName == null)
+			sourceDatabaseName = "";
+
+		if (sourceUserName == null)
+			sourceUserName = "";
+
+		if (sourcePass == null)
+			sourcePass = "";
 
 		if (actionType == null || actionType.equals(""))
 			actionType = "view";
@@ -67,19 +105,18 @@ public class CustomSQLControl
 				msg += ex.getMessage();
 			}
 		}
-		else if (actionType.equals("update") || actionType.equals("insert"))
+		else if (actionType.equals("update"))
 		{
 			if (submit.equals("0"))
 			{
 				CustomSQLModel e = CustomSQLModel.getModel(id);
 				msg = CustomSQLView.viewUpdate(e.id, e.tableName, e.columns, e.sqlText, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceUserName, e.sourcePass);
 			}
-/*
 			else
 			{
 				try
 				{
-					CustomSQLModel.insertTable(id, tableName, columns);
+					CustomSQLModel.insertTable(id, tableName, columns, sqlText, sourceType, sourceServerName, sourceInstanceName, sourcePort, sourceDatabaseName, sourceUserName, sourcePass);
 					rs = CustomSQLModel.getList(search, limit, offset, sortBy, sort);
 					msg = CustomSQLView.viewList(search, rs, limit, offset, sortBy, sort);
 				}
@@ -88,15 +125,13 @@ public class CustomSQLControl
 					msg = ex.getMessage();
 				}
 			}
-*/
 		}
- /*
 		else if (actionType.equals("delete"))
 		{	
 			if (submit.equals("0"))
 			{
 				CustomSQLModel e = CustomSQLModel.getModel(id);
-				msg = CustomSQLView.viewDelete(e.id, e.tableName, e.columns);
+				msg = CustomSQLView.viewDelete(e.id, e.tableName, e.columns, e.sqlText, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceUserName, e.sourcePass);
 			}
 			else
 			{
@@ -118,12 +153,12 @@ public class CustomSQLControl
 			{
 				if (submit.equals("0"))
 				{
-					schemaList = JobModel.getSchemas();
-					msg = CustomSQLView.viewCreate(id, schemaList);
+					extConnectionIdList = ExternalTableModel.getExtConnectionIds();
+					msg = CustomSQLView.viewCreate(tableName, columns, sqlText, extConnectionIdList);
 				}
 				else
 				{
-					JobModel.updateJobsCustomSQL(id, schema);
+					CustomSQLModel.insertTable(tableName, columns, sqlText, extConnectionId);
 					rs = CustomSQLModel.getList(search, limit, offset, sortBy, sort);
 					msg = CustomSQLView.viewList(search, rs, limit, offset, sortBy, sort);
 				}
@@ -133,7 +168,6 @@ public class CustomSQLControl
 				msg = ex.getMessage();
 			}
 		}
-*/
 		return msg;
 	}
 }

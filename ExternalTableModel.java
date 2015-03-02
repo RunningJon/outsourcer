@@ -2,6 +2,7 @@ import java.util.Map;
 import java.sql.*;
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 
 public class ExternalTableModel
 {
@@ -264,4 +265,22 @@ public class ExternalTableModel
 		}
 	}
 
+	public static ArrayList<String> getExtConnectionIds() throws SQLException
+	{
+		String strSQL = "SELECT id, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name\n";
+		strSQL += "FROM os.ext_connection\n";
+		strSQL += "ORDER BY 1";
+		
+		ArrayList<String> extConnectionIds = new ArrayList<String>();
+
+		try
+		{
+			extConnectionIds = OutsourcerModel.getStringArray(strSQL);
+			return extConnectionIds;
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException(ex.getMessage());
+		}
+	}
 }
