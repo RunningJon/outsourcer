@@ -267,7 +267,11 @@ public class ExternalTableModel
 
 	public static ArrayList<String> getExtConnectionIds() throws SQLException
 	{
-		String strSQL = "SELECT id, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name\n";
+		String strSQL = "SELECT id, source_type, source_server_name,\n";
+		strSQL += "CASE WHEN source_instance_name IS NOT NULL THEN source_instance_name || ';' ELSE '' END || \n";
+		strSQL += "CASE WHEN source_port IS NOT NULL THEN source_port || ';' ELSE '' END || \n";
+		strSQL += "CASE WHEN source_database_name IS NOT NULL THEN source_database_name || ';' ELSE '' END || \n";
+		strSQL += "source_user_name\n";
 		strSQL += "FROM os.ext_connection\n";
 		strSQL += "ORDER BY 1";
 		

@@ -9,13 +9,14 @@ DECLARE
         
         v_sql text;
         v_columns text[];
+        v_column_datatypes text[];
         v_table_name text;
         v_ext_location text;
         v_count int;
 BEGIN
         v_location := 1000;
-        SELECT LOWER(table_name) as table_name, columns
-        INTO v_table_name, v_columns
+        SELECT LOWER(table_name) as table_name, columns, column_datatypes
+        INTO v_table_name, v_columns, v_column_datatypes
         FROM os.custom_sql
         WHERE id = p_custom_sql_id;
 
@@ -35,9 +36,9 @@ BEGIN
         FOR i IN array_lower(v_columns, 1)..array_upper(v_columns,1) LOOP
                 IF i = 1 THEN
                         v_sql := 'CREATE EXTERNAL TABLE ' || v_table_name || E' \n' ||
-                                '(' || v_columns[i];
+                                '(' || v_columns[i] || ' ' || v_column_datatypes[i];
                 ELSE
-                        v_sql := v_sql || E', \n' || v_columns[i];
+                        v_sql := v_sql || E', \n' || v_columns[i] || ' ' || v_column_datatypes[i];
                 END IF;
 
         END LOOP;
@@ -60,5 +61,4 @@ EXCEPTION
                 RAISE EXCEPTION '(%:%:%)', v_function_name, v_location, sqlerrm;
 END;
 $$
-  LANGUAGE plpgsql VOLATILE;
-
+  LANGUAGE plpgsql;

@@ -2,6 +2,7 @@ import java.sql.*;
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class OutsourcerModel
 {
@@ -56,6 +57,32 @@ public class OutsourcerModel
 		{
 			throw new SQLException(ex.getMessage());
 		}
+	}
+
+	public static ArrayList<String> gpArrayToJavaArray(String gpArray) 
+	{
+		//Array in Greenplum is formatted as a string with { } 
+		gpArray = gpArray.substring(1, gpArray.length() - 1);
+		
+		ArrayList<String> stringArray = new ArrayList<String>(Arrays.asList(gpArray.split(",")));
+		return stringArray;
+	}
+
+	public static String javaArrayToString(ArrayList<String> stringArray)
+	{
+		int i = 0;
+		String output = "{";
+		for (String s : stringArray)
+		{
+			i++;
+			if (i == 1)
+				output = "ARRAY[" + s;
+			else
+				output += "," + s;
+		}
+		output += "]";
+
+		return output;
 	}
 
 	public static void updateTable(String strSQL) throws SQLException

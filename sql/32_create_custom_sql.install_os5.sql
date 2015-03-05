@@ -2,6 +2,7 @@ CREATE TABLE os.ao_custom_sql
 ( id serial NOT NULL,
   table_name text NOT NULL,
   columns text[] NOT NULL,
+  column_datatypes text[] NOT NULL,
   sql_text text NOT NULL,
   source_type text,
   source_server_name text NOT NULL,
@@ -16,10 +17,10 @@ CREATE TABLE os.ao_custom_sql
  DISTRIBUTED BY (id);
 
 CREATE VIEW os.custom_sql AS
-SELECT id, table_name, columns, sql_text, source_type, source_server_name, source_instance_name, source_port,
+SELECT id, table_name, columns, column_datatypes, sql_text, source_type, source_server_name, source_instance_name, source_port,
        source_database_name, source_user_name, source_pass
 FROM    (
-        SELECT  id, table_name, columns, sql_text, source_type, source_server_name, source_instance_name, source_port,
+        SELECT  id, table_name, columns, column_datatypes, sql_text, source_type, source_server_name, source_instance_name, source_port,
                 source_database_name, source_user_name, source_pass,
                 row_number() OVER (PARTITION BY id ORDER BY insert_id DESC) AS rownum, deleted
         FROM os.ao_custom_sql

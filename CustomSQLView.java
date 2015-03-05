@@ -28,7 +28,6 @@ public class CustomSQLView
 		myScript += "   document.getElementById(\"id\").value = id;\n";
 		myScript += "   document.getElementById(\"myForm\").submit();\n";
 		myScript += "}\n";
-
 		return myScript;
 	}
 
@@ -69,17 +68,17 @@ public class CustomSQLView
 		myScript += "   //0 is the first entry which is blank\n";
 		myScript += "   if (val == 1) //Oracle\n";
 		myScript += "   {\n";
-		myScript += "           document.getElementById(\"source_instance_name\").value = \"\";\n";
-		myScript += "           document.getElementById(\"r_source_instance_name\").style.display = \"none\";\n";
-		myScript += "           document.getElementById(\"r_source_database_name\").style.display = \"\";\n";
-		myScript += "           document.getElementById(\"r_source_port\").style.display = \"\";\n";
+		myScript += "	   document.getElementById(\"source_instance_name\").value = \"\";\n";
+		myScript += "	   document.getElementById(\"r_source_instance_name\").style.display = \"none\";\n";
+		myScript += "	   document.getElementById(\"r_source_database_name\").style.display = \"\";\n";
+		myScript += "	   document.getElementById(\"r_source_port\").style.display = \"\";\n";
 		myScript += "   }\n";
 		myScript += "   if (val == 2) //SQL Server\n";
 		myScript += "   {\n";
-		myScript += "           document.getElementById(\"source_port\").value = \"\";\n";
-		myScript += "           document.getElementById(\"r_source_port\").style.display = \"none\";\n";
-		myScript += "           document.getElementById(\"r_source_instance_name\").style.display = \"\";\n";
-		myScript += "           document.getElementById(\"r_source_database_name\").style.display = \"none\";\n";
+		myScript += "	   document.getElementById(\"source_port\").value = \"\";\n";
+		myScript += "	   document.getElementById(\"r_source_port\").style.display = \"none\";\n";
+		myScript += "	   document.getElementById(\"r_source_instance_name\").style.display = \"\";\n";
+		myScript += "	   document.getElementById(\"r_source_database_name\").style.display = \"none\";\n";
 		myScript += "   }\n";
 		myScript += "}\n";
 		myScript += "function loadPage()\n";
@@ -91,12 +90,11 @@ public class CustomSQLView
 
 	}
 
-	public static String viewUpdate(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) 
+	public static String viewUpdate(String id, String tableName, ArrayList<String> columns, ArrayList<String> columnDataTypes, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass, ArrayList<String> dataTypes) 
 	{
 
 		String buttonText = "Update";
 		tableName = OutsourcerView.setHTMLField(tableName);
-		columns = OutsourcerView.setHTMLTextArea(columns);
 		sourceServerName = OutsourcerView.setHTMLField(sourceServerName);
 		sourceInstanceName = OutsourcerView.setHTMLField(sourceInstanceName);
 		sourcePort = OutsourcerView.setHTMLField(sourcePort);
@@ -115,9 +113,56 @@ public class CustomSQLView
 		msg += "<tr id=\"r_table_name\"><td><b>Table Name</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + ">";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_columns\"><td><b>Columns</b></td>\n";
-		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"columns\" name=\"columns\">" + columns + "</textarea>";
-		msg += "</td></tr>\n";
+
+		msg += "<tr id=\"r_columns_grid\"><td><b>Columns</b></td>\n";
+		msg += "<td>";
+			msg += "<div id=\"table-wrapper\">\n";
+			msg += "  <div id=\"table-scroll\">\n";
+			msg += "    <table class=\"tftable\" border=\"1\">\n";
+
+			int counter = 0;
+			String strColumn = "";
+			String strColumnName = "";
+
+			//display all of the columns in the external table	
+			for (int i = 0; i < columns.size(); i++)
+			{
+				counter++;
+				strColumn = columns.get(i);
+				strColumnName = "column" + i;
+
+				msg += "<tr><td><input type=\"text\" id=\"" + strColumnName + "\" name=\"" + strColumnName + "\" value=\"" + strColumn + "\"></td>\n";
+				msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\">\n";
+				for (int x = 0; x < dataTypes.size(); x++)
+				{
+					msg += "<option value=\"" + dataTypes.get(x) + "\"";
+					if (dataTypes.get(x).equals("text"))
+						msg += " selected";
+					msg += ">" + dataTypes.get(x) + "</option>\n";
+				}
+				msg += "</select></td></tr>";
+			}
+
+			//display the rest of the available columns	
+			for (int i=counter; i < CustomSQLModel.maxColumns; i++)
+			{
+				msg += "<tr><td><input type=\"text\" id=\"column" + i + "\" name=\"column" + i + "\"></td>\n";
+				msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\">\n";
+				for (int x = 0; x < dataTypes.size(); x++)
+				{
+					msg += "<option value=\"" + dataTypes.get(x) + "\"";
+					if (dataTypes.get(x).equals("text"))
+						msg += " selected";
+					msg += ">" + dataTypes.get(x) + "</option>\n";
+				}
+				msg += "</select></td></tr>";
+
+			}
+
+			msg += "    </table>\n";
+			msg += "  </div>\n";
+			msg += "</div>\n";
+			msg += "</td></tr>\n";
 		msg += "<tr id=\"r_sql_text\"><td><b>SQL Text</b></td>\n";
 		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>";
 		msg += "</td></tr>\n";
@@ -160,11 +205,11 @@ public class CustomSQLView
 		return msg;
 	}
 
-	public static String viewDelete(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) 
+	public static String viewDelete(String id, String tableName, ArrayList<String> columns,  ArrayList<String> columnDataTypes, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass, ArrayList<String> dataTypes) 
 	{
 		String buttonText = "Delete";
 		tableName = OutsourcerView.setHTMLField(tableName);
-		columns = OutsourcerView.setHTMLTextArea(columns);
+		//columns = OutsourcerView.setHTMLTextArea(columns);
 		sourceServerName = OutsourcerView.setHTMLField(sourceServerName);
 		sourceInstanceName = OutsourcerView.setHTMLField(sourceInstanceName);
 		sourcePort = OutsourcerView.setHTMLField(sourcePort);
@@ -183,9 +228,58 @@ public class CustomSQLView
 		msg += "<tr id=\"r_table_name\"><td><b>Table Name</b></td>\n";
 		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + " readonly>";
 		msg += "</td></tr>\n";
-		msg += "<tr id=\"r_columns\"><td><b>Columns</b></td>\n";
-		msg += "<td><textarea readonly cols=\"50\" rows=\"10\" id=\"columns\" name=\"columns\">" + columns + "</textarea>";
-		msg += "</td></tr>\n";
+
+		msg += "<tr id=\"r_columns_grid\"><td><b>Columns</b></td>\n";
+		msg += "<td>";
+
+                        msg += "<div id=\"table-wrapper\">\n";
+                        msg += "  <div id=\"table-scroll\">\n";
+                        msg += "    <table class=\"tftable\" border=\"1\">\n";
+
+                        int counter = 0;
+                        String strColumn = "";
+                        String strColumnName = "";
+
+                        //display all of the columns in the external table
+                        for (int i = 0; i < columns.size(); i++)
+                        {
+                                counter++;
+                                strColumn = columns.get(i);
+                                strColumnName = "column" + i;
+
+                                msg += "<tr><td><input type=\"text\" id=\"" + strColumnName + "\" name=\"" + strColumnName + "\" value=\"" + strColumn + "\" readonly></td>\n";
+                                msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+                                for (int x = 0; x < dataTypes.size(); x++)
+                                {
+                                        msg += "<option value=\"" + dataTypes.get(x) + "\"";
+                                        if (dataTypes.get(x).equals("text"))
+                                                msg += " selected";
+                                        msg += ">" + dataTypes.get(x) + "</option>\n";
+                                }
+                                msg += "</select></td></tr>";
+                        }
+
+                        //display the rest of the available columns
+                        for (int i=counter; i < CustomSQLModel.maxColumns; i++)
+                        {
+                                msg += "<tr><td><input type=\"text\" id=\"column" + i + "\" name=\"column" + i + "\"></td>\n";
+                                msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+                                for (int x = 0; x < dataTypes.size(); x++)
+                                {
+                                        msg += "<option value=\"" + dataTypes.get(x) + "\"";
+                                        if (dataTypes.get(x).equals("text"))
+                                                msg += " selected";
+                                        msg += ">" + dataTypes.get(x) + "</option>\n";
+                                }
+                                msg += "</select></td></tr>";
+
+                        }
+
+                        msg += "    </table>\n";
+                        msg += "  </div>\n";
+                        msg += "</div>\n";
+                        msg += "</td></tr>\n";
+
 		msg += "<tr id=\"r_sql_text\"><td><b>SQL Text</b></td>\n";
 		msg += "<td><textarea readonly cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>";
 		msg += "</td></tr>\n";
@@ -298,8 +392,7 @@ public class CustomSQLView
 		return msg;
 	}
 
-	//public static String viewCreate(String id, String tableName, String columns, String sqlText, String sourceType, String sourceServerName, String sourceInstanceName, String sourcePort, String sourceDatabaseName, String sourceUserName, String sourcePass) 
-	public static String viewCreate(String tableName, String columns, String sqlText, ArrayList<String> extConnectionIdList)
+	public static String viewCreate(String tableName, ArrayList<String> columns, ArrayList<String> columnDataTypes, ArrayList<String> dataTypes, String sqlText, ArrayList<String> extConnectionIdList)
 	{
 		String myScript = getHead();
 		String[] parts;
@@ -315,9 +408,55 @@ public class CustomSQLView
 		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + ">";
 		msg += "</td></tr>\n";
 
-		msg += "<tr id=\"r_columns\"><td><b>Columns</b></td>\n";
-		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"columns\" name=\"columns\">" + columns + "</textarea>";
-		msg += "</td></tr>\n";
+                msg += "<tr id=\"r_columns_grid\"><td><b>Columns</b></td>\n";
+                msg += "<td>";
+                        msg += "<div id=\"table-wrapper\">\n";
+                        msg += "  <div id=\"table-scroll\">\n";
+                        msg += "    <table class=\"tftable\" border=\"1\">\n";
+
+                        int counter = 0;
+                        String strColumn = "";
+                        String strColumnName = "";
+
+                        //display all of the columns in the external table
+                        for (int i = 0; i < columns.size(); i++)
+                        {
+                                counter++;
+                                strColumn = columns.get(i);
+                                strColumnName = "column" + i;
+
+                                msg += "<tr><td><input type=\"text\" id=\"" + strColumnName + "\" name=\"" + strColumnName + "\" value=" + strColumn + "></td>\n";
+                                msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\">\n";
+                                for (int x = 0; x < dataTypes.size(); x++)
+                                {
+                                        msg += "<option value=\"" + dataTypes.get(x) + "\"";
+                                        if (dataTypes.get(x).equals("text"))
+                                                msg += " selected";
+                                        msg += ">" + dataTypes.get(x) + "</option>\n";
+                                }
+                                msg += "</select></td></tr>";
+                        }
+
+                        //display the rest of the available columns
+                        for (int i=counter; i < CustomSQLModel.maxColumns; i++)
+                        {
+                                msg += "<tr><td><input type=\"text\" id=\"column" + i + "\" name=\"column" + i + "\"></td>\n";
+                                msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\">\n";
+                                for (int x = 0; x < dataTypes.size(); x++)
+                                {
+                                        msg += "<option value=\"" + dataTypes.get(x) + "\"";
+                                        if (dataTypes.get(x).equals("text"))
+                                                msg += " selected";
+                                        msg += ">" + dataTypes.get(x) + "</option>\n";
+                                }
+                                msg += "</select></td></tr>";
+
+                        }
+
+                        msg += "    </table>\n";
+                        msg += "  </div>\n";
+                        msg += "</div>\n";
+                        msg += "</td></tr>\n";
 
 		msg += "<tr id=\"r_sql_text\"><td><b>SQL Text</b></td>\n";
 		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>";

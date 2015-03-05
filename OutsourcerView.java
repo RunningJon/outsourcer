@@ -96,7 +96,10 @@ public class OutsourcerView
 		msg += "table.tftable tr {background-color:#ffffff;}\n";
 		//msg += "table.tftable td {font-family:Arial, Helvetica, sans-serif;font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: #9dcc7a;}\n";
 		msg += "table.tftable td {font-family:Arial, Helvetica, sans-serif;font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: " + borderColor + ";}\n";
-
+		msg += "#table-wrapper {position:relative;}\n";
+		msg += "#table-scroll {height:250px;overflow:auto;margin-top:20px;}\n";
+		msg += "#table-wrapper table {width:100%;}\n";
+		//msg += "#table-wrapper table * {background:#c0c0c0;color:black;}\n";
 		msg += "</style>\n";
 
 		if (!myScript.equals(""))

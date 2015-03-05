@@ -1,6 +1,7 @@
 import java.util.Map;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class CustomSQLControl
 {
@@ -15,7 +16,6 @@ public class CustomSQLControl
 		String sort = parms.get("sort");
 		String id = parms.get("id");
 		String tableName = parms.get("table_name");
-		String columns = parms.get("columns");
 		String sqlText = parms.get("sql_text");
 		String sourceType = parms.get("source_type");
 		String sourceServerName = parms.get("source_server_name");
@@ -27,9 +27,37 @@ public class CustomSQLControl
 		String submit = parms.get("submit_form");
 		String schema = parms.get("schema");
 		ArrayList<String> extConnectionIdList = new ArrayList<String>();
-
 		String extConnectionId = parms.get("ext_connection_id");
+		ArrayList<String> dataTypes = new ArrayList<String>();
+		ArrayList<String> columns = new ArrayList<String>();
+		ArrayList<String> columnDataTypes = new ArrayList<String>();
 
+		String strColumnName = ""; //name of the html form field column1, column2...
+		String strColumn = ""; //value from column1, column2...
+
+		String strColumnDataTypeName = ""; //name of the html form field data_type1, data_type2...
+		String strColumnDataType = ""; //value from the data_type1, data_type2... html field
+
+		for (int i=0; i <= CustomSQLModel.maxColumns; i++)
+		{
+			//get the name of the column being posted
+			strColumnName = "column" + i;	
+			strColumn = parms.get(strColumnName);
+			if (strColumn != null && !strColumn.equals(""))
+			{
+				strColumn = "'" + strColumn + "'";
+				columns.add(strColumn);
+
+				//get the data type
+				strColumnDataTypeName = "data_type" + i;	
+				strColumnDataType = parms.get(strColumnDataTypeName);
+				if (strColumnDataType != null && !strColumnDataType.equals(""))
+				{
+					strColumnDataType = "'" + strColumnDataType + "'";
+					columnDataTypes.add(strColumnDataType);
+				}
+			}
+		}
 
 		if (search == null)
 			search = "";
@@ -54,9 +82,6 @@ public class CustomSQLControl
 
 		if (tableName == null)
 			tableName = "";
-
-		if (columns == null)
-			columns = "";
 
 		if (sqlText == null)
 			sqlText = "";
@@ -109,14 +134,15 @@ public class CustomSQLControl
 		{
 			if (submit.equals("0"))
 			{
+				dataTypes = CustomSQLModel.getDataTypes();
 				CustomSQLModel e = CustomSQLModel.getModel(id);
-				msg = CustomSQLView.viewUpdate(e.id, e.tableName, e.columns, e.sqlText, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceUserName, e.sourcePass);
+				msg = CustomSQLView.viewUpdate(e.id, e.tableName, e.columns, e.columnDataTypes, e.sqlText, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceUserName, e.sourcePass, dataTypes);
 			}
 			else
 			{
 				try
 				{
-					CustomSQLModel.insertTable(id, tableName, columns, sqlText, sourceType, sourceServerName, sourceInstanceName, sourcePort, sourceDatabaseName, sourceUserName, sourcePass);
+					CustomSQLModel.updateTable(id, tableName, columns, columnDataTypes, sqlText, sourceType, sourceServerName, sourceInstanceName, sourcePort, sourceDatabaseName, sourceUserName, sourcePass);
 					rs = CustomSQLModel.getList(search, limit, offset, sortBy, sort);
 					msg = CustomSQLView.viewList(search, rs, limit, offset, sortBy, sort);
 				}
@@ -130,8 +156,9 @@ public class CustomSQLControl
 		{	
 			if (submit.equals("0"))
 			{
+				dataTypes = CustomSQLModel.getDataTypes();
 				CustomSQLModel e = CustomSQLModel.getModel(id);
-				msg = CustomSQLView.viewDelete(e.id, e.tableName, e.columns, e.sqlText, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceUserName, e.sourcePass);
+				msg = CustomSQLView.viewDelete(e.id, e.tableName, e.columns, e.columnDataTypes, e.sqlText, e.sourceType, e.sourceServerName, e.sourceInstanceName, e.sourcePort, e.sourceDatabaseName, e.sourceUserName, e.sourcePass, dataTypes);
 			}
 			else
 			{
@@ -153,12 +180,13 @@ public class CustomSQLControl
 			{
 				if (submit.equals("0"))
 				{
+					dataTypes = CustomSQLModel.getDataTypes();
 					extConnectionIdList = ExternalTableModel.getExtConnectionIds();
-					msg = CustomSQLView.viewCreate(tableName, columns, sqlText, extConnectionIdList);
+					msg = CustomSQLView.viewCreate(tableName, columns, columnDataTypes, dataTypes, sqlText, extConnectionIdList);
 				}
 				else
 				{
-					CustomSQLModel.insertTable(tableName, columns, sqlText, extConnectionId);
+					CustomSQLModel.insertTable(tableName, columns, columnDataTypes, sqlText, extConnectionId);
 					rs = CustomSQLModel.getList(search, limit, offset, sortBy, sort);
 					msg = CustomSQLView.viewList(search, rs, limit, offset, sortBy, sort);
 				}
