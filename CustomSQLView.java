@@ -38,7 +38,7 @@ public class CustomSQLView
 		String msg = OutsourcerView.viewSearch(action, search, limit, offset, sortBy, sort, myScript);
 		msg += "<table class=\"tftable\" border=\"0\">\n";
 		msg += "<tr>\n";
-		msg += "<td><h4><a href=\"?action_type=create\">Define New CustomSQL</a></h4></td>\n";
+		msg += "<td><h4><a href=\"?action_type=create\">Define New Custom External Table</a></h4></td>\n";
 		msg += "</tr>\n";
 		msg += "</table>\n";
 		msg += "<br>\n";
@@ -123,12 +123,14 @@ public class CustomSQLView
 			int counter = 0;
 			String strColumn = "";
 			String strColumnName = "";
+			String strColumnDataType = "";
 
 			//display all of the columns in the external table	
 			for (int i = 0; i < columns.size(); i++)
 			{
 				counter++;
 				strColumn = columns.get(i);
+				strColumnDataType = columnDataTypes.get(i);
 				strColumnName = "column" + i;
 
 				msg += "<tr><td><input type=\"text\" id=\"" + strColumnName + "\" name=\"" + strColumnName + "\" value=\"" + strColumn + "\"></td>\n";
@@ -136,7 +138,7 @@ public class CustomSQLView
 				for (int x = 0; x < dataTypes.size(); x++)
 				{
 					msg += "<option value=\"" + dataTypes.get(x) + "\"";
-					if (dataTypes.get(x).equals("text"))
+					if (dataTypes.get(x).equals(strColumnDataType))
 						msg += " selected";
 					msg += ">" + dataTypes.get(x) + "</option>\n";
 				}
@@ -239,12 +241,14 @@ public class CustomSQLView
                         int counter = 0;
                         String strColumn = "";
                         String strColumnName = "";
+			String strColumnDataType = "";
 
                         //display all of the columns in the external table
                         for (int i = 0; i < columns.size(); i++)
                         {
                                 counter++;
                                 strColumn = columns.get(i);
+				strColumnDataType = columnDataTypes.get(i);
                                 strColumnName = "column" + i;
 
                                 msg += "<tr><td><input type=\"text\" id=\"" + strColumnName + "\" name=\"" + strColumnName + "\" value=\"" + strColumn + "\" readonly></td>\n";
@@ -252,7 +256,7 @@ public class CustomSQLView
                                 for (int x = 0; x < dataTypes.size(); x++)
                                 {
                                         msg += "<option value=\"" + dataTypes.get(x) + "\"";
-                                        if (dataTypes.get(x).equals("text"))
+                                        if (dataTypes.get(x).equals(strColumnDataType))
                                                 msg += " selected";
                                         msg += ">" + dataTypes.get(x) + "</option>\n";
                                 }

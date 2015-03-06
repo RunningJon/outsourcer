@@ -6,15 +6,6 @@ public class UIView
 		String myScript = getJavaScriptFunctions();
 		String onLoad = "login()";
 		String msg = OutsourcerView.getHead(myScript, onLoad);
-
-		if (!(loginMessage==""))
-		{
-			String[] errorMessage = loginMessage.split(":");
-			int i = errorMessage.length;
-//			loginMessage += ":length:" + i;
-			loginMessage = errorMessage[errorMessage.length-1];
-			loginMessage = loginMessage.substring(0, loginMessage.length() - 1);
-		}
 		msg += "<table class=\"ostable\">\n";
 		msg += "<tr><td><h1><a href=\"/\">Outsourcer 5</a></h1></td>\n";
 		msg += "</tr>\n";

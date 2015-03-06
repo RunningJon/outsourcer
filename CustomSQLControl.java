@@ -132,7 +132,7 @@ public class CustomSQLControl
 		}
 		else if (actionType.equals("update"))
 		{
-			if (submit.equals("0"))
+			if (submit.equals("0") || tableName.equals("") || columns.isEmpty() || columnDataTypes.isEmpty() || sqlText.equals("") || sourceServerName.equals("") || sourceUserName.equals("") || sourcePass.equals(""))
 			{
 				dataTypes = CustomSQLModel.getDataTypes();
 				CustomSQLModel e = CustomSQLModel.getModel(id);
@@ -178,7 +178,7 @@ public class CustomSQLControl
 		{	
 			try
 			{
-				if (submit.equals("0"))
+				if (submit.equals("0") || tableName.equals("") || columns.isEmpty() || columnDataTypes.isEmpty() || sqlText.equals("") || sourceServerName.equals("") || sourceUserName.equals("") || sourcePass.equals(""))
 				{
 					dataTypes = CustomSQLModel.getDataTypes();
 					extConnectionIdList = ExternalTableModel.getExtConnectionIds();

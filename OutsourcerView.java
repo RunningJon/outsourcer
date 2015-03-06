@@ -68,14 +68,10 @@ public class OutsourcerView
 		msg += "h4{font-family:Arial, Helvetica, sans-serif}\n";
 		msg += "h5{font-family:Arial, Helvetica, sans-serif}\n";
 
-		//msg += "a:link    {color:#008000;text-decoration:none;}\n";
-		//msg += "a:visited {color:#008000;text-decoration:none;}\n";
 		msg += "a:link    {color:" + fontColor + ";text-decoration:none;}\n";
 		msg += "a:visited {color:" + fontColor + ";text-decoration:none;}\n";
 		msg += "a:hover   {color:#000000;text-decoration:none;}\n";
 		msg += "a:active  {color:#000000;text-decoration:none;}\n";
-		//msg += "a.m1:link    {color:#008000;text-decoration:none;}\n";
-		//msg += "a.m1:visited {color:#008000;text-decoration:none;}\n";
 		msg += "a.m1:link    {color:" + fontColor + ";text-decoration:none;}\n";
 		msg += "a.m1:visited {color:" + fontColor + ";text-decoration:none;}\n";
 		msg += "a.m1:hover   {color:#FFFFFF;text-decoration:none;}\n";
@@ -86,20 +82,15 @@ public class OutsourcerView
 		msg += "a:m2:active  {color:#FFFFFF;text-decoration:none;}\n";
 
 		msg += "table.ostable {font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#333333;width:100%;border-width: 0px;border-collapse: collapse;}\n";
-		//msg += "table.tftable {font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#333333;width:100%;border-width: 1px;border-color: #9dcc7a;border-collapse: collapse;}\n";
-		//msg += "table.logintable {font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#333333;border-width: 1px;border-color: #9dcc7a;border-collapse: collapse;}\n";
 		msg += "table.tftable {font-family:Arial, Helvetica, sans-serif;font-size:12px;color:#333333;width:100%;border-width: 1px;border-color: " + borderColor + ";border-collapse: collapse;}\n";
 		msg += "table.logintable {font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#333333;border-width: 1px;border-color: " + borderColor + ";border-collapse: collapse;}\n";
 		msg += "table.logintable th {font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#FF0000;}\n";
-		//msg += "table.tftable th {font-family:Arial, Helvetica, sans-serif;font-size:12px;background-color:#abd28e;border-width: 1px;padding: 8px;border-style: solid;border-color: #9dcc7a;text-align:center;}\n";
 		msg += "table.tftable th {font-family:Arial, Helvetica, sans-serif;font-size:12px;background-color:" + tableBgColor + ";border-width: 1px;padding: 8px;border-style: solid;border-color: " + borderColor + ";text-align:center;}\n";
 		msg += "table.tftable tr {background-color:#ffffff;}\n";
-		//msg += "table.tftable td {font-family:Arial, Helvetica, sans-serif;font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: #9dcc7a;}\n";
 		msg += "table.tftable td {font-family:Arial, Helvetica, sans-serif;font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: " + borderColor + ";}\n";
 		msg += "#table-wrapper {position:relative;}\n";
 		msg += "#table-scroll {height:250px;overflow:auto;margin-top:20px;}\n";
 		msg += "#table-wrapper table {width:100%;}\n";
-		//msg += "#table-wrapper table * {background:#c0c0c0;color:black;}\n";
 		msg += "</style>\n";
 
 		if (!myScript.equals(""))
