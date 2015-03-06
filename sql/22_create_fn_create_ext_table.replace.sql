@@ -36,9 +36,9 @@ BEGIN
         FOR i IN array_lower(v_columns, 1)..array_upper(v_columns,1) LOOP
                 IF i = 1 THEN
                         v_sql := 'CREATE EXTERNAL TABLE ' || v_table_name || E' \n' ||
-                                '(' || v_columns[i] || ' ' || v_column_datatypes[i];
+                                '("' || v_columns[i] || '" ' || v_column_datatypes[i];
                 ELSE
-                        v_sql := v_sql || E', \n' || v_columns[i] || ' ' || v_column_datatypes[i];
+                        v_sql := v_sql || E', \n' || '"' || v_columns[i] || '" ' || v_column_datatypes[i];
                 END IF;
 
         END LOOP;

@@ -45,7 +45,7 @@ public class CustomSQLControl
 			strColumn = parms.get(strColumnName);
 			if (strColumn != null && !strColumn.equals(""))
 			{
-				strColumn = "'" + strColumn + "'";
+				//strColumn = "'" + strColumn + "'";
 				columns.add(strColumn);
 
 				//get the data type
@@ -53,7 +53,7 @@ public class CustomSQLControl
 				strColumnDataType = parms.get(strColumnDataTypeName);
 				if (strColumnDataType != null && !strColumnDataType.equals(""))
 				{
-					strColumnDataType = "'" + strColumnDataType + "'";
+					//strColumnDataType = "'" + strColumnDataType + "'";
 					columnDataTypes.add(strColumnDataType);
 				}
 			}

@@ -74,6 +74,12 @@ public class OutsourcerModel
 		String output = "{";
 		for (String s : stringArray)
 		{
+
+			System.out.println("s before:" + s);
+			s = "'" + s.replaceAll("[^a-zA-Z0-9]", "") + "'";
+			s = s.toLowerCase();
+			System.out.println("s after:" + s);
+
 			i++;
 			if (i == 1)
 				output = "ARRAY[" + s;
