@@ -8,7 +8,7 @@ OSHOME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 export OSHOME
 
 #Outsourcer UI Web Port
-export UIPORT=8080
+export UIPORT=8090
 
 #gpfdist Port
 #If you change this after installation, re-run os_install.sh

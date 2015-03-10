@@ -87,7 +87,7 @@ if [ ! -f $MSJAR ]; then
 	echo "##############################################################################################"
 	echo "Microsoft SQL Server JDBC driver is missing."
 	echo "##############################################################################################"
-	p=`ping -c 1 -t 1 download.microsoft.com 2>/dev/null | grep " 0.0% packet loss" | wc -l`
+	p=`ping -c 1 -t 1 download.microsoft.com 2>/dev/null | grep " 0% packet loss" | wc -l`
 	if [ $p -eq 1 ]; then
 		echo "Downloading Microsoft SQL Server JDBC Driver"
 		curl -L 'http://download.microsoft.com/download/0/2/A/02AAE597-3865-456C-AE7F-613F99F850A8/sqljdbc_4.0.2206.100_enu.tar.gz' | tar xz
@@ -300,7 +300,7 @@ echo "##########################################################################
 echo "Validate network connectivity between nodes and this host"
 echo "##############################################################################################"
 psql -c "DROP EXTERNAL TABLE IF EXISTS os_installer_test" >> $installSQLLog 2>&1
-psql -f $OSHOME/sql/00_os_installer_test.sql -v EXECUTE="'ping -c 1 -t 1 $osserver 2>/dev/null | grep \" 0.0% packet loss\" | wc -l' " 
+psql -f $OSHOME/sql/00_os_installer_test.sql -v EXECUTE="'ping -c 1 -t 1 $osserver 2>/dev/null | grep \" 0% packet loss\" | wc -l' " 
 
 t=`psql -A -t -c "SELECT SUM(foo) FROM os_installer_test"`
 if [ $t -gt 0 ]; then
@@ -419,9 +419,9 @@ echo "##########################################################################
 echo "Start Outsourcer"
 echo "##############################################################################################"
 echo "Run stop_all"
-stop_all.sh
+source $PWD/os_path.sh; stop_all
 echo "Run start_all"
-start_all.sh
+source $PWD/os_path.sh; start_all
 echo ""
 echo "##############################################################################################"
 echo "Basic commands:"
