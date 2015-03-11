@@ -87,7 +87,8 @@ if [ ! -f $MSJAR ]; then
 	echo "##############################################################################################"
 	echo "Microsoft SQL Server JDBC driver is missing."
 	echo "##############################################################################################"
-	p=`ping -c 1 -t 1 download.microsoft.com 2>/dev/null | grep " 0% packet loss" | wc -l`
+	#p=`ping -c 1 -t 1 download.microsoft.com 2>/dev/null | grep " 0% packet loss" | wc -l`
+	p=`ping -c 1 -t 1 download.microsoft.com 2>&1 | grep transmitted | awk -F ',' '{ print $2 }' | awk -F ' ' '{ print $1 }'`
 	if [ $p -eq 1 ]; then
 		echo "Downloading Microsoft SQL Server JDBC Driver"
 		curl -L 'http://download.microsoft.com/download/0/2/A/02AAE597-3865-456C-AE7F-613F99F850A8/sqljdbc_4.0.2206.100_enu.tar.gz' | tar xz
@@ -254,7 +255,7 @@ echo ""
 echo "##############################################################################################"
 echo "Validate database connection"
 echo "##############################################################################################"
-t=`psql -A -t -c "SELECT version()" 2> /dev/null | wc -l`
+t=`psql -A -t -c "SELECT version()" -U $gpusername -d $gpdatabase -h $gpserver 2> /dev/null | wc -l`
 if [ $t -eq 1 ]; then
 	echo "Database connection test passed!"
 	echo ""
@@ -299,10 +300,10 @@ echo ""
 echo "##############################################################################################"
 echo "Validate network connectivity between nodes and this host"
 echo "##############################################################################################"
-psql -c "DROP EXTERNAL TABLE IF EXISTS os_installer_test" >> $installSQLLog 2>&1
-psql -f $OSHOME/sql/00_os_installer_test.sql -v EXECUTE="'ping -c 1 -t 1 $osserver 2>/dev/null | grep \" 0% packet loss\" | wc -l' " 
+psql -c "DROP EXTERNAL TABLE IF EXISTS os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
+psql -f $OSHOME/sql/00_os_installer_test.sql -v EXECUTE="'ping -c 1 -t 1 $osserver 2>&1 | grep transmitted | awk -F '','' ''{ print \$2 }'' | awk -F '' '' ''{ print \$1 }''' " -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
 
-t=`psql -A -t -c "SELECT SUM(foo) FROM os_installer_test"`
+t=`psql -A -t -c "SELECT SUM(foo) FROM os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport`
 if [ $t -gt 0 ]; then
 	echo "Network connectivity test passed!"
 	echo ""
@@ -314,16 +315,16 @@ else
 	echo "##############################################################################################"
 	exit 1
 fi
-psql -c "DROP EXTERNAL TABLE IF EXISTS os_installer_test" >> $installSQLLog 2>&1
+psql -c "DROP EXTERNAL TABLE IF EXISTS os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 echo ""
 echo "##############################################################################################"
 echo "Install database components"
 echo "##############################################################################################"
-os_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_namespace WHERE nspname = 'os'")
+os_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_namespace WHERE nspname = 'os'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 
 if [ $os_exists = 1 ]; then
 	echo "Notice: os schema already exists"
-	os_type_target_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_type t JOIN pg_namespace n on t.typnamespace = n.oid WHERE t.typname = 'type_target' and n.nspname = 'os'")
+	os_type_target_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_type t JOIN pg_namespace n on t.typnamespace = n.oid WHERE t.typname = 'type_target' and n.nspname = 'os'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 	if [ $os_type_target_exists -eq 1 ]; then
 		os_create_tables=1
 		echo "Notice: found version 3 of Outsourcer in os schema" 
@@ -331,20 +332,20 @@ if [ $os_exists = 1 ]; then
 		while [ -z $os_backup_schema ]
 		do
 		i=`expr $i + 1`
-		check=$(psql -t -A -c "SELECT COUNT(*) FROM pg_namespace WHERE nspname = 'os_backup_$i'")
+		check=$(psql -t -A -c "SELECT COUNT(*) FROM pg_namespace WHERE nspname = 'os_backup_$i'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 
 		if [ $check = 0 ]; then
 			os_backup_schema=os_backup_$i
 			echo "Notice: backup schema is $os_backup_schema"
-			psql -t -A -c "ALTER SCHEMA OS RENAME TO $os_backup_schema"
+			psql -t -A -c "ALTER SCHEMA OS RENAME TO $os_backup_schema" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
 		fi
 		done
 	else 
-		os_custom_sql_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid WHERE n.nspname = 'os' and c.relname = 'ao_custom_sql'")
+		os_custom_sql_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid WHERE n.nspname = 'os' and c.relname = 'ao_custom_sql'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 		if [ $os_custom_sql_exists -eq 0 ]; then
 			echo "Notice: found version 4 of Outsourcer in os schema" 
 			for i in $( ls $PWD/sql/*.install_os5.sql ); do
-				psql -f $i >> $installSQLLog 2>&1 
+				psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
 			done
 		fi	
 
@@ -355,12 +356,12 @@ else
 	echo "Notice: new install of Outsourcer"
 fi
 
-ext_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_namespace WHERE nspname = 'ext'")
+ext_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_namespace WHERE nspname = 'ext'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 
 if [ $ext_exists = 0 ]; then
 	echo "Notice: creating ext schema"
 	for i in $( ls $PWD/sql/*.install_ext_check.sql ); do
-		psql -f $i >> $installSQLLog 2>&1
+		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 	done
 else
 	echo "Notice: ext schema already exists"
@@ -370,50 +371,51 @@ if [ $os_create_tables = 1 ]; then
 	#install the sql files
 	echo "Notice: creating tables in the os schema"
 	for i in $( ls $PWD/sql/*.install.sql ); do
-		psql -f $i >> $installSQLLog 2>&1
+		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 	done
 
 else
 	echo "Notice: os schema already exists so skipping table creation"
 fi
 
+echo "Notice: create external table function create/replace"
+for i in $( ls $PWD/sql/*.variables.sql ); do
+	psql -f $i -v gpfdisturl="'gpfdist://$osserver:$OSPORT/'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
+done
+
 echo "Notice: creating or replacing objects" 
 for i in $( ls $PWD/sql/*.replace.sql ); do
-	psql -f $i >> $installSQLLog 2>&1
+	psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 done
 
 echo "Notice: creating or replacing external tables that use gpfdist"
 for i in $( ls $PWD/sql/*.gpfdist.sql ); do
 	c=`echo $i | awk -F '_' '{print $3}' | awk -F '.' '{print $1}'`
-	psql -f $i -v LOCATION="'gpfdist://$osserver:$OSPORT/foo#transform=$c'" >> $installSQLLog 2>&1
-done
-
-echo "Notice: create external table function create/replace"
-for i in $( ls $PWD/sql/*.variables.sql ); do
-	psql -f $i -v gpfdisturl="'gpfdist://$osserver:$OSPORT/'" >> $installSQLLog 2>&1 
+	psql -f $i -v LOCATION="'gpfdist://$osserver:$OSPORT/foo#transform=$c'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 done
 
 if [ "$os_backup_schema" != "" ]; then
 
-	os_schedule_desc_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid JOIN pg_attribute a on a.attrelid = c.oid WHERE n.nspname = '$os_backup_schema' AND c.relname = 'job' AND a.attname = 'schedule_desc'")
+	os_schedule_desc_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid JOIN pg_attribute a on a.attrelid = c.oid WHERE n.nspname = '$os_backup_schema' AND c.relname = 'job' AND a.attname = 'schedule_desc'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 	if [ $os_schedule_desc_exists = 1 ]; then
 		echo "Notice: migrating jobs from 4.x"
 		for i in $( ls $PWD/sql/*new_job.upgrade.sql ); do
-			psql -f $i -v os_backup=$os_backup_schema >> $installSQLLog 2>&1
+			psql -f $i -v os_backup=$os_backup_schema -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 		done
 	else
 		echo "Notice: migrating jobs from 3.x" 
 		for i in $( ls $PWD/sql/*old_job.upgrade.sql ); do
-			psql -f $i -v os_backup=$os_backup_schema >> $installSQLLog 2>&1
+			psql -f $i -v os_backup=$os_backup_schema -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 		done
 	fi
 
 	echo "Notice: Migrating queue and ext_connection tables from $os_backup_schema to os"
 	for i in $( ls $PWD/os/sql/*remaining.upgrade.sql ); do
-		psql -f $i -v os_backup=$os_backup_schema >> $installSQLLog 2>&1
+		psql -f $i -v os_backup=$os_backup_schema -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 	done
 fi
-
+echo "Notice: making sure all sequences have a cache of 1000"
+psql -t -A -c "SELECT 'ALTER SEQUENCE ' || n.nspname || '.' || c.relname || ' CACHE 1000;' FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid WHERE n.nspname = 'os' AND c.relkind = 'S'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport | psql -e -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
 echo ""
 echo "##############################################################################################"
 echo "Start Outsourcer"
