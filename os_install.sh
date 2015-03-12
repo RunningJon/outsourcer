@@ -22,6 +22,7 @@ echo "http://pivotalguru.com"
 echo "##############################################################################################"
 echo ""
 d=`date`
+echo ""
 echo "Installation started at: $d"
 echo "Installation started at: $d" > $installSQLLog
 echo ""
@@ -87,8 +88,7 @@ if [ ! -f $MSJAR ]; then
 	echo "##############################################################################################"
 	echo "Microsoft SQL Server JDBC driver is missing."
 	echo "##############################################################################################"
-	#p=`ping -c 1 -t 1 download.microsoft.com 2>/dev/null | grep " 0% packet loss" | wc -l`
-	p=`ping -c 1 -t 1 download.microsoft.com 2>&1 | grep transmitted | awk -F ',' '{ print $2 }' | awk -F ' ' '{ print $1 }'`
+	p=`ping -c 1 -W 1 download.microsoft.com 2>&1 | grep transmitted | awk -F ',' '{ print $2 }' | awk -F ' ' '{ print $1 }'`
 	if [ $p -eq 1 ]; then
 		echo "Downloading Microsoft SQL Server JDBC Driver"
 		curl -L 'http://download.microsoft.com/download/0/2/A/02AAE597-3865-456C-AE7F-613F99F850A8/sqljdbc_4.0.2206.100_enu.tar.gz' | tar xz
@@ -301,9 +301,9 @@ echo "##########################################################################
 echo "Validate network connectivity between nodes and this host"
 echo "##############################################################################################"
 psql -c "DROP EXTERNAL TABLE IF EXISTS os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
-psql -f $OSHOME/sql/00_os_installer_test.sql -v EXECUTE="'ping -c 1 -t 1 $osserver 2>&1 | grep transmitted | awk -F '','' ''{ print \$2 }'' | awk -F '' '' ''{ print \$1 }''' " -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
+psql -f $OSHOME/sql/00_os_installer_test.sql -v EXECUTE="'ping -c 1 -W 1 $osserver 2>&1 | grep transmitted | awk -F '','' ''{ print \$2 }'' | awk -F '' '' ''{ print \$1 }''' " -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
 
-t=`psql -A -t -c "SELECT SUM(foo) FROM os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport`
+t=`psql -A -t -c "SELECT SUM(foo)/COUNT(*) FROM os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport`
 if [ $t -gt 0 ]; then
 	echo "Network connectivity test passed!"
 	echo ""
@@ -341,14 +341,6 @@ if [ $os_exists = 1 ]; then
 		fi
 		done
 	else 
-		os_custom_sql_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid WHERE n.nspname = 'os' and c.relname = 'ao_custom_sql'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
-		if [ $os_custom_sql_exists -eq 0 ]; then
-			echo "Notice: found version 4 of Outsourcer in os schema" 
-			for i in $( ls $PWD/sql/*.install_os5.sql ); do
-				psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
-			done
-		fi	
-
 		os_create_tables=0
 	fi
 else
@@ -373,7 +365,6 @@ if [ $os_create_tables = 1 ]; then
 	for i in $( ls $PWD/sql/*.install.sql ); do
 		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 	done
-
 else
 	echo "Notice: os schema already exists so skipping table creation"
 fi
@@ -414,8 +405,19 @@ if [ "$os_backup_schema" != "" ]; then
 		psql -f $i -v os_backup=$os_backup_schema -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 	done
 fi
+
+#New Outsourcer 5 custom objects
+os_custom_sql_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid WHERE n.nspname = 'os' and c.relname = 'ao_custom_sql'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
+if [ $os_custom_sql_exists -eq 0 ]; then
+	echo "Notice: Installing Version 5 custom_sql table"
+	for i in $( ls $PWD/sql/*.install_os5.sql ); do
+		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
+	done
+fi	
+
 echo "Notice: making sure all sequences have a cache of 1000"
 psql -t -A -c "SELECT 'ALTER SEQUENCE ' || n.nspname || '.' || c.relname || ' CACHE 1000;' FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid WHERE n.nspname = 'os' AND c.relkind = 'S'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport | psql -e -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
+
 echo ""
 echo "##############################################################################################"
 echo "Start Outsourcer"

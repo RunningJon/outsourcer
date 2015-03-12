@@ -22,16 +22,6 @@ public class UI extends NanoHTTPD
 				configFile = args[2];
 		}
 		gpVersion = UIModel.getVersion();
-/*
-		try
-		{
-			OSProperties.getPropValues(configFile);
-		}
-		catch (IOException iox)
-		{
-			System.out.println("Unable to load config file.  Check environment variables and try again.");	
-		}
-*/
 		ServerRunnerUI.run(UI.class);
 	}
 

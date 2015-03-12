@@ -178,7 +178,15 @@ public class CustomSQLControl
 		{	
 			try
 			{
-				if (submit.equals("0") || tableName.equals("") || columns.isEmpty() || columnDataTypes.isEmpty() || sqlText.equals("") || sourceServerName.equals("") || sourceUserName.equals("") || sourcePass.equals(""))
+				if (submit.equals("1") && !tableName.equals("") && !columns.isEmpty() && !columnDataTypes.isEmpty() && !sqlText.equals("") && !extConnectionId.equals(""))
+				{
+					submit = "1";
+				}
+				else
+				{
+					submit = "0";
+				}
+				if (submit.equals("0")) 
 				{
 					dataTypes = CustomSQLModel.getDataTypes();
 					extConnectionIdList = ExternalTableModel.getExtConnectionIds();
