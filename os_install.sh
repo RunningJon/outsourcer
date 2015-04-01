@@ -6,12 +6,11 @@
 ##################################################################
 set -e
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-configFile=$PWD/config.properties
-myHost=`hostname`
-installLog=log/install.log
-installSQLLog=log/install_sql.log
-
 source $PWD/os_path.sh
+configFile=$OSHOME/config.properties
+myHost=`hostname`
+installLog=$OSHOME/log/install.log
+installSQLLog=$OSHOME/log/install_sql.log
 
 clear
 exec > >(tee $installLog)
@@ -27,12 +26,12 @@ echo "Installation started at: $d"
 echo "Installation started at: $d" > $installSQLLog
 echo ""
 echo "##############################################################################################"
-echo "Reading the default ports from $PWD/os_path.sh"
+echo "Reading the default ports from $OSHOME/os_path.sh"
 echo "User Interface (UIPORT): $UIPORT"
 echo "gpfdist (OSPORT): $OSPORT"
 echo ""
 echo "If either of these ports are not acceptable, cancel the installer.  Next, edit"
-echo "$PWD/os_path.sh then re-run the installer."
+echo "$OSHOME/os_path.sh then re-run the installer."
 echo ""
 echo "If you need to change these values after installation, be sure to re-run this installer."
 echo "##############################################################################################"
@@ -239,7 +238,7 @@ echo "##########################################################################
 echo "Making new .bashrc file"
 grep -v os_path.sh ~/.bashrc > ~/.bashrc_os
 echo "Adding source to os_path.sh to your .bashrc file"
-echo "source $PWD/os_path.sh" >> ~/.bashrc_os
+echo "source $OSHOME/os_path.sh" >> ~/.bashrc_os
 i=0
 while [ -z $bashrc_backup ]; do
         i=`expr $i + 1`
@@ -300,8 +299,11 @@ echo ""
 echo "##############################################################################################"
 echo "Validate network connectivity between nodes and this host"
 echo "##############################################################################################"
+
+cd $OSHOME/sql
+
 psql -c "DROP EXTERNAL TABLE IF EXISTS os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
-psql -f $OSHOME/sql/00_os_installer_test.sql -v EXECUTE="'ping -c 1 -W 1 $osserver 2>&1 | grep transmitted | awk -F '','' ''{ print \$2 }'' | awk -F '' '' ''{ print \$1 }''' " -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
+psql -f 00_os_installer_test.sql -v EXECUTE="'ping -c 1 -W 1 $osserver 2>&1 | grep transmitted | awk -F '','' ''{ print \$2 }'' | awk -F '' '' ''{ print \$1 }''' " -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
 
 t=`psql -A -t -c "SELECT SUM(foo)/COUNT(*) FROM os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport`
 if [ $t -gt 0 ]; then
@@ -352,7 +354,7 @@ ext_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_namespace WHERE nspname = 'e
 
 if [ $ext_exists = 0 ]; then
 	echo "Notice: creating ext schema"
-	for i in $( ls $PWD/sql/*.install_ext_check.sql ); do
+	for i in $( ls *.install_ext_check.sql ); do
 		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 	done
 else
@@ -362,7 +364,7 @@ fi
 if [ $os_create_tables = 1 ]; then
 	#install the sql files
 	echo "Notice: creating tables in the os schema"
-	for i in $( ls $PWD/sql/*.install.sql ); do
+	for i in $( ls *.install.sql ); do
 		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 	done
 else
@@ -370,17 +372,17 @@ else
 fi
 
 echo "Notice: create external table function create/replace"
-for i in $( ls $PWD/sql/*.variables.sql ); do
+for i in $( ls *.variables.sql ); do
 	psql -f $i -v gpfdisturl="'gpfdist://$osserver:$OSPORT/'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
 done
 
 echo "Notice: creating or replacing objects" 
-for i in $( ls $PWD/sql/*.replace.sql ); do
+for i in $( ls *.replace.sql ); do
 	psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 done
 
 echo "Notice: creating or replacing external tables that use gpfdist"
-for i in $( ls $PWD/sql/*.gpfdist.sql ); do
+for i in $( ls *.gpfdist.sql ); do
 	c=`echo $i | awk -F '_' '{print $3}' | awk -F '.' '{print $1}'`
 	psql -f $i -v LOCATION="'gpfdist://$osserver:$OSPORT/foo#transform=$c'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 done
@@ -390,18 +392,18 @@ if [ "$os_backup_schema" != "" ]; then
 	os_schedule_desc_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid JOIN pg_attribute a on a.attrelid = c.oid WHERE n.nspname = '$os_backup_schema' AND c.relname = 'job' AND a.attname = 'schedule_desc'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 	if [ $os_schedule_desc_exists = 1 ]; then
 		echo "Notice: migrating jobs from 4.x"
-		for i in $( ls $PWD/sql/*new_job.upgrade.sql ); do
+		for i in $( ls *.new_job.upgrade.sql ); do
 			psql -f $i -v os_backup=$os_backup_schema -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 		done
 	else
 		echo "Notice: migrating jobs from 3.x" 
-		for i in $( ls $PWD/sql/*old_job.upgrade.sql ); do
+		for i in $( ls *.old_job.upgrade.sql ); do
 			psql -f $i -v os_backup=$os_backup_schema -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 		done
 	fi
 
 	echo "Notice: Migrating queue and ext_connection tables from $os_backup_schema to os"
-	for i in $( ls $PWD/os/sql/*remaining.upgrade.sql ); do
+	for i in $( ls *.remaining.upgrade.sql ); do
 		psql -f $i -v os_backup=$os_backup_schema -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 	done
 fi
@@ -410,13 +412,15 @@ fi
 os_custom_sql_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid WHERE n.nspname = 'os' and c.relname = 'ao_custom_sql'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 if [ $os_custom_sql_exists -eq 0 ]; then
 	echo "Notice: Installing Version 5 custom_sql table"
-	for i in $( ls $PWD/sql/*.install_os5.sql ); do
+	for i in $( ls *.install_os5.sql ); do
 		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
 	done
 fi	
 
 echo "Notice: making sure all sequences have a cache of 1000"
 psql -t -A -c "SELECT 'ALTER SEQUENCE ' || n.nspname || '.' || c.relname || ' CACHE 1000;' FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid WHERE n.nspname = 'os' AND c.relkind = 'S'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport | psql -e -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
+
+cd $OSHOME
 
 echo ""
 echo "##############################################################################################"
@@ -463,4 +467,6 @@ echo ""
 echo "##############################################################################################"
 echo "http://$osserver:$UIPORT for Outsourcer"
 echo "##############################################################################################"
+echo ""
+echo "Be sure to source your .bashrc file after installation or re-login."
 echo ""

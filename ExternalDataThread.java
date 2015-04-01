@@ -422,6 +422,9 @@ public class ExternalDataThread implements Runnable
 				numRows = 0;
 				status = "failed";
 				GP.updateStatus(conn, queueId, status, queueDate, startDate, errorMessage, numRows, id, refreshType, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, columnName, sqlText, snapshot);
+				String emailAlert = "QueueID " + queueId + " has failed.\n";
+				emailAlert += errorMessage;
+				GP.emailAlert(conn, emailAlert);
 			}
 			finally
 			{

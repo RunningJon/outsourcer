@@ -38,6 +38,25 @@ public class GP
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
 		}
 	}
+
+	public static void emailAlert(Connection conn, String errorMsg) throws SQLException
+	{
+		String method = "emailAlert";
+		int location = 1000;
+		try
+		{
+			Statement stmt = conn.createStatement();
+
+			String strSQL = "SELECT gp_elog('" + errorMsg + "',true)";
+			ResultSet rs = stmt.executeQuery(strSQL);
+
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+	}
+
 	public static void cancelJobs(Connection conn) throws SQLException
 	{
 		String method = "cancelJobs";
