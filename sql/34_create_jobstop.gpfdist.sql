@@ -1,0 +1,5 @@
+DROP EXTERNAL TABLE IF EXISTS os.jobstop;
+
+CREATE EXTERNAL TABLE os.jobstop
+(foo text) 
+LOCATION (:LOCATION) FORMAT 'text' (DELIMITER '|');

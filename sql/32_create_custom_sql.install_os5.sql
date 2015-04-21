@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS os.ao_custom_sql CASCADE;
+
 CREATE TABLE os.ao_custom_sql
 ( id serial NOT NULL,
   table_name text NOT NULL,
@@ -11,6 +13,7 @@ CREATE TABLE os.ao_custom_sql
   source_database_name text,  --used by Oracle
   source_user_name text NOT NULL,
   source_pass text NOT NULL,
+  gpfdist_port int NOT NULL,
   deleted boolean NOT NULL DEFAULT FALSE,
   insert_id serial NOT NULL)
  WITH (appendonly=true)
@@ -18,10 +21,10 @@ CREATE TABLE os.ao_custom_sql
 
 CREATE VIEW os.custom_sql AS
 SELECT id, table_name, columns, column_datatypes, sql_text, source_type, source_server_name, source_instance_name, source_port,
-       source_database_name, source_user_name, source_pass
+       source_database_name, source_user_name, source_pass, gpfdist_port
 FROM    (
         SELECT  id, table_name, columns, column_datatypes, sql_text, source_type, source_server_name, source_instance_name, source_port,
-                source_database_name, source_user_name, source_pass,
+                source_database_name, source_user_name, source_pass, gpfdist_port,
                 row_number() OVER (PARTITION BY id ORDER BY insert_id DESC) AS rownum, deleted
         FROM os.ao_custom_sql
         ) AS sub

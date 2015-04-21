@@ -1,0 +1,56 @@
+#!/bin/bash
+############################################################################################################################
+#
+# Outsourcer gpfdist start script for Jobs
+#       
+############################################################################################################################
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
+
+started=0
+myport=$OSPORT_LOWER
+locked=0
+joblock=/tmp/jobstart.lock
+
+# create a lock file so that we only have one gpfdist processing starting at a time
+while [ "$locked" -eq "0" ]; do
+	lockfile -r 0 $joblock 2> /dev/null
+	if [ "$?" -eq 0 ]; then
+		locked="1"
+	fi 
+done
+
+# loop through available ports to find an available gpfdist port
+for i in `seq $OSPORT_LOWER $OSPORT_UPPER`; do
+	used="0"
+	for p in `ps -ef 2> /dev/null | grep gpfdist | grep -v grep | awk -F ' ' '{print $12}'`; do
+		if [ "$i" -eq "$p" ]; then
+			used="1"
+		fi
+	done
+
+	# Check to see if port is in use
+	if [ "$used" -eq "0" ]; then
+		mylog=$JOBLOG"_$myport".log
+		nohup gpfdist -d $OSHOME -p $myport -c $YML -m $GPFDISTMAXROW > $mylog 2>&1 < $mylog &
+		started="1"
+	else
+		myport=$[$myport + 1]
+	fi
+
+	# gpfdist process started so exit
+	if [ "$started" -eq "1" ]; then
+		break
+	fi
+
+done
+
+# Check log file to make sure gpfdist started
+grep -q "Serving HTTP on port $myport" <(tail -f $mylog)
+
+# remove lock to allow for other gpfdist processes to start
+rm -f $joblock
+
+# return port number to calling program
+echo $myport
+

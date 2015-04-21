@@ -28,7 +28,14 @@ echo ""
 echo "##############################################################################################"
 echo "Reading the default ports from $OSHOME/os_path.sh"
 echo "User Interface (UIPORT): $UIPORT"
-echo "gpfdist (OSPORT): $OSPORT"
+echo "gpfdist ports:"
+echo "	OSPORT: $OSPORT"
+echo "	Note: Do not overlap with OSPORT or CUSTOM port ranges!!"
+echo "	OSPORT_LOWER: $OSPORT_LOWER"
+echo "	OSPORT_UPPER: $OSPORT_UPPER"
+echo "	Note: Do not overlap with OSPORT or JOB port ranges!!"
+echo "	OSPORT_CUSTOM_LOWER: $OSPORT_CUSTOM_LOWER"
+echo "	OSPORT_CUSTOM_UPPER: $OSPORT_CUSTOM_UPPER"
 echo ""
 echo "If either of these ports are not acceptable, cancel the installer.  Next, edit"
 echo "$OSHOME/os_path.sh then re-run the installer."
@@ -373,7 +380,7 @@ fi
 
 echo "Notice: create external table function create/replace"
 for i in $( ls *.variables.sql ); do
-	psql -f $i -v gpfdisturl="'gpfdist://$osserver:$OSPORT/'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
+	psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 done
 
 echo "Notice: creating or replacing objects" 
@@ -417,8 +424,8 @@ if [ $os_custom_sql_exists -eq 0 ]; then
 	done
 fi	
 
-echo "Notice: making sure all sequences have a cache of 1000"
-psql -t -A -c "SELECT 'ALTER SEQUENCE ' || n.nspname || '.' || c.relname || ' CACHE 1000;' FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid WHERE n.nspname = 'os' AND c.relkind = 'S'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport | psql -e -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
+echo "Notice: making sure all sequences have a cache of 1"
+psql -t -A -c "SELECT 'ALTER SEQUENCE ' || n.nspname || '.' || c.relname || ' CACHE 1;' FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid WHERE n.nspname = 'os' AND c.relkind = 'S'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport | psql -e -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
 
 cd $OSHOME
 

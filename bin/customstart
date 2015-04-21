@@ -1,0 +1,36 @@
+#!/bin/bash
+############################################################################################################################
+#
+# Outsourcer get gpfdist port script for custom tables
+#       
+############################################################################################################################
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
+
+started=0
+
+# loop through available ports to find an available gpfdist port
+
+for i in `seq $OSPORT_CUSTOM_LOWER $OSPORT_CUSTOM_UPPER`; do
+	used="0"
+
+	for p in `ps -ef 2> /dev/null | grep gpfdist | grep -v grep | grep $i | awk -F ' ' '{print $12}'`; do
+		used="1"
+	done
+
+	if [ "$used" -eq "0" ]; then
+		mylog=$CUSTOMLOG"_$i".log
+		nohup gpfdist -d $OSHOME -p $i -c $YML -m $GPFDISTMAXROW > $mylog 2>&1 < $mylog &
+		started="1"
+	fi
+
+	# gpfdist process started so exit
+	if [ "$started" -eq "1" ]; then
+		break
+	fi
+done
+
+grep -q "Serving HTTP on port $i" <(tail -f $mylog)
+
+# return port number to calling program
+echo $i

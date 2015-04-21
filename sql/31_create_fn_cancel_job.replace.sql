@@ -8,7 +8,7 @@ DECLARE
         v_found boolean := FALSE;
 BEGIN
         v_location := 1000;
-        --check for External Web Tables loading data
+        --check for External Tables loading data
         WITH q as       (SELECT 'INSERT INTO "' || target_schema_name || '"."' || target_table_name || '"' AS current_query
                         FROM os.queue 
                         WHERE status = 'processing' 
@@ -17,7 +17,6 @@ BEGIN
         INTO v_procpid
         FROM pg_stat_activity p, q
         WHERE p.datname = current_database()
-        AND client_addr IS NULL
         AND p.current_query LIKE q.current_query || '%';
         
         WHILE v_procpid IS NOT NULL LOOP
@@ -35,7 +34,6 @@ BEGIN
                 INTO v_procpid
                 FROM pg_stat_activity p, q
                 WHERE p.datname = current_database()
-                AND p.client_addr IS NULL
                 AND p.current_query LIKE q.current_query || '%';
                 
         END LOOP;
@@ -51,8 +49,7 @@ BEGIN
                 INTO v_procpid
                 FROM pg_stat_activity p, q
                 WHERE p.datname = current_database()
-                AND p.client_addr IS NOT NULL
-		AND POSITION(p.current_query IN q.current_query) > 0;
+                AND POSITION(p.current_query IN q.current_query) > 0;
 
                 WHILE v_procpid IS NOT NULL LOOP
 
@@ -70,7 +67,6 @@ BEGIN
                         INTO v_procpid
                         FROM pg_stat_activity p, q
                         WHERE p.datname = current_database()
-                        AND p.client_addr IS NOT NULL
                         AND p.current_query LIKE '%' || q.current_query || '%';
                 END LOOP;
         END IF;
@@ -103,5 +99,5 @@ EXCEPTION
                 RAISE EXCEPTION '(%:%:%)', v_function_name, v_location, sqlerrm;
 END;
 $$
-LANGUAGE plpgsql;
+  LANGUAGE plpgsql;
 

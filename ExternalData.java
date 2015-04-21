@@ -17,18 +17,22 @@ public class ExternalData
 		String configFile = "";
 		int queueId = 0;
 		int appendColumnMax = 0;
+		String refreshType = "";
+		String sourceTable = "";
 		int customSQLId = 0;
 
 		location = 2000;
 
-		if (argsCount == 3)
+		if (argsCount == 5)
 		{
 			location = 3100;
 			//this is an external table Outsourcer defines
 			configFile = args[0];
 			queueId = Integer.parseInt(args[1]);
 			appendColumnMax = Integer.parseInt(args[2]);
-			executeOS(configFile, queueId, appendColumnMax);
+			refreshType = args[3];
+			sourceTable = args[4];
+			executeOS(configFile, queueId, appendColumnMax, refreshType, sourceTable);
 		}
 		else if (argsCount == 2)
 		{
@@ -40,19 +44,17 @@ public class ExternalData
 		}
         }
 
-	private static void executeOS(String configFile, int queueId, int appendColumnMax) throws Exception 
+	private static void executeOS(String configFile, int queueId, int appendColumnMax, String refreshType, String sourceTable) throws Exception 
 	{
 		String method = "executeOS";
 		int location = 1000;
 
-		String refreshType = "";
 		String sourceType = "";
 		String sourceServer = "";
 		String sourceInstance = "";
 		int sourcePort = 0;
 		String sourceDatabase = "";
 		String sourceSchema = "";
-		String sourceTable = "";
 		String sourceUser = "";
 		String sourcePass = "";
 		String appendColumnName = "";
@@ -80,14 +82,16 @@ public class ExternalData
 
 			while (rs.next())
 			{
-				refreshType = rs.getString(1);
+				//handled with a parameter so Outsourcer can do replications jobs
+				//refreshType = rs.getString(1);
 				sourceType = rs.getString(2);
 				sourceServer = rs.getString(3);
 				sourceInstance = rs.getString(4);
 				sourcePort = rs.getInt(5);
 				sourceDatabase = rs.getString(6);
 				sourceSchema = rs.getString(7);
-				sourceTable = rs.getString(8);
+				//handled with a parameter so Outsourcer can do replications jobs
+				//sourceTable = rs.getString(8);
 				sourceUser = rs.getString(9);
 				sourcePass = rs.getString(10);
 				appendColumnName = rs.getString(11);

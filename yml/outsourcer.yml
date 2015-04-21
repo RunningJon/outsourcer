@@ -1,26 +1,6 @@
 ---
 VERSION: 1.0.0.1
 TRANSFORMATIONS:
-  externaldata:
-     TYPE: input 
-     CONTENT: data
-     COMMAND: /bin/bash bin/getdata %filename%
-  
-  osstop:
-     TYPE: input 
-     CONTENT: data
-     COMMAND: /bin/bash bin/osstop
-
-  osstart:
-     TYPE: input 
-     CONTENT: data
-     COMMAND: /bin/bash bin/osstart
-
-  osstatus:
-     TYPE: input 
-     CONTENT: data
-     COMMAND: /bin/bash bin/osstatus
-
   agentstop:
      TYPE: input 
      CONTENT: data
@@ -35,6 +15,46 @@ TRANSFORMATIONS:
      TYPE: input 
      CONTENT: data
      COMMAND: /bin/bash bin/agentstatus
+
+  customstart:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/customstart
+
+  customstop:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/customstop %filename%
+
+  externaldata:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/getdata %filename%
+  
+  jobstart:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/jobstart
+
+  jobstop:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/jobstop %filename%
+
+  osstart:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/osstart
+
+  osstop:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/osstop
+
+  osstatus:
+     TYPE: input 
+     CONTENT: data
+     COMMAND: /bin/bash bin/osstatus
 
   uistop:
      TYPE: input 

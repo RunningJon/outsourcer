@@ -13,7 +13,6 @@ CREATE TABLE os.ao_variables
 
 INSERT INTO os.ao_variables (name, value, restart) VALUES ('max_jobs', '4', false);
 INSERT INTO os.ao_variables (name, value, restart) VALUES ('oFetchSize', '2000', false);
-INSERT INTO os.ao_variables (name, value, restart) VALUES ('gpfdistUrl', :gpfdisturl, true);
 
 CREATE VIEW os.variables AS
 SELECT name, value, restart

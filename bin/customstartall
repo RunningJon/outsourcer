@@ -1,0 +1,15 @@
+#!/bin/bash
+############################################################################################################################
+#
+# Outsourcer start gpfdist for custom tables script.
+#
+############################################################################################################################
+set -e
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
+
+#stop any orphaned jobs
+customstopall
+
+#loop through custom table to find ports needed to be started
+java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX CustomSQL $CONFIG start

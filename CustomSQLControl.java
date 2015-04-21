@@ -26,6 +26,7 @@ public class CustomSQLControl
 		String sourcePass = parms.get("source_pass");
 		String submit = parms.get("submit_form");
 		String schema = parms.get("schema");
+
 		ArrayList<String> extConnectionIdList = new ArrayList<String>();
 		String extConnectionId = parms.get("ext_connection_id");
 		ArrayList<String> dataTypes = new ArrayList<String>();
@@ -164,7 +165,7 @@ public class CustomSQLControl
 			{
 				try
 				{
-					CustomSQLModel.deleteTable(id);
+					CustomSQLModel.deleteTable(id, tableName);
 					rs = CustomSQLModel.getList(search, limit, offset, sortBy, sort);
 					msg = CustomSQLView.viewList(search, rs, limit, offset, sortBy, sort);
 				}

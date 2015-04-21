@@ -1,0 +1,18 @@
+#!/bin/bash
+############################################################################################################################
+#
+# Outsourcer gpfdist custom stop script.
+#
+############################################################################################################################
+set -e
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
+
+for i in `ps -ef 2> /dev/null | grep gpfdist | grep -v grep | awk -F ' ' '{print $2 "," $12}'`; do
+	mypid=`echo $i | awk -F ',' '{print $1}'`
+	myport=`echo $i | awk -F ',' '{print $2}'`
+	if [[ $myport -ge $OSPORT_LOWER && $myport -le $OSPORT_UPPER ]]; then
+		echo "killing $mypid"
+		kill $mypid
+	fi
+done

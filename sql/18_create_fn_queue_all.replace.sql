@@ -21,7 +21,8 @@ BEGIN
                                         id
                                  FROM os.queue
                                  WHERE status in ('processing', 'queued')) q on j.id = q.id
-        WHERE q.queue_id IS NULL;
+        WHERE q.queue_id IS NULL
+        ORDER BY j.id;
 
 EXCEPTION
         WHEN OTHERS THEN

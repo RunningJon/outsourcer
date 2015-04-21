@@ -1,0 +1,24 @@
+#!/bin/bash
+############################################################################################################################
+#
+# Outsourcer gpfdist job stop script.
+#       
+############################################################################################################################
+set -e  
+PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $PWD/../os_path.sh
+myport=`echo $1 | awk -F '+' '{print $2}'`
+
+if [[ "$myport" -ge "$OSPORT_LOWER" && "$myport" -le "$OSPORT_UPPER" ]]; then
+
+	k=`ps -ef 2> /dev/null | grep gpfdist | grep -v gpfdistjobstop | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
+
+	if [ "$k" != "" ]; then
+		echo "Killing $k"
+		kill $k
+	else
+		echo "ERROR: gpfdist job not running on port $myport"
+	fi
+else
+	echo "ERROR: Port $myport is out of range of $OSPORT_LOWER and $OSPORT_UPPER"
+fi

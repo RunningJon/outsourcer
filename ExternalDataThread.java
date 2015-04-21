@@ -16,6 +16,7 @@ public class ExternalDataThread implements Runnable
 	private int numRows;
 	private int id;
 	private String refreshType;
+	private String refreshTypeAction;
 	private String targetSchema;
 	private String targetTable;
 	private boolean targetAppendOnly;
@@ -43,6 +44,7 @@ public class ExternalDataThread implements Runnable
 		startDate = aStartDate;
 		id = aId;
 		refreshType = aRefreshType;
+		refreshTypeAction = aRefreshType;
 		targetSchema = aTargetSchema;
 		targetTable = aTargetTable;
 		targetAppendOnly = aTargetAppendOnly;
@@ -77,6 +79,7 @@ public class ExternalDataThread implements Runnable
 			location = 2100;
 			String osServer = OSProperties.osServer;
 			int osPort = OSProperties.osPort;
+			int jobPort = 0;
 
 			try 
 			{
@@ -119,10 +122,16 @@ public class ExternalDataThread implements Runnable
 					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
 
 					location = 4250;
-					//drop external web table
+					//drop external table
 					if (debug)
-						Logger.printMsg("QueueID: " + queueId + " drop external web table if exists");
+						Logger.printMsg("QueueID: " + queueId + " drop external table if exists");
 					GP.dropExternalTable(conn, targetSchema, targetTable);
+
+					location = 4275;
+					//get gpfdist process
+					jobPort = GP.jobStart(conn);
+					if (debug)
+						Logger.printMsg("QueueID: " + queueId + " getting gpfdist job process " + jobPort);
 
 					location = 4300;
 					//Create the external table 
@@ -130,7 +139,7 @@ public class ExternalDataThread implements Runnable
 					columnName = "column";
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " creating external table");
-					GP.createExternalTable(conn, osServer, osPort, targetSchema, targetTable, maxGPId, queueId);
+					GP.createExternalTable(conn, osServer, refreshTypeAction, sourceTable, targetSchema, targetTable, maxGPId, queueId, jobPort);
 
 					location = 4400;
 					//Truncate the target table if refresh
@@ -145,10 +154,16 @@ public class ExternalDataThread implements Runnable
 					numRows = GP.insertTargetTable(conn, targetSchema, targetTable);
 
 					location = 4600;
-					//drop external web table
+					//drop external table
 					if (debug)
-						Logger.printMsg("QueueID: " + queueId + " drop external web table if exists");
+						Logger.printMsg("QueueID: " + queueId + " drop external table if exists");
 					GP.dropExternalTable(conn, targetSchema, targetTable);
+
+					location = 4700;
+					//stop gpfdist process for this job
+					if (debug)
+						Logger.printMsg("QueueID: " + queueId + " stop gpfdist process");
+					GP.jobStop(conn, osServer, osPort, jobPort);
 
 					location = 4800;
 					//execute transform sql if any
@@ -186,22 +201,28 @@ public class ExternalDataThread implements Runnable
 						location = 5600;
 						if (maxGPId == -1)
 						{
-							location = 5700;	
+							location = 5700;
 							//GP has no data in it so change to a refresh
-							refreshType = "refresh";
+							refreshTypeAction = "refresh";
 						}
-					
-						location = 5750;
-						//drop external web table
+
+						location = 5700;
+						//drop external table
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
 						GP.dropExternalTable(conn, targetSchema, targetTable);
+
+						location = 5750;
+						//get gpfdist process
+						jobPort = GP.jobStart(conn);
+						if (debug)
+							Logger.printMsg("QueueID: " + queueId + " getting gpfdist job process " + jobPort);
 
 						location = 5800;	
 						//Create the external table 
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " create external table");
-						GP.createExternalTable(conn, osServer, osPort, targetSchema, targetTable, maxGPId, queueId);
+						GP.createExternalTable(conn, osServer, refreshTypeAction, sourceTable, targetSchema, targetTable, maxGPId, queueId, jobPort);
 
 						location = 5900;	
 						//Insert into target table, selecting from external table	
@@ -210,10 +231,16 @@ public class ExternalDataThread implements Runnable
 						numRows = GP.insertTargetTable(conn, targetSchema, targetTable);
 
 						location = 5950;
-						//drop external web table
+						//drop external table
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
 						GP.dropExternalTable(conn, targetSchema, targetTable);
+
+						location = 5975;;
+						//stop gpfdist process for this job
+						if (debug)
+							Logger.printMsg("QueueID: " + queueId + " stop gpfdist process");
+						GP.jobStop(conn, osServer, osPort, jobPort);
 
 					}
 
@@ -235,7 +262,7 @@ public class ExternalDataThread implements Runnable
 						Logger.printMsg("QueueID: " + queueId + " create target table");
 					targetTableFound = GP.createTargetTable(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass);
 
-					location = 7300;	
+					location = 7300;
 					//check to see if stage table exists
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " check stage table");
@@ -266,7 +293,8 @@ public class ExternalDataThread implements Runnable
 					if ((!(targetSchemaFound)) || (!(targetTableFound)) || (!(stageTableFound)) || (!(archTableFound)) || (!(sourceReplTablesFound)) || (snapshot))
 					{
 						location = 7600;
-						refreshType = "refresh";
+						//replication job but not everything in place so this is logically a refresh job
+						refreshTypeAction = "refresh";
 				
 						location = 7700;	
 						//Create stage and archive tables for replication
@@ -287,16 +315,22 @@ public class ExternalDataThread implements Runnable
 						GP.truncateTable(conn, targetSchema, targetTable);
 
 						location = 7950;
-						//drop external web table
+						//drop external table
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
 						GP.dropExternalTable(conn, targetSchema, targetTable);
+
+						location = 7970;
+						//get gpfdist process
+						jobPort = GP.jobStart(conn);
+						if (debug)
+							Logger.printMsg("QueueID: " + queueId + " getting gpfdist job process " + jobPort);
 
 						location = 8000;
 						//Create the external table 
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " create external table");
-						GP.createExternalTable(conn, osServer, osPort, targetSchema, targetTable, maxGPId, queueId);
+						GP.createExternalTable(conn, osServer, refreshTypeAction, sourceTable, targetSchema, targetTable, maxGPId, queueId, jobPort);
 
 						location = 8100;
 						//Insert into target table, selecting from external table	
@@ -305,18 +339,23 @@ public class ExternalDataThread implements Runnable
 						numRows = GP.insertTargetTable(conn, targetSchema, targetTable);
 
 						location = 8150;
-						//drop external web table
+						//drop external table
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " drop external table");
 						GP.dropExternalTable(conn, targetSchema, targetTable);
 
+						location = 8200;
+						//stop gpfdist process for this job
+						if (debug)
+							Logger.printMsg("QueueID: " + queueId + " stop gpfdist process");
+						GP.jobStop(conn, osServer, osPort, jobPort);
 					}
 					else 
-					//not a snapshot so get new data from trigger table and load it to GP to be applid by the function
+					//not a snapshot so get new data from trigger table and load it to target to be applid by the function
 					{
 						location = 8300;
-						//external table function knows about refresh and append options
-						refreshType = "append";
+						//replication job where everyting is in place so appending new changes found in the source to a stage table
+						refreshTypeAction = "append";
 
 						location = 8400;
 						//Get the Max ID from GP archive table
@@ -338,16 +377,25 @@ public class ExternalDataThread implements Runnable
 						if ((maxGPId != maxSourceId) && maxSourceId != -1)
 						{
 							location = 8550;
-							//drop repl external web table
+							//drop repl external table
 							if (debug)
 								Logger.printMsg("QueueID: " + queueId + " drop external table");
 							GP.dropExternalReplTable(conn, sourceType, targetSchema, targetTable, sourceTable);
+
+							location = 8575;
+							//get gpfdist process
+							jobPort = GP.jobStart(conn);
+							if (debug)
+								Logger.printMsg("QueueID: " + queueId + " getting gpfdist job process " + jobPort);
 
 							location = 8600;
 							//Create the external table for replication
 							if (debug)
 								Logger.printMsg("QueueID: " + queueId + " create external table");
-							GP.createReplExternalTable(conn, osServer, osPort, targetSchema, targetTable, sourceType, sourceTable, maxGPId, queueId);
+							GP.createReplExternalTable(conn, osServer, refreshTypeAction, targetSchema, targetTable, sourceType, sourceTable, maxGPId, queueId, jobPort);
+
+							//old version that worked with replication
+							//GP.createReplExternalTable(conn, osServer, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, refreshType, columnName, maxGPId, gpDatabase, gpPort, queueId);
 
 							location = 8700;
 							//Insert into target table, selecting from external table
@@ -357,15 +405,21 @@ public class ExternalDataThread implements Runnable
 							numRows = GP.insertReplTable(conn, targetSchema, targetTable);
 						
 							location = 8750;
-							//drop repl external web table
+							//drop repl external table
 							if (debug)
 								Logger.printMsg("QueueID: " + queueId + " drop external table");
 							GP.dropExternalReplTable(conn, sourceType, targetSchema, targetTable, sourceTable);
 
+							location = 8800;
+							//stop gpfdist process for this job
+							if (debug)
+								Logger.printMsg("QueueID: " + queueId + " stop gpfdist process");
+							GP.jobStop(conn, osServer, osPort, jobPort);
+
 							//if any row inserted from triggers, apply the changes in GP with the function
 							if (numRows > 0)
 							{
-								location = 8800;
+								location = 8900;
 								if (debug)
 									Logger.printMsg("QueueID: " + queueId + " apply changes");
 								GP.executeReplication(conn, targetSchema, targetTable, columnName);
@@ -422,6 +476,9 @@ public class ExternalDataThread implements Runnable
 				numRows = 0;
 				status = "failed";
 				GP.updateStatus(conn, queueId, status, queueDate, startDate, errorMessage, numRows, id, refreshType, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, columnName, sqlText, snapshot);
+				if (jobPort != 0)
+					GP.jobStop(conn, osServer, osPort, jobPort);
+					
 				String emailAlert = "QueueID " + queueId + " has failed.\n";
 				emailAlert += errorMessage;
 				GP.emailAlert(conn, emailAlert);

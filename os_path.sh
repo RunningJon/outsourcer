@@ -10,9 +10,23 @@ export OSHOME
 #Outsourcer UI Web Port
 export UIPORT=8090
 
-#gpfdist Port
-#If you change this after installation, re-run os_install.sh
+#gpfdist Ports
+#If you change these ports after installation, re-run os_install.sh
 export OSPORT=8999
+
+#Range of ports used by Outsourcer jobs
+#Note: Do not overlap with OSPORT or CUSTOM port ranges!!
+export OSPORT_LOWER=9000
+export OSPORT_UPPER=9030
+
+#Range of ports used by Outsourcer custom tables
+#Note: Do not overlap with OSPORT or JOB port ranges!!
+export OSPORT_CUSTOM_LOWER=9100
+export OSPORT_CUSTOM_UPPER=9200
+
+#gpfdist max row length
+#increase if you get "line too long" error message
+GPFDISTMAXROW=327675
 
 #yml
 export YML=$OSHOME/yml/outsourcer.yml
@@ -34,6 +48,12 @@ export AGENTLOG=$OSHOME/log/OutsourcerAgent.log
 
 #Outsourcer gpfdist log file
 export GPFDISTLOG=$OSHOME/log/OutsourcerGpfdist.log
+
+#Job gpfdist log file prefix
+export JOBLOG=$OSHOME/log/job
+
+#Custom gpfdist log file prefix
+export CUSTOMLOG=$OSHOME/log/custom
 
 #Outsourcer UI Sessions log file
 export SESSIONS=$OSHOME/log/sessions.txt

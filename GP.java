@@ -5,10 +5,86 @@ import java.util.*;
 
 public class GP
 {
-
 	private static String myclass = "GP";
 	public static boolean debug = false;
 	public static String externalSchema = "ext";
+
+	public static int jobStart(Connection conn) throws SQLException
+	{
+		String method = "jobStart";
+		int location = 1000;
+		int jobPort = 0;
+		try
+		{
+			location = 2000;
+			Statement stmt = conn.createStatement();
+			location = 2200;
+			String strSQL = "SELECT myport FROM os.jobstart";
+
+			ResultSet rs = stmt.executeQuery(strSQL);
+
+			location = 2500;
+			while (rs.next())
+			{
+				jobPort = rs.getInt(1);
+			}
+			return jobPort;
+
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+	}
+
+	public static void jobStop(Connection conn, String osServer, int osPort, int jobPort) throws SQLException
+	{
+		String method = "jobStop";
+		int location = 1000;
+		try
+		{
+			Statement stmt = conn.createStatement();
+			String strSQL = "SELECT os.fn_jobstop('" + osServer + "', " + osPort + ", " + jobPort + ")";
+			stmt.executeQuery(strSQL);
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+	}
+
+	public static void customStop(Connection conn, String osServer, int osPort, int customPort) throws SQLException
+	{
+		String method = "customStop";
+		int location = 1000;
+		try
+		{
+			Statement stmt = conn.createStatement();
+			String strSQL = "SELECT os.fn_customstop('" + osServer + "', " + osPort + ", " + customPort + ")";
+			stmt.executeQuery(strSQL);
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+	}
+
+	public static void customStartAll(Connection conn) throws SQLException
+	{
+		String method = "customStartAll";
+		int location = 1000;
+		try
+		{
+			Statement stmt = conn.createStatement();
+
+			String strSQL = "SELECT os.fn_custom_startall('" + OSProperties.osServer + "', " +  OSProperties.osPort + ")";
+			stmt.executeQuery(strSQL);
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+	}
 
 	public static void failJobs(Connection conn) throws SQLException
 	{
@@ -194,7 +270,7 @@ public class GP
 	{
 		String method = "getVariable";
 		int location = 1000;
-        	try
+		try
 		{
 			location = 2000;
 			String value = "";
@@ -228,7 +304,7 @@ public class GP
 	{
 		String method = "executeReplication";
 		int location = 1000;
-        	try
+		try
 		{
 			location = 2000;
 			Statement stmt = conn.createStatement();
@@ -261,7 +337,7 @@ public class GP
 	
 		String method = "setErrorMessage";
 		int location = 1000;
-        	try
+		try
 		{
 			location = 2000;
 			errorMessage = errorMessage.replace("\"", "");
@@ -362,7 +438,7 @@ public class GP
 		sqlText = setSQLString(sqlText);
 		String strSnapshot = setSQLString(snapshot);
 		
-        	try
+		try
 		{
 			location = 2000;
 			Statement stmt = conn.createStatement();
@@ -414,7 +490,7 @@ public class GP
 	{
 		String method = "dropExternalTable";
 		int location = 1000;
-         	try
+	 	try
 		{
 			location = 2000;
 			String externalTable = getExternalTableName(targetSchema, targetTable);
@@ -426,7 +502,7 @@ public class GP
 			String strSQL = "DROP EXTERNAL TABLE IF EXISTS \"" + externalSchema + "\".\"" + externalTable + "\"";
 			if (debug)
 				Logger.printMsg("Dropping External Table (if exists): " + strSQL);
-		
+
 			location = 2303;	
 			stmt.executeUpdate(strSQL);
 		}
@@ -514,7 +590,7 @@ public class GP
 	{
 		String method = "truncateTable";
 		int location = 1000;
-         	try
+	 	try
 		{
 			location = 2000;
 			Statement stmt = conn.createStatement();
@@ -539,43 +615,43 @@ public class GP
 		String method = "createSchema";
 		int location = 1000;
 		try
-                {
-                        location = 2000;
-                        boolean found = false;
+		{
+			location = 2000;
+			boolean found = false;
 
-                        String strSQL = "SELECT COUNT(*) \n" +
-                                        "FROM INFORMATION_SCHEMA.SCHEMATA \n" +
-                                        "WHERE SCHEMA_NAME = '" + schema + "'";
+			String strSQL = "SELECT COUNT(*) \n" +
+					"FROM INFORMATION_SCHEMA.SCHEMATA \n" +
+					"WHERE SCHEMA_NAME = '" + schema + "'";
 
-                        location = 2100;
-                        Statement stmt = conn.createStatement();
+			location = 2100;
+			Statement stmt = conn.createStatement();
 
-                        location = 2200;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			location = 2200;
+			ResultSet rs = stmt.executeQuery(strSQL);
 
-                        location = 2306;
-                        while (rs.next())
-                        {
-                                if (rs.getInt(1) > 0)
-                                        found = true;
-                        }
+			location = 2306;
+			while (rs.next())
+			{
+				if (rs.getInt(1) > 0)
+					found = true;
+			}
 
-                        location = 2400;
-                        if (!(found))
-                        {
-                                location = 2500;
-                                String schemaDDL = "CREATE SCHEMA \"" + schema + "\"";;
-                                if (debug)                                        
+			location = 2400;
+			if (!(found))
+			{
+				location = 2500;
+				String schemaDDL = "CREATE SCHEMA \"" + schema + "\"";;
+				if (debug)					
 					Logger.printMsg("Schema DDL: " + schemaDDL);
 
-                                location = 2600;
-                                stmt.executeUpdate(schemaDDL);
-                        }
+				location = 2600;
+				stmt.executeUpdate(schemaDDL);
+			}
 
-                        location = 2700;
-                        return found;
+			location = 2700;
+			return found;
 
-                }
+		}
 		catch (SQLException ex)
 		{
 			return true;
@@ -671,7 +747,7 @@ public class GP
 		}
 	}
 
-	public static void createReplExternalTable(Connection conn, String osServer, int osPort, String targetSchema, String targetTable, String sourceType, String sourceTable, int maxId, int queueId) throws SQLException 
+	public static void createReplExternalTable(Connection conn, String osServer, String refreshType, String targetSchema, String targetTable, String sourceType, String sourceTable, int maxId, int queueId, int jobPort) throws SQLException 
 	{
 		String method = "createReplExternalTable";
 		int location = 1000;
@@ -687,16 +763,16 @@ public class GP
 			String replSourceTable = getReplTableName(sourceType, sourceTable);
 
 			location = 2308;
-			createExternalTable(conn, osServer, osPort, replTargetSchema, replTargetTable, maxId, queueId);
+			createExternalTable(conn, osServer, refreshType, replSourceTable, replTargetSchema, replTargetTable, maxId, queueId, jobPort);
 
 		}
 		catch (SQLException ex)
 		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
 		}
-	}	
+	}
 
-	public static void createExternalTable(Connection conn, String osServer, int osPort, String targetSchema, String targetTable, int maxId, int queueId) throws SQLException 
+	public static void createExternalTable(Connection conn, String osServer, String refreshType, String sourceTable, String targetSchema, String targetTable, int maxId, int queueId, int jobPort) throws SQLException 
 	{
 		String method = "createExternalTable";
 		int location = 1000;
@@ -709,21 +785,20 @@ public class GP
 			location = 2100;
 			Statement stmt = conn.createStatement();
 
-			location = 2200;
 			String createSQL = "CREATE EXTERNAL TABLE \"" + externalSchema + "\".\"" + externalTable + "\" \n (";
 
 			location = 2309;
 			String strSQL = "SELECT c.column_name, \n" +
-				"	CASE WHEN c.data_type = 'character' THEN c.data_type || '(' || c.character_maximum_length || ')' ELSE c.data_type END AS data_type \n" +
-                      		"FROM INFORMATION_SCHEMA.COLUMNS c \n" + 
-                      		"WHERE table_schema = '" + targetSchema + "' \n" + 
-                      		"	AND table_name = '" + targetTable + "' \n" + 
-                      		"ORDER BY ordinal_position";
-		
-			location = 2400;	
+				"       CASE WHEN c.data_type = 'character' THEN c.data_type || '(' || c.character_maximum_length || ')' ELSE c.data_type END AS data_type \n" +
+				"FROM INFORMATION_SCHEMA.COLUMNS c \n" +
+				"WHERE table_schema = '" + targetSchema + "' \n" +
+				"       AND table_name = '" + targetTable + "' \n" +
+				"ORDER BY ordinal_position";
+
+			location = 2400;
 			ResultSet rs = stmt.executeQuery(strSQL);
-		
-			location = 2500;	
+
+			location = 2500;
 			while (rs.next())
 			{
 				location = 2600;
@@ -738,16 +813,20 @@ public class GP
 					createSQL = createSQL + ", \n \"" + rs.getString(1) + "\" " + rs.getString(2);
 				}
 			}
-		
-			location = 2900;	
+
+			location = 2900;
 			createSQL = createSQL + ") \n";
 
 			////////////////////////////////////////////
 			//Create location for External Table
 			////////////////////////////////////////////
 			location = 3000;
-			String extLocation = 	"LOCATION ('gpfdist://" + osServer + ":" + osPort + 
-						"/config.properties+" + queueId + "+" + maxId + "#transform=externaldata" + "')";
+			//sourceTable = sourceTable.replaceAll("\\$", "\\\\\\\\\\$");
+			//need to double check this
+
+			location = 3100;
+			String extLocation =    "LOCATION ('gpfdist://" + osServer + ":" + jobPort +
+						"/config.properties+" + queueId + "+" + maxId + "+" + refreshType + "+" + sourceTable + "#transform=externaldata" + "')";
 			location = 3400;
 			extLocation = extLocation + "\n" + "FORMAT 'TEXT' (delimiter '|' null 'null' escape '\\\\')";
 
@@ -756,7 +835,7 @@ public class GP
 			////////////////////////////////////////////
 			location = 3500;
 			createSQL = createSQL + extLocation;
-			
+
 			////////////////////////////////////////////
 			//Create new external web table
 			////////////////////////////////////////////
@@ -965,12 +1044,12 @@ public class GP
 			Statement stmt = conn.createStatement();
 
 			location = 2200;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
-                        while (rs.next())
-                        {
+			while (rs.next())
+			{
 				max = rs.getInt(1);	
-                        }
+			}
 		
 			location = 2313;	
 			return max;

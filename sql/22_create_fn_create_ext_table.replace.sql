@@ -1,6 +1,7 @@
 DROP FUNCTION IF EXISTS os.fn_create_ext_table(text, text[], integer, text);
+DROP FUNCTION IF EXISTS os.fn_create_ext_table(integer);
 
-CREATE OR REPLACE FUNCTION os.fn_create_ext_table(p_custom_sql_id integer)
+CREATE OR REPLACE FUNCTION os.fn_create_ext_table(p_custom_sql_id integer, p_os_server character varying)
   RETURNS void AS
 $$
 DECLARE
@@ -13,10 +14,14 @@ DECLARE
         v_table_name text;
         v_ext_location text;
         v_count int;
+        v_os_server text;
+        v_os_port text;
+        v_gpfdist_port int;
+        
 BEGIN
         v_location := 1000;
-        SELECT LOWER(table_name) as table_name, columns, column_datatypes
-        INTO v_table_name, v_columns, v_column_datatypes
+        SELECT LOWER(table_name) as table_name, columns, column_datatypes, gpfdist_port
+        INTO v_table_name, v_columns, v_column_datatypes, v_gpfdist_port
         FROM os.custom_sql
         WHERE id = p_custom_sql_id;
 
@@ -26,11 +31,6 @@ BEGIN
         IF v_count = 0 THEN
                 RAISE EXCEPTION 'CustomSQLId: "%" is not valid', p_custom_sql_id;
         END IF;
-
-        v_location := 2000;
-        v_sql := 'DROP EXTERNAL TABLE IF EXISTS ' || v_table_name;
-        RAISE INFO '%', v_sql;
-        EXECUTE v_sql;
 
         v_location := 3000;
         FOR i IN array_lower(v_columns, 1)..array_upper(v_columns,1) LOOP
@@ -46,11 +46,8 @@ BEGIN
         v_location := 3500;
         v_sql := v_sql || E')\n';
 
-        v_location := 4000;
-        SELECT 'LOCATION (''' || gpfdisturl || 'config.properties+' || p_custom_sql_id || '#transform=externaldata'')'
-        INTO v_ext_location
-        FROM 
-        (SELECT value AS gpfdisturl FROM os.variables WHERE name = 'gpfdistUrl') AS a;
+        v_location := 4000;        
+        v_ext_location := 'LOCATION (''gpfdist://' || p_os_server || ':' || v_gpfdist_port || '/config.properties+' || p_custom_sql_id || '#transform=externaldata'')';
 
         v_location := 5000;
         v_sql := v_sql || v_ext_location || ' FORMAT ''TEXT'' (delimiter ''|'' null ''null'')';
