@@ -416,13 +416,22 @@ if [ "$os_backup_schema" != "" ]; then
 fi
 
 #New Outsourcer 5 custom objects
-os_custom_sql_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid WHERE n.nspname = 'os' and c.relname = 'ao_custom_sql'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
+os_custom_sql_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid WHERE n.nspname = 'os' AND c.relname = 'ao_custom_sql'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 if [ $os_custom_sql_exists -eq 0 ]; then
 	echo "Notice: Installing Version 5 custom_sql table"
 	for i in $( ls *.install_os5.sql ); do
 		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
 	done
-fi	
+fi
+
+#Make sure custom_sql has gpfdist_port
+os_custom_sql_gpfdist_check=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_namespace n on c.relnamespace = n.oid JOIN pg_attribute a on c.oid = a.attrelid WHERE n.nspname = 'os' AND c.relname = 'ao_custom_sql' AND a.attname = 'gpfdist_port'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
+if [ $os_custom_sql_gpfdist_check -eq 0 ]; then
+	echo "Notice: Adding gpfdist_port column to custom_sql table"
+	for i in $( ls *.fix_os5.sql ); do
+		psql -f $i -v osport_custom_lower=$OSPORT_CUSTOM_LOWER -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
+	done
+fi
 
 echo "Notice: making sure all sequences have a cache of 1"
 psql -t -A -c "SELECT 'ALTER SEQUENCE ' || n.nspname || '.' || c.relname || ' CACHE 1;' FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid WHERE n.nspname = 'os' AND c.relkind = 'S'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport | psql -e -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
