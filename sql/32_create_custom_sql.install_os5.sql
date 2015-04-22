@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS os.ao_custom_sql CASCADE;
-
 CREATE TABLE os.ao_custom_sql
 ( id serial NOT NULL,
   table_name text NOT NULL,
