@@ -8,6 +8,12 @@ set -e
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
 
+# cleanup orphaned lock file
+rm -rf $JOBLOCK
+
+# remove old job files
+rm -f job $JOBLOG*
+
 ############################################################################################################################
 #
 # Make sure Outsourcer hasn't already started

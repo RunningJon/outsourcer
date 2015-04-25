@@ -8,6 +8,7 @@ public class OSProperties
 {
 	public static String osServer = "";
 	public static int osPort = 0;
+	public static String osHome = "";
 	public static String gpServer = "";
 	public static String gpDatabase = "";
 	public static int gpPort = 0;
@@ -21,6 +22,7 @@ public class OSProperties
 
 		System.out.println("osServer: " + osServer);
 		System.out.println("osPort: " + osPort);
+		System.out.println("osHome: " + osHome);
 		System.out.println("gpServer: " + gpServer);
 		System.out.println("gpDatabase: " + gpDatabase);
 		System.out.println("gpPort: " + gpPort);
@@ -51,6 +53,7 @@ public class OSProperties
 			String strOsPort = prop.getProperty("osport");
 			if (strOsPort != null)
 				osPort = Integer.parseInt(strOsPort);
+			osHome = prop.getProperty("oshome");
 			gpServer = prop.getProperty("gpserver");
 			gpDatabase = prop.getProperty("gpdatabase");
 			String strGpPort = prop.getProperty("gpport");

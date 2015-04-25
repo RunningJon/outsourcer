@@ -1,5 +1,1 @@
 DROP EXTERNAL TABLE IF EXISTS os.jobstart;
-
-CREATE EXTERNAL TABLE os.jobstart
-(myport text) 
-LOCATION (:LOCATION) FORMAT 'text' (DELIMITER '|');

@@ -120,7 +120,9 @@ if [ ! -f $MSJAR ]; then
 	fi
 fi
 
-echo "osport=$OSPORT" > $configFile
+echo "oshome=$PWD" > $configFile
+echo ""
+echo "osport=$OSPORT" >> $configFile
 echo ""
 echo "##############################################################################################"
 echo "What is the name of THIS host?"
@@ -204,6 +206,10 @@ echo "##########################################################################
 echo "$gpserver:$gpport:$gpdatabase:$gpusername:$gppassword" > ~/.pgpass_os
 
 if [ -f ~/.pgpass ]; then
+	gpmon=`grep gpmon ~/.pgpass | wc -l`
+	if [ "$gpmon" -ge "1" ]; then
+		grep "gpmon" ~/.pgpass >> ~/.pgpass_os
+	fi
 	echo "Making new .pgpass file"
 	i=0
 	while [ -z $pgpass_backup ]; do
@@ -454,9 +460,9 @@ echo "start_all / stop_all"
 echo "Starts and stops all background processes for Outsourcer."
 echo ""
 echo "gpfdistart / gpfdiststop"
-echo "Starts and stops the REQUIRED gpfdist process.  This is used for getting external data as well"
-echo "as commands within the user interface.  This must be running at all times.  You can change the"
-echo "port number gpfdist runs on in $PWD/os_path.sh"
+echo "Starts and stops the REQUIRED gpfdist process for the User Interface.  This is used for"
+echo "commands within the user interface.  You can change the port number gpfdist runs on in"
+echo "$PWD/os_path.sh"
 echo "and then re-run this installer."
 echo ""
 echo "uistart / usstop"
@@ -466,13 +472,11 @@ echo ""
 echo "osstart / osstop"
 echo "Starts and stops the Queue Daemon."
 echo "This is a background process that watches the os.queue table for jobs to execute."
-echo "Note: gpfdist must be running to load data."
 echo ""
 echo "agentstart / agentstop"
 echo "Starts and stops the Scheduler Daemon."
 echo "This is a background process that will put jobs into the os.queue table to be executed based"
 echo "on the schedule set for the job."
-echo "Note: gpfdist must be running to load data."
 echo ""
 echo "Database configuration details in $configFile"
 echo "Environment variables are stored in $PWD/os_path.sh"

@@ -7,18 +7,46 @@
 set -e  
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
-myport=`echo $1 | awk -F '+' '{print $2}'`
+myport=$1
+k=""
+mylog=""
+
+# create a lock file so that we only have one gpfdist processing starting/stopping at a time
+lock=false
+while [ "$lock" == "false" ]; do
+	if mkdir $JOBLOCK 2> /dev/null; then
+		#directory got made
+		lock="true"
+	fi
+done
 
 if [[ "$myport" -ge "$OSPORT_LOWER" && "$myport" -le "$OSPORT_UPPER" ]]; then
+	mylog=$JOBLOG"_$myport".log
+	echo "jobstop:$$:$myport:stopping" >> $mylog
 
 	k=`ps -ef 2> /dev/null | grep gpfdist | grep -v gpfdistjobstop | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
 
 	if [ "$k" != "" ]; then
+		echo "jobstop:$$:$myport:killing $k" >> $mylog
 		echo "Killing $k"
 		kill $k
 	else
 		echo "ERROR: gpfdist job not running on port $myport"
+		echo "jobstop:$$:$myport:ERROR: gpfdist job not running on port $myport" >> $mylog
 	fi
 else
 	echo "ERROR: Port $myport is out of range of $OSPORT_LOWER and $OSPORT_UPPER"
+fi
+
+while [ "$k" != "" ]; do
+	k=`ps -ef 2> /dev/null | grep gpfdist | grep -v gpfdistjobstop | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
+	echo "jobstop:$$:$myport:stopping..." >> $mylog
+	sleep 1
+done;
+
+echo "jobstop:$$:$myport:remove lock" >> $mylog
+rm -rf $JOBLOCK
+
+if [ "$mylog" != "" ]; then
+	echo "jobstop:$$:$myport:done" >> $mylog
 fi

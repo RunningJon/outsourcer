@@ -7,50 +7,61 @@
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
 
-started=0
+pid=0
+count=0
 myport=$OSPORT_LOWER
-locked=0
-joblock=/tmp/jobstart.lock
 
-# create a lock file so that we only have one gpfdist processing starting at a time
-while [ "$locked" -eq "0" ]; do
-	lockfile -r 0 $joblock 2> /dev/null
-	if [ "$?" -eq 0 ]; then
-		locked="1"
-	fi 
+# create a lock file so that we only have one gpfdist processing starting/stopping at a time
+lock=false
+while [ "$lock" == "false" ]; do
+	if mkdir $JOBLOCK 2> /dev/null; then
+		#directory got made
+		lock="true"
+	fi
 done
 
 # loop through available ports to find an available gpfdist port
-for i in `seq $OSPORT_LOWER $OSPORT_UPPER`; do
+for myport in `seq $OSPORT_LOWER $OSPORT_UPPER`; do
 	used="0"
-	for p in `ps -ef 2> /dev/null | grep gpfdist | grep -v grep | awk -F ' ' '{print $12}'`; do
-		if [ "$i" -eq "$p" ]; then
-			used="1"
-		fi
+	for p in `ps -ef 2> /dev/null | grep gpfdist | grep -v grep | awk -F ' ' '{print $12}' | grep $myport`; do
+		used="1"
 	done
 
 	# Check to see if port is in use
 	if [ "$used" -eq "0" ]; then
 		mylog=$JOBLOG"_$myport".log
-		nohup gpfdist -d $OSHOME -p $myport -c $YML -m $GPFDISTMAXROW > $mylog 2>&1 < $mylog &
-		started="1"
-	else
-		myport=$[$myport + 1]
+		echo "jobstart:$$:$myport:start requested" >> $mylog
+		gpfdist -d $OSHOME -p $myport -t $GPFDISTTIMEOUT -c $YML -m $GPFDISTMAXROW >> $mylog 2>&1 < $mylog &
+		pid=$!
 	fi
 
 	# gpfdist process started so exit
-	if [ "$started" -eq "1" ]; then
+	if [ "$pid" -ne "0" ]; then
 		break
 	fi
-
 done
 
-# Check log file to make sure gpfdist started
-grep -q "Serving HTTP on port $myport" <(tail -f $mylog)
+# finished looping.  Make sure that a gpfidst process was started
+if [ "$pid" -eq "0" ]; then
+	echo "jobstart:$$:$myport:Failed to start a gpfdist process" >> $mylog
+	echo "0"
+else
+	#10 second timeout to start gpfdist
+	for i in `seq 1 10`; do
+		count=`tail -1 $mylog | grep "Serving HTTP on port $myport" | wc -l`
+		if [ "$count" -eq "1" ]; then
+			echo "jobstart:$$:$myport:started $pid" >> $mylog
+			break
+		fi
+		sleep 1
+	done
+	if [ "$count" -eq "0" ]; then
+		echo "jobstart:$$:$myport:failed to start" >> $mylog
+		myport=0
+	fi
+	echo $myport
+fi
 
-# remove lock to allow for other gpfdist processes to start
-rm -f $joblock
-
-# return port number to calling program
-echo $myport
-
+echo "jobstart:$$:$myport:remove lock" >> $mylog
+rm -rf $JOBLOCK
+echo "jobstart:$$:$myport:done" >> $mylog

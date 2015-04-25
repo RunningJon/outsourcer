@@ -14,9 +14,17 @@ k=`ps -ef 2> /dev/null | grep gpfdist | grep $OSPORT | grep -v grep | awk -F ' '
 if [ "$k" != "" ]; then
 	echo "gpfdist already running!  Stop first with gpfdiststop."
 else
-	nohup gpfdist -d $OSHOME -p $OSPORT -c $YML > $mylog 2>&1 < $mylog &
+	nohup gpfdist -d $OSHOME -p $OSPORT -t $GPFDISTTIMEOUT -c $YML > $mylog 2>&1 < $mylog &
+
+	# Check log file to make sure gpfdist started
+	count=0
+	while [ "$count" -eq "0" ]; do
+		count=`grep "Serving HTTP on port $myport" $mylog | wc -l`
+	done
+
 	echo "Directory: $OSHOME"
 	echo "Port: $OSPORT"
 	echo "YML: $YML"
 	echo "Log: $GPFDISTLOG"
 fi
+

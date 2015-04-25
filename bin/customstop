@@ -7,7 +7,7 @@
 set -e  
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
-myport=`echo $1 | awk -F '+' '{print $2}'`
+myport=$1
 
 if [[ $myport -ge $OSPORT_CUSTOM_LOWER && $myport -le $OSPORT_CUSTOM_UPPER ]]; then
 
@@ -18,7 +18,6 @@ if [[ $myport -ge $OSPORT_CUSTOM_LOWER && $myport -le $OSPORT_CUSTOM_UPPER ]]; t
 		kill $k
 		exit
 	else
-		echo "ERROR: gpfdist job not running on port $myport"
 		exit
 	fi
 else

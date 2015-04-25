@@ -28,6 +28,12 @@ export OSPORT_CUSTOM_UPPER=9200
 #increase if you get "line too long" error message
 GPFDISTMAXROW=327675
 
+#job lock file
+export JOBLOCK=/tmp/jobstart.lock
+
+#gpfdist timeout
+export GPFDISTTIMEOUT=30
+
 #yml
 export YML=$OSHOME/yml/outsourcer.yml
 
@@ -65,7 +71,7 @@ export SESSIONS=$OSHOME/log/sessions.txt
 export XMS=128m
 
 #Max memory for Outsourcer
-XMX=256m
+export XMX=256m
 
 ################################################################################################
 #Jar files

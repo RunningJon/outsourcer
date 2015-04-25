@@ -9,66 +9,6 @@ public class GP
 	public static boolean debug = false;
 	public static String externalSchema = "ext";
 
-	public static int jobStart(Connection conn) throws SQLException
-	{
-		String method = "jobStart";
-		int location = 1000;
-		int jobPort = 0;
-		try
-		{
-			location = 2000;
-			Statement stmt = conn.createStatement();
-			location = 2200;
-			String strSQL = "SELECT myport FROM os.jobstart";
-
-			ResultSet rs = stmt.executeQuery(strSQL);
-
-			location = 2500;
-			while (rs.next())
-			{
-				jobPort = rs.getInt(1);
-			}
-			return jobPort;
-
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-		}
-	}
-
-	public static void jobStop(Connection conn, String osServer, int osPort, int jobPort) throws SQLException
-	{
-		String method = "jobStop";
-		int location = 1000;
-		try
-		{
-			Statement stmt = conn.createStatement();
-			String strSQL = "SELECT os.fn_jobstop('" + osServer + "', " + osPort + ", " + jobPort + ")";
-			stmt.executeQuery(strSQL);
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-		}
-	}
-
-	public static void customStop(Connection conn, String osServer, int osPort, int customPort) throws SQLException
-	{
-		String method = "customStop";
-		int location = 1000;
-		try
-		{
-			Statement stmt = conn.createStatement();
-			String strSQL = "SELECT os.fn_customstop('" + osServer + "', " + osPort + ", " + customPort + ")";
-			stmt.executeQuery(strSQL);
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-		}
-	}
-
 	public static void customStartAll(Connection conn) throws SQLException
 	{
 		String method = "customStartAll";
@@ -77,8 +17,25 @@ public class GP
 		{
 			Statement stmt = conn.createStatement();
 
-			String strSQL = "SELECT os.fn_custom_startall('" + OSProperties.osServer + "', " +  OSProperties.osPort + ")";
-			stmt.executeQuery(strSQL);
+			int id = 0;
+			int gpfdistPort = 0;
+			String strSQL = "SELECT id\n";
+			strSQL += "FROM os.custom_sql";
+
+			ResultSet rs = stmt.executeQuery(strSQL);
+			while (rs.next())
+			{
+				id = rs.getInt(1);
+				gpfdistPort = GpfdistRunner.customStart(OSProperties.osHome);
+
+				strSQL = "INSERT INTO os.ao_custom_sql\n";
+				strSQL += "(id, table_name, columns, column_datatypes, sql_text, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass, gpfdist_port)\n";
+				strSQL += "SELECT id, table_name, columns, column_datatypes, sql_text, source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass, " + gpfdistPort + "\n";
+				strSQL += "FROM os.custom_sql\n";
+				strSQL += "WHERE id = " + id;
+
+				stmt.executeUpdate(strSQL);
+			}
 		}
 		catch (SQLException ex)
 		{

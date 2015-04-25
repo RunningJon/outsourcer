@@ -79,7 +79,9 @@ public class ExternalDataThread implements Runnable
 			location = 2100;
 			String osServer = OSProperties.osServer;
 			int osPort = OSProperties.osPort;
+			String osHome = OSProperties.osHome;
 			int jobPort = 0;
+			String jobStopMsg = "";
 
 			try 
 			{
@@ -129,7 +131,7 @@ public class ExternalDataThread implements Runnable
 
 					location = 4275;
 					//get gpfdist process
-					jobPort = GP.jobStart(conn);
+					jobPort = GpfdistRunner.jobStart(osHome);
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " getting gpfdist job process " + jobPort);
 
@@ -163,7 +165,10 @@ public class ExternalDataThread implements Runnable
 					//stop gpfdist process for this job
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " stop gpfdist process");
-					GP.jobStop(conn, osServer, osPort, jobPort);
+
+					jobStopMsg = GpfdistRunner.jobStop(osHome, jobPort);
+					if (debug)
+						Logger.printMsg("QueueID: " + queueId + " gpfdist: " + jobPort + " JobStop msg: " + jobStopMsg);
 
 					location = 4800;
 					//execute transform sql if any
@@ -214,7 +219,7 @@ public class ExternalDataThread implements Runnable
 
 						location = 5750;
 						//get gpfdist process
-						jobPort = GP.jobStart(conn);
+						jobPort = GpfdistRunner.jobStart(osHome);
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " getting gpfdist job process " + jobPort);
 
@@ -240,8 +245,10 @@ public class ExternalDataThread implements Runnable
 						//stop gpfdist process for this job
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " stop gpfdist process");
-						GP.jobStop(conn, osServer, osPort, jobPort);
 
+						jobStopMsg = GpfdistRunner.jobStop(osHome, jobPort);
+						if (debug)
+							Logger.printMsg("QueueID: " + queueId + " gpfdist: " + jobPort + " JobStop msg: " + jobStopMsg);
 					}
 
 					location = 6200;
@@ -322,7 +329,7 @@ public class ExternalDataThread implements Runnable
 
 						location = 7970;
 						//get gpfdist process
-						jobPort = GP.jobStart(conn);
+						jobPort = GpfdistRunner.jobStart(osHome);
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " getting gpfdist job process " + jobPort);
 
@@ -348,7 +355,10 @@ public class ExternalDataThread implements Runnable
 						//stop gpfdist process for this job
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " stop gpfdist process");
-						GP.jobStop(conn, osServer, osPort, jobPort);
+
+						jobStopMsg = GpfdistRunner.jobStop(osHome, jobPort);
+						if (debug)
+							Logger.printMsg("QueueID: " + queueId + " gpfdist: " + jobPort + " JobStop msg: " + jobStopMsg);
 					}
 					else 
 					//not a snapshot so get new data from trigger table and load it to target to be applid by the function
@@ -384,7 +394,7 @@ public class ExternalDataThread implements Runnable
 
 							location = 8575;
 							//get gpfdist process
-							jobPort = GP.jobStart(conn);
+							jobPort = GpfdistRunner.jobStart(osHome);
 							if (debug)
 								Logger.printMsg("QueueID: " + queueId + " getting gpfdist job process " + jobPort);
 
@@ -414,7 +424,10 @@ public class ExternalDataThread implements Runnable
 							//stop gpfdist process for this job
 							if (debug)
 								Logger.printMsg("QueueID: " + queueId + " stop gpfdist process");
-							GP.jobStop(conn, osServer, osPort, jobPort);
+
+							jobStopMsg = GpfdistRunner.jobStop(osHome, jobPort);
+							if (debug)
+								Logger.printMsg("QueueID: " + queueId + " gpfdist: " + jobPort + " JobStop msg: " + jobStopMsg);
 
 							//if any row inserted from triggers, apply the changes in GP with the function
 							if (numRows > 0)
@@ -477,7 +490,11 @@ public class ExternalDataThread implements Runnable
 				status = "failed";
 				GP.updateStatus(conn, queueId, status, queueDate, startDate, errorMessage, numRows, id, refreshType, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, columnName, sqlText, snapshot);
 				if (jobPort != 0)
-					GP.jobStop(conn, osServer, osPort, jobPort);
+					{
+						jobStopMsg = GpfdistRunner.jobStop(osHome, jobPort);
+						if (debug)
+							Logger.printMsg("QueueID: " + queueId + " gpfdist: " + jobPort + " JobStop msg: " + jobStopMsg);
+					}
 					
 				String emailAlert = "QueueID " + queueId + " has failed.\n";
 				emailAlert += errorMessage;

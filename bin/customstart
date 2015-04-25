@@ -20,7 +20,7 @@ for i in `seq $OSPORT_CUSTOM_LOWER $OSPORT_CUSTOM_UPPER`; do
 
 	if [ "$used" -eq "0" ]; then
 		mylog=$CUSTOMLOG"_$i".log
-		nohup gpfdist -d $OSHOME -p $i -c $YML -m $GPFDISTMAXROW > $mylog 2>&1 < $mylog &
+		nohup gpfdist -d $OSHOME -p $i -t $GPFDISTTIMEOUT -c $YML -m $GPFDISTMAXROW > $mylog 2>&1 < $mylog &
 		started="1"
 	fi
 
@@ -30,7 +30,10 @@ for i in `seq $OSPORT_CUSTOM_LOWER $OSPORT_CUSTOM_UPPER`; do
 	fi
 done
 
-grep -q "Serving HTTP on port $i" <(tail -f $mylog)
-
+# Check log file to make sure gpfdist started
+count=0
+while [ "$count" -eq "0" ]; do
+	count=`grep "Serving HTTP on port $i" $mylog | wc -l`
+done
 # return port number to calling program
 echo $i
