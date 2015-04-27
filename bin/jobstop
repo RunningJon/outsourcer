@@ -44,7 +44,10 @@ while [ "$k" != "" ]; do
 	sleep 1
 done;
 
-echo "jobstop:$$:$myport:remove lock" >> $mylog
+if [ "$mylog" != "" ]; then
+	echo "jobstop:$$:$myport:remove lock" >> $mylog
+fi
+
 rm -rf $JOBLOCK
 
 if [ "$mylog" != "" ]; then
