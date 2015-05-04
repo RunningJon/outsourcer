@@ -126,7 +126,7 @@ public class GpfdistRunner
 			while ((line = in.readLine()) != null) 
 			{
 				myReturn += line + " ";
-				System.out.println(line);
+				//System.out.println(line);
 			}
 			return myReturn;
 		}

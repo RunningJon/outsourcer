@@ -8,11 +8,9 @@ set -e
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
 
-for i in `ps -ef 2> /dev/null | grep gpfdist | grep -v grep | awk -F ' ' '{print $2 "," $12}'`; do
-	mypid=`echo $i | awk -F ',' '{print $1}'`
-	myport=`echo $i | awk -F ',' '{print $2}'`
+for i in `ps -ef 2> /dev/null | grep "$OSHOME" | grep gpfdist | grep -v grep | awk -F ' ' '{print $12}'`; do
+	myport=$i
 	if [[ $myport -ge $OSPORT_CUSTOM_LOWER && $myport -le $OSPORT_CUSTOM_UPPER ]]; then
-		echo "killing $mypid"
-		kill $mypid
+		customstop $myport
 	fi
 done

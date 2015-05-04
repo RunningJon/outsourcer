@@ -30,7 +30,7 @@ BEGIN
                 FROM os.queue 
                 WHERE status = 'queued' 
                         AND clock_timestamp()::timestamp > queue_date 
-                ORDER BY queue_date LIMIT 1;
+                ORDER BY queue_date, id LIMIT 1;
 
                 v_location := 2200;
                 IF v_rec.id IS NOT NULL THEN

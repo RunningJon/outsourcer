@@ -126,6 +126,7 @@ public class CustomSQL
 
 			//dynamically get the gpfdist port for the custom table
 			int gpfdistPort = GpfdistRunner.customStart(OSProperties.osHome);
+			System.out.println("Starting gpfdist on port " + gpfdistPort);
 
 			//build the insert statement
 			String strSQL = "INSERT INTO os.ao_custom_sql\n";

@@ -8,23 +8,34 @@ set -e
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
 mylog=$GPFDISTLOG
+pid=0
 
-k=`ps -ef 2> /dev/null | grep gpfdist | grep $OSPORT | grep -v grep | awk -F ' ' '{ print $2 }'`
+k=`ps -ef 2> /dev/null | grep "$OSHOME" | grep gpfdist | grep $OSPORT | grep -v grep | awk -F ' ' '{ print $2 }'`
 
 if [ "$k" != "" ]; then
 	echo "gpfdist already running!  Stop first with gpfdiststop."
 else
-	nohup gpfdist -d $OSHOME -p $OSPORT -t $GPFDISTTIMEOUT -c $YML > $mylog 2>&1 < $mylog &
+	echo "gpfdiststart:$$:$OSPORT:Trying to start gpfdist" > $mylog
+	gpfdist -d $OSHOME -p $OSPORT -t $GPFDISTTIMEOUT -c $YML >> $mylog 2>&1 < $mylog &
+	pid=$!
 
 	# Check log file to make sure gpfdist started
 	count=0
-	while [ "$count" -eq "0" ]; do
-		count=`grep "Serving HTTP on port $myport" $mylog | wc -l`
-	done
-
-	echo "Directory: $OSHOME"
-	echo "Port: $OSPORT"
-	echo "YML: $YML"
-	echo "Log: $GPFDISTLOG"
+	if [ "$pid" -ne "0" ]; then
+		sleep 0.4
+		count=`ps -ef 2> /dev/null | grep -v grep | awk -F ' ' '{print $2}' | grep $pid | wc -l`
+		if [ "$count" -eq "1" ]; then
+			echo "gpfdiststart:$$:$OSPORT:started $pid" >> $mylog
+			echo "Directory: $OSHOME"
+			echo "Port: $OSPORT"
+			echo "YML: $YML"
+			echo "Log: $GPFDISTLOG"
+		else
+			echo "gpfdiststart:$$:$OSPORT:unable to start." >> $mylog
+			echo "Unable to start gpfdist on port $OSPORT"
+		fi
+	else
+		echo "gpfdiststart:$$:$OSPORT:unable to create background process for gpfdist." >> $mylog
+		echo "Unable to start background process for gpfdist on port $OSPORT"
+	fi
 fi
-

@@ -24,7 +24,7 @@ if [[ "$myport" -ge "$OSPORT_LOWER" && "$myport" -le "$OSPORT_UPPER" ]]; then
 	mylog=$JOBLOG"_$myport".log
 	echo "jobstop:$$:$myport:stopping" >> $mylog
 
-	k=`ps -ef 2> /dev/null | grep gpfdist | grep -v gpfdistjobstop | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
+	k=`ps -ef 2> /dev/null | grep "$OSHOME" | grep gpfdist | grep -v gpfdistjobstop | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
 
 	if [ "$k" != "" ]; then
 		echo "jobstop:$$:$myport:killing $k" >> $mylog
@@ -39,9 +39,9 @@ else
 fi
 
 while [ "$k" != "" ]; do
-	k=`ps -ef 2> /dev/null | grep gpfdist | grep -v gpfdistjobstop | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
+	k=`ps -ef 2> /dev/null | grep gpfdist | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
 	echo "jobstop:$$:$myport:stopping..." >> $mylog
-	sleep 1
+	sleep 0.4
 done;
 
 if [ "$mylog" != "" ]; then

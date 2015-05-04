@@ -16,17 +16,17 @@ export OSPORT=8999
 
 #Range of ports used by Outsourcer jobs
 #Note: Do not overlap with OSPORT or CUSTOM port ranges!!
-export OSPORT_LOWER=9000
-export OSPORT_UPPER=9030
+export OSPORT_LOWER=21850
+export OSPORT_UPPER=21900
 
 #Range of ports used by Outsourcer custom tables
 #Note: Do not overlap with OSPORT or JOB port ranges!!
-export OSPORT_CUSTOM_LOWER=9100
-export OSPORT_CUSTOM_UPPER=9200
+export OSPORT_CUSTOM_LOWER=22000
+export OSPORT_CUSTOM_UPPER=23000
 
 #gpfdist max row length
 #increase if you get "line too long" error message
-GPFDISTMAXROW=327675
+GPFDISTMAXROW=32768
 
 #job lock file
 export JOBLOCK=/tmp/jobstart.lock

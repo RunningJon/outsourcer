@@ -10,17 +10,30 @@ source $PWD/../os_path.sh
 myport=$1
 
 if [[ $myport -ge $OSPORT_CUSTOM_LOWER && $myport -le $OSPORT_CUSTOM_UPPER ]]; then
+	mylog=$CUSTOMLOG"_$myport".log
+	echo "customstop:$$:$myport:stopping" >> $mylog
 
-	k=`ps -ef 2> /dev/null | grep gpfdist | grep -v gpfdistcustomstop | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
+	k=`ps -ef 2> /dev/null | grep "$OSHOME" | grep gpfdist | grep -v gpfdistcustomstop | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
 
 	if [ "$k" != "" ]; then
+		echo "customstop:$$:$myport:killing $k" >> $mylog
 		echo "killing $k"
 		kill $k
 		exit
 	else
-		exit
+		echo "ERROR: gpfdist job not running on port $myport"
+		echo "customstop:$$:$myport:ERROR: gpfdist job not running on port $myport" >> $mylog
 	fi
 else
 	echo "Port number: $myport is outside range of $OSPORT_CUSTOM_LOWER and $OSPORT_CUSTOM_UPPER"
-	exit 
 fi
+while [ "$k" != "" ]; do
+	k=`ps -ef 2> /dev/null | grep gpfdist | grep -v grep | grep "$myport" | awk -F ' ' '{ print $2 }'`
+	echo "customstop:$$:$myport:stopping..." >> $mylog
+	sleep 0.4
+done;
+
+if [ "$mylog" != "" ]; then
+	echo "customstop:$$:$myport:done" >> $mylog
+fi
+

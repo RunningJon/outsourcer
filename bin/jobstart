@@ -10,6 +10,7 @@ source $PWD/../os_path.sh
 pid=0
 count=0
 myport=$OSPORT_LOWER
+mylog=""
 
 # create a lock file so that we only have one gpfdist processing starting/stopping at a time
 lock=false
@@ -22,46 +23,38 @@ done
 
 # loop through available ports to find an available gpfdist port
 for myport in `seq $OSPORT_LOWER $OSPORT_UPPER`; do
-	used="0"
-	for p in `ps -ef 2> /dev/null | grep gpfdist | grep -v grep | awk -F ' ' '{print $12}' | grep $myport`; do
-		used="1"
-	done
-
-	# Check to see if port is in use
-	if [ "$used" -eq "0" ]; then
+	p=`ps -ef 2> /dev/null | grep "$OSHOME" | grep gpfdist | grep -v grep | awk -F ' ' '{print $12}' | grep $myport | wc -l`;
+	if [ "$p" -eq "0" ]; then
 		mylog=$JOBLOG"_$myport".log
 		echo "jobstart:$$:$myport:start requested" >> $mylog
 		gpfdist -d $OSHOME -p $myport -t $GPFDISTTIMEOUT -c $YML -m $GPFDISTMAXROW >> $mylog 2>&1 < $mylog &
 		pid=$!
 	fi
 
-	# gpfdist process started so exit
+	# check gpfdist process was started
 	if [ "$pid" -ne "0" ]; then
-		break
-	fi
-done
-
-# finished looping.  Make sure that a gpfidst process was started
-if [ "$pid" -eq "0" ]; then
-	echo "jobstart:$$:$myport:Failed to start a gpfdist process" >> $mylog
-	echo "0"
-else
-	#10 second timeout to start gpfdist
-	for i in `seq 1 10`; do
-		count=`tail -1 $mylog | grep "Serving HTTP on port $myport" | wc -l`
+		sleep 0.4
+		count=`ps -ef 2> /dev/null | grep -v grep | awk -F ' ' '{print $2}' | grep $pid | wc -l`
 		if [ "$count" -eq "1" ]; then
 			echo "jobstart:$$:$myport:started $pid" >> $mylog
 			break
+		else
+			echo "jobstart:$$:$myport:unable to start.  Trying next port...." >> $mylog
+			pid=0
 		fi
-		sleep 1
-	done
-	if [ "$count" -eq "0" ]; then
-		echo "jobstart:$$:$myport:failed to start" >> $mylog
-		myport=0
 	fi
-	echo $myport
-fi
+done
+# finished loop.  
 
-echo "jobstart:$$:$myport:remove lock" >> $mylog
+if [ "$pid" -eq "0" ]; then
+	if [ "$mylog" != "" ]; then
+		echo "jobstart:$$:$myport:Failed to start a gpfdist process" >> $mylog
+	fi
+	myport=0
+fi
+if [ "$mylog" != "" ]; then
+	echo "jobstart:$$:$myport:done" >> $mylog
+fi
+echo $myport
+
 rm -rf $JOBLOCK
-echo "jobstart:$$:$myport:done" >> $mylog

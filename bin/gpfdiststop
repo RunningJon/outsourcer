@@ -7,12 +7,15 @@
 set -e  
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
+mylog=$GPFDISTLOG
 
-k=`ps -ef 2> /dev/null | grep gpfdist | grep $OSPORT | grep -v grep | awk -F ' ' '{ print $2 }'`
+k=`ps -ef 2> /dev/null | grep "$OSHOME" | grep gpfdist | grep $OSPORT | grep -v grep | awk -F ' ' '{ print $2 }'`
 
 if [ "$k" != "" ]; then
+	echo "gpfdiststop:$$:$OSPORT:Trying to stop gpfdist" >> $mylog
 	echo "killing $k"
 	kill $k
+	echo "gpfdiststop:$$:$OSPORT:killed $k" >> $mylog
 else
 	echo "gpfdist not running on port $OSPORT"
 fi

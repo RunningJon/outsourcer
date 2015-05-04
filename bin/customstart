@@ -6,34 +6,48 @@
 ############################################################################################################################
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
-
+pid=0
 started=0
 
 # loop through available ports to find an available gpfdist port
 
-for i in `seq $OSPORT_CUSTOM_LOWER $OSPORT_CUSTOM_UPPER`; do
+for myport in `seq $OSPORT_CUSTOM_LOWER $OSPORT_CUSTOM_UPPER`; do
 	used="0"
 
-	for p in `ps -ef 2> /dev/null | grep gpfdist | grep -v grep | grep $i | awk -F ' ' '{print $12}'`; do
-		used="1"
-	done
+	p=`ps -ef 2> /dev/null | grep "$OSHOME" | grep gpfdist | grep -v grep | grep $myport | awk -F ' ' '{print $12}' | wc -l`
 
-	if [ "$used" -eq "0" ]; then
-		mylog=$CUSTOMLOG"_$i".log
-		nohup gpfdist -d $OSHOME -p $i -t $GPFDISTTIMEOUT -c $YML -m $GPFDISTMAXROW > $mylog 2>&1 < $mylog &
+	if [ "$p" -eq "0" ]; then
+		mylog=$CUSTOMLOG"_$myport".log
+		echo "customstart:$$:$myport:start requested" >> $mylog
+		gpfdist -d $OSHOME -p $myport -t $GPFDISTTIMEOUT -c $YML -m $GPFDISTMAXROW >> $mylog 2>&1 < $mylog &
+		pid=$!
 		started="1"
 	fi
 
-	# gpfdist process started so exit
-	if [ "$started" -eq "1" ]; then
-		break
+	# check gpfdist process was started
+	if [ "$pid" -ne "0" ]; then
+		sleep 0.4
+		count=`ps -ef 2> /dev/null | grep -v grep | awk -F ' ' '{print $2}' | grep $pid | wc -l`
+		if [ "$count" -eq "1" ]; then
+			echo "customstart:$$:$myport:started $pid" >> $mylog
+			break
+		else
+			echo "customstart:$$:$myport:unable to start.  Trying next port...." >> $mylog
+			pid=0
+		fi
 	fi
 done
+# finished loop
 
-# Check log file to make sure gpfdist started
-count=0
-while [ "$count" -eq "0" ]; do
-	count=`grep "Serving HTTP on port $i" $mylog | wc -l`
-done
-# return port number to calling program
-echo $i
+if [ "$pid" -eq "0" ]; then
+	if [ "$mylog" != "" ]; then
+		echo "customstart:$$:$myport:Failed to start a gpfdist process" >> $mylog
+	fi
+	myport=0
+fi
+
+if [ "$mylog" != "" ]; then
+	echo "customstart:$$:$myport:done" >> $mylog
+fi
+
+echo $myport

@@ -1,18 +1,12 @@
 #!/bin/bash
 ############################################################################################################################
 #
-# Outsourcer stop script.
+# Outsourcer start script.
 #
 ############################################################################################################################
 set -e
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
-
-# cleanup orphaned lock file
-rm -rf $JOBLOCK
-
-# remove old job files
-rm -f job $JOBLOG*
 
 ############################################################################################################################
 #
@@ -22,16 +16,28 @@ rm -f job $JOBLOG*
 check=$(ps -ef 2> /dev/null | grep $OSJAR | grep ExternalDataD | grep -v grep | wc -l)
 
 if [ $check = 1 ]; then
-	echo Outsourcer has already started!
+	echo "Outsourcer has already started!"
 	exit 0
 fi
+
+echo "Starting Outsourcer..."
+
+# cleanup orphaned lock file
+echo "Removing lock file if present..."
+rm -rf $JOBLOCK
+
+echo "Removing old log files..."
+# remove old job files
+rm -f job $JOBLOG*
 
 ############################################################################################################################
 #
 # Start Outsourcer
 #
 ############################################################################################################################
-echo Starting Outsourcer Queue Daemon
+echo "Starting Outsourcer Queue Daemon..."
 
 nohup java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX ExternalDataD $CONFIG start > $OSLOG 2>&1 < $OSLOG &
-echo Outsourcer Queue Daemon started
+echo "Outsourcer Queue Daemon started."
+echo "Starting gpfdist for Custom SQL Tables"
+customstartall

@@ -21,68 +21,6 @@ public class CustomSQLModel
 	String gpfdistPort;
 	public static int maxColumns = 50;
 
-	public static void startAll() throws SQLException
-	{
-		String id = "";
-		String tableName = "";
-		String strColumn = "";
-		String strColumnDataType = "";
-		ArrayList<String> columns = new ArrayList<String>();
-		ArrayList<String> columnDataTypes = new ArrayList<String>();
-		String sqlText = "";
-		String sourceType = "";
-		String sourceServerName = "";
-		String sourceInstanceName = "";
-		String sourcePort = "";
-		String sourceDatabaseName = "";
-		String sourceUserName = "";
-		String sourcePass = "";
-		int gpfdistPort = 0;
-		int columnCount = 0;
-
-		try
-		{
-			String strSQL = "SELECT id, table_name, columns, column_datatypes, sql_text,\n";
-			strSQL += "source_type, source_server_name, source_instance_name, source_port, source_database_name, source_user_name, source_pass\n";
-			strSQL += "array_upper(columns, 1) as column_count\n";
-			strSQL += "FROM os.custom_sql";
-
-			ResultSet rs = OutsourcerModel.getResults(strSQL);
-			while (rs.next())
-			{
-				id = rs.getString(1);
-				tableName = rs.getString(2);
-				strColumn = rs.getString(3);
-				strColumnDataType = rs.getString(4);
-				sqlText = rs.getString(5);
-				sourceType = rs.getString(6);
-				sourceServerName = rs.getString(7);
-				sourceInstanceName = rs.getString(8);
-				sourcePort = rs.getString(9);
-				sourceDatabaseName = rs.getString(10);
-				sourceUserName = rs.getString(11);
-				sourcePass = rs.getString(12);
-				columnCount = rs.getInt(13);
-
-				for (int i=0; i <= columnCount; i++)
-				{
-					if (strColumn != null && !strColumn.equals(""))
-					{
-						columns.add(strColumn);
-						columnDataTypes.add(strColumnDataType);
-					}
-				}
-	
-				updateTable(id, tableName, columns, columnDataTypes, sqlText, sourceType, sourceServerName, sourceInstanceName, sourcePort, sourceDatabaseName, sourceUserName, sourcePass);
-			}
-
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException(ex.getMessage());
-		}
-	}
-
 	public static ResultSet getList(String search, String limit, String offset, String sortBy, String sort) throws SQLException
 	{
 		String strSQL = "SELECT '<button onclick=\"updateCustomSQL(''' || id || ''', ''update'')\">Update</button>' ||\n";

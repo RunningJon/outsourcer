@@ -18,4 +18,6 @@ if [ $pid ]; then
 	kill $pid
 fi
 
-echo Outsourcer UI has been stopped
+echo "Outsourcer UI has been stopped"
+
+gpfdiststop

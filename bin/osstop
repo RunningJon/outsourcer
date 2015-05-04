@@ -8,6 +8,7 @@ set -e
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
 
+echo "Stopping Outsourcer..."
 java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX ExternalDataD $CONFIG stop >> $OSLOG
 
 # find the pid for Outsourcer and kill it
@@ -22,4 +23,12 @@ fi
 # cleanup orphaned lock file
 rm -rf $JOBLOCK
 
-echo Outsourcer Queue Daemon has been stopped
+echo "Outsourcer Queue Daemon has been stopped"
+
+# remove orphaned gpfdist processes from jobs
+
+echo "Stopping orphaned gpfdist processes from jobs"
+jobstopall
+
+echo "Stopping gpfdist processes for custom tables"
+customstopall
