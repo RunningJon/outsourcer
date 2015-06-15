@@ -2,6 +2,7 @@ import java.util.Map;
 import java.util.Random;
 import java.sql.*;
 import java.util.Date;
+import java.util.TimeZone;
 import java.text.SimpleDateFormat;
 import java.io.File;
 import java.io.FileWriter;
@@ -43,6 +44,7 @@ public class UIModel
 		try
 		{
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String expireDate = sdf.format(new Date(System.currentTimeMillis()+15*60*1000));
 
 			File file = new File(UI.sessions);
@@ -112,7 +114,7 @@ public class UIModel
 			Statement stmt = conn.createStatement();
 
 			//make sure session is valid
-			String strSQL = "SELECT session_id FROM os.sessions WHERE session_id = " + sessionID + " AND expire_date > current_timestamp LIMIT 1";
+			String strSQL = "SELECT session_id FROM os.sessions WHERE session_id = " + sessionID + " AND expire_date > current_timestamp AT TIME ZONE 'UTC' LIMIT 1";
 			ResultSet rs = stmt.executeQuery(strSQL);
 			while (rs.next())
 			{

@@ -1,1 +1,1 @@
-os_version=5.0.5
+os_version=5.0.6
