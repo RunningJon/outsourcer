@@ -587,7 +587,7 @@ public class CommonDB
 
 						//Oracle has the DATE data type (SQL Server has date and datetime)
 						//The range for Oracle DATE is January 1, 4712 BCE through December 31, 4712 CE 
-						if (rsmd.getColumnTypeName(i) == "DATE" ) 
+						if (rsmd.getColumnTypeName(i) == "DATE" || rsmd.getColumnTypeName(i) == "TIMESTAMP" ) 
 						{
 							columnValue = df.format(rs.getTimestamp(i));
 						}
