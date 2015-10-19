@@ -148,6 +148,7 @@ public class CommonDB
                         if (debug)
                                 Logger.printMsg("Executing SQL: " + strSQL);
 
+			location = 2050;
                         //Get Column names
                         String columnName = "";
                         String dataType = "";
@@ -176,15 +177,32 @@ public class CommonDB
 
 			location = 3000;
 			//set the Append-Only, Compression, and Orientation
+
 			if (targetAppendOnly)
 			{
 				output += "WITH (APPENDONLY=TRUE";
-				if (targetCompressed)
-					output += ", COMPRESSTYPE=quicklz";
-				if (targetRowOrientation)
-					output += ", ORIENTATION=row";
-				else
-					output += ", ORIENTATION=column";
+				if (ExternalDataD.dbVersion.equals("HAWQ"))
+				{
+					if (targetCompressed)
+					{
+						if (targetRowOrientation)
+							output += ", COMPRESSTYPE=quicklz";
+						else
+							output += ", COMPRESSTYPE=snappy";
+					}
+					if (targetRowOrientation)
+						output += ", ORIENTATION=row";
+					else
+						output += ", ORIENTATION=parquet";
+				} else if (ExternalDataD.dbVersion.equals("GPDB"))
+				{
+					if (targetCompressed)
+						output += ", COMPRESSTYPE=quicklz";
+					if (targetRowOrientation)
+						output += ", ORIENTATION=row";
+					else
+						output += ", ORIENTATION=column";
+				}
 				output += ")\n";
 
 			}

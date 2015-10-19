@@ -7,6 +7,7 @@ public class ExternalDataD
 	private static String myclass = "ExternalDataD";
 	public static boolean debug = true;
 	public static String configFile = "";
+	public static String dbVersion = "GPDB";
 
 	public static void main(String[] args) throws Exception
 	{
@@ -26,6 +27,7 @@ public class ExternalDataD
 			{
 				Connection conn = CommonDB.connectGP(configFile);
 				GP.cancelJobs(conn);
+				dbVersion = GP.getVersion(conn);
 				conn.close();
 				loadLoop();
 			} 

@@ -9,6 +9,42 @@ public class GP
 	public static boolean debug = false;
 	public static String externalSchema = "ext";
 
+	public static String getVersion(Connection conn) throws SQLException 
+	{
+		String method = "getVersion";
+		int location = 1000;
+		try
+		{
+			location = 2000;
+			String value = "";
+
+			location = 2100;
+			Statement stmt = conn.createStatement();
+			String strSQL = "SELECT CASE WHEN POSITION ('HAWQ' IN ver) > 0 THEN 'HAWQ' " + 
+					"WHEN POSITION ('Greenplum' IN ver) > 0 THEN 'GPDB' END " + 
+					"FROM version() AS ver";
+
+			if (debug)
+				Logger.printMsg("Getting Variable: " + strSQL);
+		
+			location = 2200;	
+			ResultSet rs = stmt.executeQuery(strSQL);
+
+			while (rs.next())
+			{
+				value = rs.getString(1);
+			}
+
+			location = 2300;
+			return value;
+
+		}
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+	}
+	
 	public static void customStartAll(Connection conn) throws SQLException
 	{
 		String method = "customStartAll";
@@ -111,21 +147,6 @@ public class GP
 				strSQL = "SELECT os.fn_cancel_job(" + jobId + ")";
 				rs = stmt.executeQuery(strSQL);
 			}	
-		}
-		catch (SQLException ex)
-		{
-			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-		}
-	}
-	public static void vacuumAnalyzeTable(Connection conn, String tableName) throws SQLException
-	{
-		String method = "vacuumAnalyzeTable";
-		int location = 1000;
-		try
-		{
-			String strSQL = "VACUUM ANALYZE " + tableName;
-			Statement stmt = conn.createStatement();
-			stmt.executeUpdate(strSQL);
 		}
 		catch (SQLException ex)
 		{
