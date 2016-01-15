@@ -7,7 +7,7 @@
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/../os_path.sh
 
-
+LANG="en_US.UTF-8"
 ############################################################################################################################
 # External Tables using TRANSFORM with gpfdist
 # single parameter is passed to script so this is parsed
@@ -20,8 +20,8 @@ parm5=`echo $1 | awk -F '+' '{print $5}'`
 
 if [ "$parm5" != "" ]; then
 	#Outsourcer built tables have 5 parameters
-	java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX -Djava.security.egd=file:/dev/./urandom ExternalData "$parm1" "$parm2" "$parm3" "$parm4" "$parm5"
+	java -Dfile.encoding=UTF8 -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX -Djava.security.egd=file:/dev/./urandom ExternalData "$parm1" "$parm2" "$parm3" "$parm4" "$parm5"
 else
 	#User defined custom external tables have 2 parameters	
-	java -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX -Djava.security.egd=file:/dev/./urandom ExternalData "$parm1" "$parm2"
+	java -Dfile.encoding=UTF8 -classpath $OSCLASSPATH -Xms$XMS -Xmx$XMX -Djava.security.egd=file:/dev/./urandom ExternalData "$parm1" "$parm2" 
 fi

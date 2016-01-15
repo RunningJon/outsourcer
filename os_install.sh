@@ -315,22 +315,6 @@ echo "##########################################################################
 
 cd $OSHOME/sql
 
-psql -c "DROP EXTERNAL TABLE IF EXISTS os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
-psql -f 00_os_installer_test.sql -v EXECUTE="'ping -c 1 -W 1 $osserver 2>&1 | grep transmitted | awk -F '','' ''{ print \$2 }'' | awk -F '' '' ''{ print \$1 }''' " -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
-
-t=`psql -A -t -c "SELECT SUM(foo)/COUNT(*) FROM os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport`
-if [ $t -gt 0 ]; then
-	echo "Network connectivity test passed!"
-	echo ""
-else
-	echo "This host is not accessible by the segment hosts / data nodes."
-	echo "Hostname: $osserver"
-	echo "##############################################################################################"
-	echo "Installation failed!"
-	echo "##############################################################################################"
-	exit 1
-fi
-psql -c "DROP EXTERNAL TABLE IF EXISTS os_installer_test" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 echo ""
 echo "##############################################################################################"
 echo "Install database components"
