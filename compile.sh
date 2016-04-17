@@ -9,7 +9,8 @@ echo "Created-By: 1.6.0_65-b14-462-11M4609" >> manifest.txt
 d=`date`
 echo "Build-Date: $d" >> manifest.txt
 
-javac -cp .:jar/gpdb.jar *.java
+#javac -cp .:jar/gpdb.jar *.java
+javac -Xbootclasspath:/usr/java/jdk1.6.0_45/jre/lib/rt.jar -source 1.6 -target 1.6 -cp .:jar/gpdb.jar *.java 
 jar cfm jar/Outsourcer.jar manifest.txt Logger.class CommonDB.class Oracle.class SQLServer.class ExternalData.class CustomSQL.class GP.class ExternalDataD.class ExternalDataThread.class OSProperties.class GpfdistRunner.class
 jar cfm jar/OutsourcerUI.jar manifest.txt *Model.class *View.class *Control.class UI*.class ServerRunnerUI.class
 jar cfm jar/OutsourcerScheduler.jar manifest.txt AgentD.class
