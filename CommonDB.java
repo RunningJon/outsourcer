@@ -104,29 +104,29 @@ public class CommonDB
 		try
 		{
 			location = 2000;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2100;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
 			location = 2200;
-                        String columnSQL = "";
+			String columnSQL = "";
 
 			location = 2300;
-                        while (rs.next())
-                        {
+			while (rs.next())
+			{
 
 				location = 3000;
-                                //Create the list of columns for a SQL statement below
-                                if (columnSQL == "")
-                                {
-                                        columnSQL = rs.getString(1);
-                                }
-                                else
-                                {
-                                        columnSQL = columnSQL + ", " + rs.getString(1);
-                                }
-                        }
+				//Create the list of columns for a SQL statement below
+				if (columnSQL == "")
+				{
+					columnSQL = rs.getString(1);
+				}
+				else
+				{
+					columnSQL = columnSQL + ", " + rs.getString(1);
+				}
+			}
 		
 			location = 3500;	
 			return columnSQL;
@@ -137,43 +137,43 @@ public class CommonDB
 		}
 	}
 
-        public static String getGPCreateTableDDL(Connection conn, String targetSchema, String targetTable, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String strSQL) throws SQLException
-        {
+	public static String getGPCreateTableDDL(Connection conn, String targetSchema, String targetTable, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation, String strSQL) throws SQLException
+	{
 		String method = "getGPCreateTableDDL";
 		int location = 1000;
 
-                try
-                {
+		try
+		{
 			location = 2000;
-                        if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+			if (debug)
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2050;
-                        //Get Column names
-                        String columnName = "";
-                        String dataType = "";
+			//Get Column names
+			String columnName = "";
+			String dataType = "";
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
-                        ResultSet rs = stmt.executeQuery(strSQL);
-                        String output = "";
+			ResultSet rs = stmt.executeQuery(strSQL);
+			String output = "";
 
 			location = 2300;
-                        while (rs.next())
-                        {
-                                columnName = rs.getString(1);
-                                dataType  = rs.getString(2);
+			while (rs.next())
+			{
+				columnName = rs.getString(1);
+				dataType  = rs.getString(2);
 
-                                if (rs.getRow() == 1)
-                                        output = "CREATE TABLE \"" + targetSchema + "\".\"" + targetTable + "\" \n" +
-                                                 "(\"" + columnName + "\" " + dataType + " null";
-                                else
-                                        output = output + ", \n" +
-                                                "\"" + columnName + "\" " + dataType + " null";
-                        }
-                        output = output + ")\n";
+				if (rs.getRow() == 1)
+					output = "CREATE TABLE \"" + targetSchema + "\".\"" + targetTable + "\" \n" +
+						 "(\"" + columnName + "\" " + dataType + " null";
+				else
+					output = output + ", \n" +
+						"\"" + columnName + "\" " + dataType + " null";
+			}
+			output = output + ")\n";
 
 			location = 3000;
 			//set the Append-Only, Compression, and Orientation
@@ -207,59 +207,59 @@ public class CommonDB
 
 			}
 			return output;
-                }
+		}
 
-                catch (SQLException ex)
-                {
+		catch (SQLException ex)
+		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-                }
+		}
 
-        }
+	}
 
 	private static String getDistributionDDL(Connection conn, String targetSchema, String targetTable, String strSQL) throws SQLException
 	{
 		String method = "getDistributionDDL";
 		int location = 1000;
 
-                try
-                {
+		try
+		{
 			location = 2000;
-                        if (debug)
-                                Logger.printMsg("Execting SQL: " + strSQL);
+			if (debug)
+				Logger.printMsg("Execting SQL: " + strSQL);
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
 			location = 2300;
-                        String columnName = "";
-                        String distributedBy = "";
-                        String output = "";
+			String columnName = "";
+			String distributedBy = "";
+			String output = "";
 
 			location = 2400;
-                        while (rs.next())
-                        {
-                                columnName = rs.getString(1);
+			while (rs.next())
+			{
+				columnName = rs.getString(1);
 
-                                if (rs.getRow() == 1)
-                                {
-                                        distributedBy = "DISTRIBUTED BY (" + columnName;
-                                }
-                                else
-                                {
-                                        distributedBy = distributedBy + ", " + columnName;
-                                }
-                        }
+				if (rs.getRow() == 1)
+				{
+					distributedBy = "DISTRIBUTED BY (" + columnName;
+				}
+				else
+				{
+					distributedBy = distributedBy + ", " + columnName;
+				}
+			}
 			if (!(distributedBy.equals("")))
-                        {
-                                distributedBy = distributedBy + "); \n";
-                        }
-                        else
-                        {
-                                distributedBy = "DISTRIBUTED RANDOMLY; \n";
-                        }
+			{
+				distributedBy = distributedBy + "); \n";
+			}
+			else
+			{
+				distributedBy = "DISTRIBUTED RANDOMLY; \n";
+			}
 
 			location = 3000;
 			output = distributedBy;
@@ -267,23 +267,23 @@ public class CommonDB
 			location = 3100;
 			return output;
 			
-                }
+		}
 
-                catch (SQLException ex)
-                {
-                        //throw ex;
+		catch (SQLException ex)
+		{
+			//throw ex;
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-                }
+		}
 
-        }
+	}
 	public static String getGPTableDDL(String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass, String targetSchema, String targetTable, boolean targetAppendOnly, boolean targetCompressed, boolean targetRowOrientation) throws Exception
-        {
-                String method = "GetGPTableDDL";
-                int location = 1000;
+	{
+		String method = "GetGPTableDDL";
+		int location = 1000;
 		Connection conn = null;
 
-                try
-                {
+		try
+		{
 			String strSQL = "";
 			String output = "";
 
@@ -340,18 +340,18 @@ public class CommonDB
 			//output the DDL for the table to be created in GP
 			location = 5000;
 			return output;
-                }
+		}
 
-                catch (SQLException ex)
-                {
-                        throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-                }
+		catch (SQLException ex)
+		{
+			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
 		finally 
 		{
 			if (conn != null) 
 				conn.close();
 		}
-        }
+	}
 
 	public static boolean checkSourceReplObjects(String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass, String columnName) throws Exception
 	{
@@ -450,7 +450,7 @@ public class CommonDB
 		}
 	}
 
-	public static int getReplMaxId(String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass, String columnName) throws Exception
+	public static String getReplMaxId(String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass, String columnName) throws Exception
 	{	
 		String method = "getReplMaxId";
 		int location = 1000;
@@ -461,7 +461,7 @@ public class CommonDB
 			location = 2000;
 			String replTable = GP.getReplTableName(sourceType, sourceTable);
 
-			int maxId = -1;
+			String maxId = "-1";
 
 			if (sourceType.equals("sqlserver"))
 			{
@@ -505,7 +505,7 @@ public class CommonDB
 
 	}
 
-	public static int getMaxId(String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass, String columnName) throws Exception
+	public static String getMaxId(String sourceType, String sourceServer, String sourceInstance, int sourcePort, String sourceDatabase, String sourceSchema, String sourceTable, String sourceUser, String sourcePass, String columnName) throws Exception
 	{
 		String method = "getMaxId";
 		int location = 1000;
@@ -514,7 +514,7 @@ public class CommonDB
 		try
 		{
 			location = 2000;
-			int maxId = -1;
+			String maxId = "-1";
 
 			if (sourceType.equals("sqlserver"))
 			{
@@ -558,50 +558,50 @@ public class CommonDB
 
 	}
 
-        public static void outputData(Connection conn, String strSQL) throws SQLException
-        {
+	public static void outputData(Connection conn, String strSQL) throws SQLException
+	{
 		String method = "outputData";
 		int location = 1000;
 
-                try
-                {
+		try
+		{
 			location = 2000;
-                        if (debug)
-                                Logger.printMsg("Execting SQL: " + strSQL);
+			if (debug)
+				Logger.printMsg("Execting SQL: " + strSQL);
 
-                        Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-                        ResultSet rs = stmt.executeQuery(strSQL);
-                        ResultSetMetaData rsmd = rs.getMetaData();
-                        int numberOfColumns = rsmd.getColumnCount();
+			Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int numberOfColumns = rsmd.getColumnCount();
 
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-                        String output;
-                        String columnValue = "";
+			String output;
+			String columnValue = "";
 
 			location = 2500;
-                        while (rs.next())
-                        {
-                                output="";
-                                // Get the column names; column indices start from 1
-                                for (int i=1; i<numberOfColumns+1; i++)
-                                {
+			while (rs.next())
+			{
+				output="";
+				// Get the column names; column indices start from 1
+				for (int i=1; i<numberOfColumns+1; i++)
+				{
 
 					//Extra try/catch block because of an Oracle problem at Virgin Airlines.  
 					//Getting an "ArrayIndexOutOfBoundsException" error which might be caused by the Oracle JDBC driver
 					try
 					{
-                                      		columnValue = rs.getString(i);
+				      		columnValue = rs.getString(i);
 					}
 					catch (Exception e)
 					{
 						columnValue = (String) rs.getObject(i);
 					}
 
-                                        if (columnValue != null)
-                                        {
-                        			if (debug)
-                                			Logger.printMsg(rsmd.getColumnName(i) + ":" + rsmd.getColumnTypeName(i) + ":" + i + ":" + columnValue);
+					if (columnValue != null)
+					{
+						if (debug)
+							Logger.printMsg(rsmd.getColumnName(i) + ":" + rsmd.getColumnTypeName(i) + ":" + i + ":" + columnValue);
 
 						//Oracle has the DATE data type (SQL Server has date and datetime)
 						//The range for Oracle DATE is January 1, 4712 BCE through December 31, 4712 CE 
@@ -610,30 +610,30 @@ public class CommonDB
 							columnValue = df.format(rs.getTimestamp(i));
 						}
 
-                                        	//Filter out \ and | from the columnValue for not null records.  the rest will default to "null"
-                                                columnValue = columnValue.replace("\\", "\\\\");
-                                                columnValue = columnValue.replace("|", "\\|");
-                                                columnValue = columnValue.replace("\r", " ");
-                                                columnValue = columnValue.replace("\n", " ");
-                                                columnValue = columnValue.replace("\0", "");
-                                        }
+						//Filter out \ and | from the columnValue for not null records.  the rest will default to "null"
+						columnValue = columnValue.replace("\\", "\\\\");
+						columnValue = columnValue.replace("|", "\\|");
+						columnValue = columnValue.replace("\r", " ");
+						columnValue = columnValue.replace("\n", " ");
+						columnValue = columnValue.replace("\0", "");
+					}
 
-                                        if (i == 1)
-                                                output = columnValue;
-                                        else
-                                                output = output + "|" + columnValue;
-                                }
+					if (i == 1)
+						output = columnValue;
+					else
+						output = output + "|" + columnValue;
+				}
 
-                                System.out.println(output);
-                        }
-                }
+				System.out.println(output);
+			}
+		}
 
-                catch (SQLException ex)
-                {
+		catch (SQLException ex)
+		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-                }
+		}
 
-        }
+	}
 
 	public static Connection connectSQLServer(String sourceServer, String sourceInstance, String sourceUser, String sourcePass) throws Exception
 	{
@@ -642,12 +642,12 @@ public class CommonDB
 
 		try
 		{
-                        if (debug)
-                                Logger.printMsg("try");
+			if (debug)
+				Logger.printMsg("try");
 			location = 2000;
 			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                        if (debug)
-                                Logger.printMsg("loaded classforname");
+			if (debug)
+				Logger.printMsg("loaded classforname");
 
 			String connectionUrl = null;
 
@@ -671,12 +671,12 @@ public class CommonDB
 				connectionUrl = "jdbc:sqlserver://" + sourceServer + ";CODEPAGE=65001;responseBuffering=adaptive;selectMethod=cursor;";
 			}
 
-                        if (debug)
-                                Logger.printMsg("connectionUrl: " + connectionUrl);
+			if (debug)
+				Logger.printMsg("connectionUrl: " + connectionUrl);
 			
 			location = 6000;
-                        if (debug)
-                                Logger.printMsg("attempting to connect");
+			if (debug)
+				Logger.printMsg("attempting to connect");
 
 			Connection conn = DriverManager.getConnection(connectionUrl, sourceUser, sourcePass);
 

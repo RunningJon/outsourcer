@@ -24,15 +24,15 @@ public class SQLServer
 					"WHERE name = '" + sourceDatabase + "' \n" + 
 					"     AND is_read_committed_snapshot_on = 1";
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2200;
 			Statement stmt = conn.createStatement();
 
 			location = 2300;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
-                        while (rs.next())
+			while (rs.next())
 			{
 				level = "COMMITTED";
 			}
@@ -62,7 +62,7 @@ public class SQLServer
 					"     AND DATA_TYPE NOT IN ('binary', 'image', 'timestamp', 'xml', 'varbinary', 'text', 'ntext', 'sql_variant') \n" +
 					"ORDER BY ORDINAL_POSITION";
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2200;
 			return strSQL;
@@ -73,7 +73,7 @@ public class SQLServer
 		}
 	}
 
-	public static String getSQLForData(Connection conn, String sourceDatabase, String sourceSchema, String sourceTable, String refreshType, String appendColumnName, int appendColumnMax) throws SQLException 
+	public static String getSQLForData(Connection conn, String sourceDatabase, String sourceSchema, String sourceTable, String refreshType, String appendColumnName, String appendColumnMax) throws SQLException 
 	{
 		String method = "getSQLForData";
 		int location = 1000;
@@ -96,7 +96,7 @@ public class SQLServer
 			strSQL = strSQL + "SELECT " + columnSQL + "\n " +
 				"FROM [" + sourceDatabase + "].[" + sourceSchema + "].[" + sourceTable + "] \n";
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 			
 			//Add filter for append refreshType
 			if (debug)
@@ -106,11 +106,20 @@ public class SQLServer
 			if (refreshType.equals("append"))
 			{
 				location = 2500;
-				strSQL = strSQL + "WHERE \"" + appendColumnName + "\" > " + appendColumnMax;  //greater than what is in GP currently
+				//check to see if appendColumnMax is numeric or not
+				try 
+				{
+					double d = Double.parseDouble(appendColumnMax);
+					strSQL = strSQL + "WHERE \"" + appendColumnName + "\" > " + appendColumnMax;  //greater than what is in GP currently
+				}
+				catch(NumberFormatException nfe)
+				{
+					strSQL = strSQL + "WHERE \"" + appendColumnName + "\" > '" + appendColumnMax + "'";  //greater than what is in GP currently
+				}
 			}
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2600;
 			return strSQL;
@@ -129,43 +138,43 @@ public class SQLServer
 		try
 		{
 			location = 2000;
-                        String strSQL = "SELECT sub.column_name, \n" +
-                        	        "     CASE WHEN sub.datatype = 'char' THEN 'character' \n" +
-                                        "          WHEN sub.datatype = 'nchar' THEN 'character' \n" +
-                                        "          WHEN sub.datatype = 'datetime' THEN 'timestamp' \n" +
-                                        "          WHEN sub.datatype = 'datetime2' THEN 'timestamp' \n" +
-                                        "          WHEN sub.datatype = 'datetimeoffset' THEN 'timestamptz' \n" +
-                                        "          WHEN sub.datatype = 'decimal' THEN 'numeric' \n" +
-                                        "          WHEN sub.datatype = 'float' THEN 'float8' \n" +
-                                        "          WHEN sub.datatype = 'real' THEN 'float8' \n" +
-                                        "          WHEN sub.datatype = 'int' THEN 'integer' \n" +
-                                        "          WHEN sub.datatype = 'bit' THEN 'boolean' \n" +
-                                        "          WHEN sub.datatype = 'nvarchar' THEN 'varchar' \n" +
-                                        "          WHEN sub.datatype = 'smalldatetime' THEN 'timestamp' \n" +
-                                        "          WHEN sub.datatype = 'smallmoney' THEN 'numeric' \n" +
-                                        "          WHEN sub.datatype = 'money' THEN 'numeric' \n" +
-                                        "          WHEN sub.datatype = 'sysname' THEN 'varchar' \n" +
-                                        "          WHEN sub.datatype = 'tinyint' THEN 'smallint' \n" +
-                                        "          WHEN sub.datatype = 'uniqueidentifier' THEN 'varchar(36)' \n" +
-                                        "          ELSE sub.datatype END + CASE WHEN sub.datatype in ('nchar', 'char', 'varchar', 'nvarchar', 'sysname') \n" +
-				  	"                                       AND sub.length <> -1 THEN '(' + cast(sub.length as varchar) + ')' \n" +
-                                        "                                       ELSE '' END as datatype \n" +
-                                        "FROM (SELECT REPLACE(REPLACE(LOWER(sc.name), '\"', ''), '.', '_') column_name, \n" +
-					"             st.name as datatype, \n" + 
-                                        "             sc.max_length as length, \n" +
-                                        "             sc.column_id \n" +
-                                        "      FROM [" + sourceDatabase + "].sys.objects so \n" +
-                                        "      JOIN [" + sourceDatabase + "].sys.columns sc ON so.object_id = sc.object_id \n" +
-                                        "      JOIN [" + sourceDatabase + "].sys.schemas su ON so.schema_id = su.schema_id \n" +
-                                        "      JOIN [" + sourceDatabase + "].sys.types st ON sc.system_type_id = st.system_type_id AND st.system_type_id = st.user_type_id \n" +
-                                        "      WHERE so.type in ('U', 'V') \n" +
-                                        "          AND su.name = '" + sourceSchema + "' \n" +
-                                        "          AND so.name = '" + sourceTable + "' ) sub \n" +
-                                        "WHERE sub.datatype not in ('binary', 'image', 'timestamp', 'xml', 'varbinary', 'text', 'ntext', 'sql_variant', 'hierarchyid') \n" +
-                                        "ORDER BY sub.column_id";
+			String strSQL = "SELECT sub.column_name, \n" +
+					"     CASE WHEN sub.datatype = 'char' THEN 'character' \n" +
+					"	  WHEN sub.datatype = 'nchar' THEN 'character' \n" +
+					"	  WHEN sub.datatype = 'datetime' THEN 'timestamp' \n" +
+					"	  WHEN sub.datatype = 'datetime2' THEN 'timestamp' \n" +
+					"	  WHEN sub.datatype = 'datetimeoffset' THEN 'timestamptz' \n" +
+					"	  WHEN sub.datatype = 'decimal' THEN 'numeric' \n" +
+					"	  WHEN sub.datatype = 'float' THEN 'float8' \n" +
+					"	  WHEN sub.datatype = 'real' THEN 'float8' \n" +
+					"	  WHEN sub.datatype = 'int' THEN 'integer' \n" +
+					"	  WHEN sub.datatype = 'bit' THEN 'boolean' \n" +
+					"	  WHEN sub.datatype = 'nvarchar' THEN 'varchar' \n" +
+					"	  WHEN sub.datatype = 'smalldatetime' THEN 'timestamp' \n" +
+					"	  WHEN sub.datatype = 'smallmoney' THEN 'numeric' \n" +
+					"	  WHEN sub.datatype = 'money' THEN 'numeric' \n" +
+					"	  WHEN sub.datatype = 'sysname' THEN 'varchar' \n" +
+					"	  WHEN sub.datatype = 'tinyint' THEN 'smallint' \n" +
+					"	  WHEN sub.datatype = 'uniqueidentifier' THEN 'varchar(36)' \n" +
+					"	  ELSE sub.datatype END + CASE WHEN sub.datatype in ('nchar', 'char', 'varchar', 'nvarchar', 'sysname') \n" +
+				  	"				       AND sub.length <> -1 THEN '(' + cast(sub.length as varchar) + ')' \n" +
+					"				       ELSE '' END as datatype \n" +
+					"FROM (SELECT REPLACE(REPLACE(LOWER(sc.name), '\"', ''), '.', '_') column_name, \n" +
+					"	     st.name as datatype, \n" + 
+					"	     sc.max_length as length, \n" +
+					"	     sc.column_id \n" +
+					"      FROM [" + sourceDatabase + "].sys.objects so \n" +
+					"      JOIN [" + sourceDatabase + "].sys.columns sc ON so.object_id = sc.object_id \n" +
+					"      JOIN [" + sourceDatabase + "].sys.schemas su ON so.schema_id = su.schema_id \n" +
+					"      JOIN [" + sourceDatabase + "].sys.types st ON sc.system_type_id = st.system_type_id AND st.system_type_id = st.user_type_id \n" +
+					"      WHERE so.type in ('U', 'V') \n" +
+					"	  AND su.name = '" + sourceSchema + "' \n" +
+					"	  AND so.name = '" + sourceTable + "' ) sub \n" +
+					"WHERE sub.datatype not in ('binary', 'image', 'timestamp', 'xml', 'varbinary', 'text', 'ntext', 'sql_variant', 'hierarchyid') \n" +
+					"ORDER BY sub.column_id";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2100;
 			return strSQL;
@@ -197,7 +206,7 @@ public class SQLServer
 					"	AND i.is_primary_key = 1 \n" +
 					"ORDER BY ic.key_ordinal";
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2100;
 			return strSQL;
@@ -224,35 +233,35 @@ public class SQLServer
 			Statement stmt = conn.createStatement();
 
 			location = 2300;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
 			location = 2400;
-                        while (rs.next())
+			while (rs.next())
 			{
 				msg = "Success!";
 			}
 
 			location = 2500;
 			return msg;
-                }
+		}
 
-                catch (SQLException ex)
-                {
+		catch (SQLException ex)
+		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-                }
+		}
 
-        }
+	}
 
-	public static int getMaxId(Connection conn, String sourceDatabase, String sourceSchema, String sourceTable, String columnName) throws SQLException
+	public static String getMaxId(Connection conn, String sourceDatabase, String sourceSchema, String sourceTable, String columnName) throws SQLException
 	{
 		String method = "getMaxId";
 		int location = 1000;
 
 		try
 		{
-                
+		
 			location = 2000;
-			int maxId = -1;
+			String maxId = "-1";
 			String strSQL = getSQLInject(conn, sourceDatabase);
 
 			location = 2100;
@@ -263,24 +272,28 @@ public class SQLServer
 			Statement stmt = conn.createStatement();
 
 			location = 2300;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
 			location = 2400;
-                        while (rs.next())
+			while (rs.next())
 			{
-				maxId = rs.getInt(1);
+				maxId = rs.getString(1);
 			}
 
 			location = 2500;
+			if (maxId == null)
+			{
+				maxId = "-1";
+			}
 			return maxId;
-                }
+		}
 
-                catch (SQLException ex)
-                {
+		catch (SQLException ex)
+		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-                }
+		}
 
-        }
+	}
 
 	public static void configureReplication(Connection conn, String sourceDatabase, String sourceSchema, String sourceTable, String appendColumnName) throws SQLException 
 	{
@@ -299,11 +312,11 @@ public class SQLServer
 			//4. create triggers
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			String strSQL = "USE [" + sourceDatabase + "]";
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2200;
 			stmt.executeUpdate(strSQL);
@@ -312,48 +325,48 @@ public class SQLServer
 			//1.  drop triggers if exists
 			/////////////////////////////
 			location = 3100;
-                        strSQL = "IF EXISTS (SELECT NULL FROM [" + sourceDatabase + "].[sys].[objects] \n" +
+			strSQL = "IF EXISTS (SELECT NULL FROM [" + sourceDatabase + "].[sys].[objects] \n" +
 				"WHERE name = 'T_" + replTable + "_I' AND type = 'TR') \n " + 
 				"	DROP TRIGGER [" + sourceSchema + "].[T_" + replTable + "_I]";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 3200;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 
 			location = 3300;
-                        strSQL = "IF EXISTS (SELECT NULL FROM [" + sourceDatabase + "].[sys].[objects] \n" +
+			strSQL = "IF EXISTS (SELECT NULL FROM [" + sourceDatabase + "].[sys].[objects] \n" +
 				"WHERE name = 'T_" + replTable + "_U' AND type = 'TR') \n " + 
 				"	DROP TRIGGER [" + sourceSchema + "].[T_" + replTable + "_U] \n";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 3400;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 
 			location = 3500;
-                        strSQL = "IF EXISTS (SELECT NULL FROM [" + sourceDatabase + "].[sys].[objects] \n" +
+			strSQL = "IF EXISTS (SELECT NULL FROM [" + sourceDatabase + "].[sys].[objects] \n" +
 				"WHERE name = 'T_" + replTable + "_D' AND type = 'TR') \n " + 
 				"	DROP TRIGGER [" + sourceSchema + "].[T_" + replTable + "_D] \n";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 3600;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 
 			/////////////////////////////
 			//2. drop replTable if exists
 			/////////////////////////////
 			location = 4000;
-                        strSQL = "IF EXISTS (SELECT NULL FROM [" + sourceDatabase + "].[sys].[objects] \n" +
+			strSQL = "IF EXISTS (SELECT NULL FROM [" + sourceDatabase + "].[sys].[objects] \n" +
 				"WHERE object_id = OBJECT_ID(N'[" + sourceDatabase + "].[" + sourceSchema + "].[" + replTable + "]" + "') AND type = (N'U')) \n" +
 				"	DROP TABLE [" + sourceDatabase + "].[" + sourceSchema + "].[" + replTable + "]";
 
 			location = 4100;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 			
 			/////////////////////////////
 			//3. create replTable
@@ -377,23 +390,23 @@ public class SQLServer
 				"ORDER BY ORDINAL_POSITION";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
-                        //Get Column names
-                        String columnName = "";
-                        String attributes = "";
+			//Get Column names
+			String columnName = "";
+			String attributes = "";
 			String columns = "";
 
 			location = 5200;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
-                        while (rs.next())
-                        {
-                                columnName = rs.getString(1);
+			while (rs.next())
+			{
+				columnName = rs.getString(1);
 				attributes = rs.getString(2);
 
-                                if (rs.getRow() == 1)
-                                {
+				if (rs.getRow() == 1)
+				{
 					location = 5300;
 					strSQL = "CREATE TABLE [" + sourceDatabase + "].[" + sourceSchema + "].[" + replTable + "] \n" +
 						"([" + appendColumnName + "] bigint IDENTITY NOT NULL PRIMARY KEY, \n" +
@@ -402,23 +415,23 @@ public class SQLServer
 					strSQL = strSQL + "[" + columnName + "] " + attributes;
 
 					columns = "	[" + columnName + "]";
-                                }
+				}
 				else
 				{
 					strSQL = strSQL + ", \n [" + columnName + "] " + attributes;
 
 					columns = columns  + ", \n	[" + columnName + "]";
 				}
-                        }
+			}
 
 			location = 5400;
 			strSQL = strSQL + ");";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 5500;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 
 			/////////////////////////////
 			//4. create triggers
@@ -438,7 +451,7 @@ public class SQLServer
 				"END";
 			
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 6100;
 			stmt.executeUpdate(strSQL);
@@ -458,7 +471,7 @@ public class SQLServer
 				"END";
 			
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 7100;
 			stmt.executeUpdate(strSQL);
@@ -478,7 +491,7 @@ public class SQLServer
 				"END";
 			
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 8100;
 			stmt.executeUpdate(strSQL);
@@ -502,7 +515,7 @@ public class SQLServer
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 	
 			//SQL Server has three distinct triggers instead of just one
 			location = 2300;
@@ -516,13 +529,13 @@ public class SQLServer
 					"	AND trig.name in ('T_" + replTable + "_I', 'T_" + replTable + "_U', 'T_" + replTable + "_D')"; 
  
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2400;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
-                        while (rs.next())
-                        {
+			while (rs.next())
+			{
 				if (rs.getInt(1) == 3)
 				{
 					location = 2500;
@@ -543,7 +556,7 @@ public class SQLServer
 					"	AND TABLE_TYPE = 'BASE TABLE'";
  
 				if (debug)
-                	                Logger.printMsg("Executing SQL: " + strSQL);
+					Logger.printMsg("Executing SQL: " + strSQL);
 
 				location = 2800;
 				rs = stmt.executeQuery(strSQL);
@@ -575,7 +588,7 @@ public class SQLServer
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" +
@@ -583,7 +596,7 @@ public class SQLServer
 					"WHERE SCHEMA_NAME = '" + sourceSchema + "'";
 
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -618,7 +631,7 @@ public class SQLServer
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" +
@@ -627,7 +640,7 @@ public class SQLServer
 					"	AND TABLE_NAME = '" + sourceTable + "'";
 
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -662,7 +675,7 @@ public class SQLServer
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" +
@@ -672,7 +685,7 @@ public class SQLServer
 					"	AND COLUMN_NAME = '" + appendColumnName + "'";
 
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -707,7 +720,7 @@ public class SQLServer
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" +
@@ -717,7 +730,7 @@ public class SQLServer
 					"	AND COLUMN_NAME = '" + appendColumnName + "'";
 
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -754,7 +767,7 @@ public class SQLServer
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" + 
@@ -763,7 +776,7 @@ public class SQLServer
 					"    AND TABLE_SCHEMA = '" + sourceSchema + "' \n" +
 					"    AND TABLE_NAME = '" + sourceTable + "'";
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -798,7 +811,7 @@ public class SQLServer
 			String strSQL = "SELECT name FROM sys.databases WHERE HAS_DBACCESS(name) = 1 ORDER BY name";
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -823,7 +836,7 @@ public class SQLServer
 			String strSQL = "SELECT DISTINCT TABLE_SCHEMA FROM [" + sourceDatabase + "].INFORMATION_SCHEMA.TABLES ORDER BY TABLE_SCHEMA";
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -851,7 +864,7 @@ public class SQLServer
 					"ORDER BY TABLE_NAME";
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			ResultSet rs = stmt.executeQuery(strSQL);

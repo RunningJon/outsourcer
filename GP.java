@@ -725,7 +725,7 @@ public class GP
 		}
 	}
 
-	public static void createReplExternalTable(Connection conn, String osServer, String refreshType, String targetSchema, String targetTable, String sourceType, String sourceTable, int maxId, int queueId, int jobPort) throws SQLException 
+	public static void createReplExternalTable(Connection conn, String osServer, String refreshType, String targetSchema, String targetTable, String sourceType, String sourceTable, String maxId, int queueId, int jobPort) throws SQLException 
 	{
 		String method = "createReplExternalTable";
 		int location = 1000;
@@ -750,7 +750,7 @@ public class GP
 		}
 	}
 
-	public static void createExternalTable(Connection conn, String osServer, String refreshType, String sourceTable, String targetSchema, String targetTable, int maxId, int queueId, int jobPort) throws SQLException 
+	public static void createExternalTable(Connection conn, String osServer, String refreshType, String sourceTable, String targetSchema, String targetTable, String maxId, int queueId, int jobPort) throws SQLException 
 	{
 		String method = "createExternalTable";
 		int location = 1000;
@@ -799,8 +799,8 @@ public class GP
 			//Create location for External Table
 			////////////////////////////////////////////
 			location = 3000;
-			//sourceTable = sourceTable.replaceAll("\\$", "\\\\\\\\\\$");
-			//need to double check this
+			//replace space in the maxId because this could now be a date
+			maxId = maxId.replace(" ", "SPACE");
 
 			location = 3100;
 			String extLocation =    "LOCATION ('gpfdist://" + osServer + ":" + jobPort +
@@ -1002,7 +1002,7 @@ public class GP
 		}
 	}
 	
-	public static int getMax(Connection conn, String schema, String table, String columnName) throws SQLException
+	public static String getMax(Connection conn, String schema, String table, String columnName) throws SQLException
 	{
 		String method = "getMax";
 		int location = 1000;
@@ -1016,7 +1016,7 @@ public class GP
 			if (debug)
 				Logger.printMsg("Executing sql: " + strSQL);
 
-			int max = -1;
+			String max = "-1";
 
 			location = 2100;
 			Statement stmt = conn.createStatement();
@@ -1026,10 +1026,14 @@ public class GP
 
 			while (rs.next())
 			{
-				max = rs.getInt(1);	
+				max = rs.getString(1);	
 			}
 		
-			location = 2313;	
+			location = 2313;
+			if (max == null)
+			{
+				max = "-1";
+			}
 			return max;
 
 		}
@@ -1039,7 +1043,7 @@ public class GP
 		}
 	}
 	
-	public static int getArchMax(Connection conn, String targetSchema, String targetTable, String columnName) throws SQLException
+	public static String getArchMax(Connection conn, String targetSchema, String targetTable, String columnName) throws SQLException
 	{
 		String method = "getArchMax";
 		int location = 1000;
@@ -1050,7 +1054,7 @@ public class GP
 			String archTable = getArchTableName(targetSchema, targetTable);
 
 			location = 2100;
-			int max = getMax(conn, externalSchema, archTable, columnName);
+			String max = getMax(conn, externalSchema, archTable, columnName);
 
 			location = 2200;
 			return max;

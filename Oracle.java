@@ -23,7 +23,7 @@ public class Oracle
 					"	AND DATA_TYPE NOT IN ('BLOB', 'BFILE', 'RAW', 'LONG RAW', 'MLSLABEL', 'BFILE', 'XMLTYPE') \n" +
 					"ORDER BY COLUMN_ID";
 			if (debug)
-                                Logger.printMsg("Returning: " + strSQL);
+				Logger.printMsg("Returning: " + strSQL);
 
 			location = 2100;
 			return strSQL;
@@ -34,7 +34,7 @@ public class Oracle
 		}
 	}
 
-	public static String getSQLForData(Connection conn, String sourceSchema, String sourceTable, String refreshType, String appendColumnName, int appendColumnMax) throws SQLException 
+	public static String getSQLForData(Connection conn, String sourceSchema, String sourceTable, String refreshType, String appendColumnName, String appendColumnMax) throws SQLException 
 	{
 		String method = "getSQLForData";
 		int location = 1000;
@@ -62,11 +62,20 @@ public class Oracle
 			if (refreshType.equals("append"))
 			{
 				location = 2400;
-				strSQL = strSQL + "WHERE \"" + appendColumnName + "\" > " + appendColumnMax;  //greater than what is in GP currently
+				//check to see if appendColumnMax is numeric or not
+				try
+				{
+					double d = Double.parseDouble(appendColumnMax);
+					strSQL = strSQL + "WHERE \"" + appendColumnName + "\" > " + appendColumnMax;  //greater than what is in GP currently
+				}
+				catch(NumberFormatException nfe)
+				{
+					strSQL = strSQL + "WHERE \"" + appendColumnName + "\" > to_date('" + appendColumnMax + "', 'yyyy-mm-dd hh24:mi:ss')";  //greater than what is in GP currently
+				}
 			}
 
 			if (debug)
-                                Logger.printMsg("Returning: " + strSQL);
+				Logger.printMsg("Returning: " + strSQL);
 
 			location = 2500;
 			return strSQL;
@@ -85,7 +94,7 @@ public class Oracle
 		try
 		{
 			location = 2000;
-                        String strSQL = "SELECT REPLACE(REPLACE(LOWER(COLUMN_NAME), '\"', ''), '.', '_') AS COLUMN_NAME, \n" +
+			String strSQL = "SELECT REPLACE(REPLACE(LOWER(COLUMN_NAME), '\"', ''), '.', '_') AS COLUMN_NAME, \n" +
 					"CASE WHEN DATA_TYPE = 'BINARY_DOUBLE' THEN 'float8' \n" +
 		      			"     WHEN DATA_TYPE = 'BINARY_FLOAT' THEN 'float8' \n" + 
 		     			"     WHEN DATA_TYPE = 'NUMBER' THEN 'numeric' \n" + 
@@ -105,7 +114,7 @@ public class Oracle
 		      			"     WHEN DATA_TYPE LIKE 'INTERVAL%' THEN 'interval' \n" + 
 					"     ELSE DATA_TYPE end || \n" +
 					"     CASE WHEN DATA_TYPE IN ('CHAR', 'NCHAR', 'VARCHAR', 'VARCHAR2', 'NVARCHAR2', 'UROWID') THEN '(' || TO_CHAR(DATA_LENGTH) || ') ' \n " + 
-					"          ELSE ' ' END AS DATATYPE \n" +
+					"	  ELSE ' ' END AS DATATYPE \n" +
 					"FROM ALL_TAB_COLUMNS \n" + 
 					"WHERE TABLE_NAME = '" + sourceTable + "' \n" + 
 					"     AND OWNER = '" + sourceSchema + "' \n" +
@@ -113,7 +122,7 @@ public class Oracle
 					"ORDER BY COLUMN_ID";
 			
 			if (debug)
-                                Logger.printMsg("Returning: " + strSQL);
+				Logger.printMsg("Returning: " + strSQL);
 
 			location = 2100;
 			return strSQL;
@@ -133,7 +142,7 @@ public class Oracle
 		try
 		{
 			location = 2000;
-                        String strSQL = "SELECT '\"' || LOWER(dcc.COLUMN_NAME) || '\"' as COLUMN_NAME \n" +
+			String strSQL = "SELECT '\"' || LOWER(dcc.COLUMN_NAME) || '\"' as COLUMN_NAME \n" +
 					"FROM ALL_CONSTRAINTS dc \n" +
 					"JOIN ALL_CONS_COLUMNS dcc ON dc.CONSTRAINT_NAME = dcc.CONSTRAINT_NAME and dc.OWNER = dcc.OWNER \n" +
 					"WHERE dc.OWNER = '" + sourceSchema + "' \n" +
@@ -142,7 +151,7 @@ public class Oracle
 					"ORDER BY dcc.POSITION";
 
 			if (debug)
-                                Logger.printMsg("Returning: " + strSQL);
+				Logger.printMsg("Returning: " + strSQL);
 
 			location = 2100;
 			return strSQL;
@@ -155,73 +164,77 @@ public class Oracle
 	}
 
 	public static String validate(Connection conn) throws SQLException
-        {
+	{
 		String method = "validate";
 		int location = 1000;
 
-                try
-                {
+		try
+		{
 			location = 2000;
 			String msg = "";
-                        String strSQL = "SELECT VERSION FROM V$INSTANCE";
+			String strSQL = "SELECT VERSION FROM V$INSTANCE";
 
 			location = 2100;
 			Statement stmt = conn.createStatement();
 
 			location = 2200;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
 			location = 2300;
-                        while (rs.next())
-                        {
-                                msg = "Success!";
-                        }
+			while (rs.next())
+			{
+				msg = "Success!";
+			}
 
 			location = 2400;
-                        return msg;
-                }
+			return msg;
+		}
 
-                catch (SQLException ex)
-                {
+		catch (SQLException ex)
+		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-                }
+		}
 
-        }
+	}
 
-	public static int getMaxId(Connection conn, String sourceSchema, String sourceTable, String columnName) throws SQLException
-        {
+	public static String getMaxId(Connection conn, String sourceSchema, String sourceTable, String columnName) throws SQLException
+	{
 		String method = "getMaxId";
 		int location = 1000;
 
-                try
-                {
+		try
+		{
 			location = 2000;
-                        int maxId = -1;
-                        String strSQL = "SELECT MAX(\"" + columnName + "\") \n" +
+			String maxId = "-1";
+			String strSQL = "SELECT MAX(\"" + columnName + "\") \n" +
 					"FROM \"" + sourceSchema + "\".\"" + sourceTable + "\"";
 
 			location = 2100;
 			Statement stmt = conn.createStatement();
 
 			location = 2200;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
 			location = 2300;
-                        while (rs.next())
-                        {
-                                maxId = rs.getInt(1);
-                        }
+			while (rs.next())
+			{
+				maxId = rs.getString(1);
+			}
 
 			location = 2400;
-                        return maxId;
-                }
+			if (maxId == null)
+			{
+				maxId = "-1";
+			}
+			return maxId;
+		}
 
-                catch (SQLException ex)
-                {
+		catch (SQLException ex)
+		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
-                }
+		}
 
-        }
+	}
 
 	public static void configureReplication(Connection conn, String sourceDatabase, String sourceSchema, String sourceTable, String appendColumnName) throws SQLException 
 	{
@@ -241,7 +254,7 @@ public class Oracle
 			//5. create replTable
 			//6. create trigger to capture changes
 
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			String strSQL = "";
 
@@ -258,10 +271,10 @@ public class Oracle
 				"END;";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2200;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 
 			/////////////////////////////
 			//2. drop replTable if exists
@@ -276,10 +289,10 @@ public class Oracle
 				"END;";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 3200;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 			
 			/////////////////////////////
 			//3. drop sequence if exists
@@ -294,10 +307,10 @@ public class Oracle
 				"END;";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 4200;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 
 			/////////////////////////////
 			//4. create sequence
@@ -306,10 +319,10 @@ public class Oracle
 			strSQL = "CREATE SEQUENCE \"" + sourceSchema + "\".\"SEQ_" + replTable + "\" ORDER";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 5200;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 
 			/////////////////////////////
 			//5. create replTable
@@ -324,29 +337,29 @@ public class Oracle
 					"FROM ALL_TAB_COLUMNS \n" +
 					"WHERE OWNER = '" + sourceSchema + "' \n" +
 					"	AND TABLE_NAME = '" + sourceTable + "' \n" +
-                                        "	AND DATA_TYPE NOT IN ('BLOB', 'BFILE', 'RAW', 'LONG RAW', 'MLSLABEL', 'BFILE', 'XMLTYPE') \n" +
+					"	AND DATA_TYPE NOT IN ('BLOB', 'BFILE', 'RAW', 'LONG RAW', 'MLSLABEL', 'BFILE', 'XMLTYPE') \n" +
 					"ORDER BY COLUMN_ID";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
-                        //Get Column names
-                        String columnName = "";
-                        String attributes = "";
+			//Get Column names
+			String columnName = "";
+			String attributes = "";
 			String oldColumns = "";
 			String newColumns = "";
 			String columns = "";
 
 			location = 6200;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
-                        while (rs.next())
-                        {
-                                columnName = rs.getString(1);
+			while (rs.next())
+			{
+				columnName = rs.getString(1);
 				attributes = rs.getString(2);
 
-                                if (rs.getRow() == 1)
-                                {
+				if (rs.getRow() == 1)
+				{
 					location = 6300;
 					strSQL = "CREATE TABLE \"" + sourceSchema + "\".\"" + replTable + "\" \n" +
 						"(\"" + appendColumnName + "\" NUMBER NOT NULL PRIMARY KEY, \n" +
@@ -357,7 +370,7 @@ public class Oracle
 					oldColumns = "		:OLD.\"" + columnName + "\"";
 					newColumns = "		:NEW.\"" + columnName + "\"";
 					columns = "		\"" + columnName + "\"";
-                                }
+				}
 				else
 				{
 					strSQL = strSQL + ", \n \"" + columnName + "\" " + attributes;
@@ -366,16 +379,16 @@ public class Oracle
 					newColumns = newColumns  + ", \n		:NEW.\"" + columnName + "\"";
 					columns = columns  + ", \n		\"" + columnName + "\"";
 				}
-                        }
+			}
 
 			location = 6400;
 			strSQL = strSQL + ")";
 
 			if (debug)
-                                Logger.printMsg("Executing SQL: \n" + strSQL);
+				Logger.printMsg("Executing SQL: \n" + strSQL);
 
 			location = 6500;
-                        stmt.executeUpdate(strSQL);
+			stmt.executeUpdate(strSQL);
 
 			/////////////////////////////
 			//6. create trigger to capture changes
@@ -427,7 +440,7 @@ public class Oracle
 				"END;";
 			
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 7200;
 			stmt.executeUpdate(strSQL);
@@ -451,7 +464,7 @@ public class Oracle
 			boolean found  = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 
 			//Check for the trigger 
@@ -463,12 +476,12 @@ public class Oracle
 					"	AND TRIGGER_NAME = 'T_" + replTable + "_AIUD'";
  
 			if (debug)
-                                Logger.printMsg("Executing SQL: " + strSQL);
+				Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
-                        ResultSet rs = stmt.executeQuery(strSQL);
+			ResultSet rs = stmt.executeQuery(strSQL);
 
-                        while (rs.next())
+			while (rs.next())
 			{
 				found = true;
 			}
@@ -485,13 +498,13 @@ public class Oracle
 					"	AND TABLE_NAME = '" + replTable + "'";
  
 				if (debug)
-        	                        Logger.printMsg("Executing SQL: " + strSQL);
+					Logger.printMsg("Executing SQL: " + strSQL);
 
 				location = 2500;
-                	        rs = stmt.executeQuery(strSQL);
+				rs = stmt.executeQuery(strSQL);
 
-                        	while (rs.next())
-                      		{
+				while (rs.next())
+		      		{
 					found = true;
 				}
 			}
@@ -516,7 +529,7 @@ public class Oracle
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" +
@@ -524,7 +537,7 @@ public class Oracle
 					"WHERE USERNAME = '" + sourceSchema + "'";
 
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -559,7 +572,7 @@ public class Oracle
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" +
@@ -573,7 +586,7 @@ public class Oracle
 					"	AND VIEW_NAME = '" + sourceTable + "'";
 
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -608,7 +621,7 @@ public class Oracle
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" +
@@ -617,7 +630,7 @@ public class Oracle
 					"	AND OWNER = '" + sourceSchema + "' \n" +
 					"	AND COLUMN_NAME = '" + appendColumnName + "'";
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -652,7 +665,7 @@ public class Oracle
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" +
@@ -661,7 +674,7 @@ public class Oracle
 					"	AND OWNER = '" + sourceSchema + "' \n" +
 					"	AND COLUMN_NAME = '" + appendColumnName + "'";
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);
@@ -698,7 +711,7 @@ public class Oracle
 			boolean found = false;
 
 			location = 2100;
-                        Statement stmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
 
 			location = 2200;
 			String strSQL = "SELECT NULL \n" + 
@@ -707,7 +720,7 @@ public class Oracle
 					"     AND TABLE_NAME = '" + sourceTable + "' \n" +
 					"     AND CONSTRAINT_TYPE = 'P'"; 
 			if (debug)
-               	                Logger.printMsg("Executing SQL: " + strSQL);
+	       			Logger.printMsg("Executing SQL: " + strSQL);
 
 			location = 2300;
 			ResultSet rs = stmt.executeQuery(strSQL);

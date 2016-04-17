@@ -2,9 +2,9 @@ import java.util.Calendar;
 
 public class Logger
 {
-        public static void main(String[] args) 
-        {
-                String myMsg = args[0];
+	public static void main(String[] args) 
+	{
+		String myMsg = args[0];
 
 		printMsg(myMsg);
 

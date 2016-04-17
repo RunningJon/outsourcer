@@ -43,7 +43,7 @@ public class ExternalDataD
 		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
 		}
-        }
+	}
 
 	private static void loadLoop() throws Exception
 	{
@@ -93,8 +93,8 @@ public class ExternalDataD
 				strSQL = "SELECT queue_id, queue_date, start_date,\n";
 				strSQL += "	id, refresh_type, LOWER(target_schema_name) as target_schema_name, LOWER(target_table_name) as target_table_name,\n";
 				strSQL += "	target_append_only, target_compressed, target_row_orientation,\n";
-            			strSQL += "	source_type, source_server_name, source_instance_name, source_port, source_database_name, source_schema_name,\n";
-            			strSQL += "	source_table_name, source_user_name, source_pass, column_name,\n";
+	    			strSQL += "	source_type, source_server_name, source_instance_name, source_port, source_database_name, source_schema_name,\n";
+	    			strSQL += "	source_table_name, source_user_name, source_pass, column_name,\n";
 				strSQL += "	sql_text, snapshot\n";
 				strSQL += "FROM os.fn_update_status()";
 
@@ -105,7 +105,7 @@ public class ExternalDataD
     				rs = stmt.executeQuery(strSQL);
 				
 				//query only returns one record
-				while (rs.next())                        
+				while (rs.next())			
 				{
 					location = 4000;
 					queueId = rs.getInt(1);

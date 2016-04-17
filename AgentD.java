@@ -48,7 +48,7 @@ public class AgentD
 		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
 		}
-        }
+	}
 
 	private static void loadLoop(String configFile) throws Exception
 	{

@@ -96,8 +96,9 @@ public class ExternalDataThread implements Runnable
 				boolean archTableFound = false;
 				boolean sourceReplTablesFound = false;
 
-				int maxGPId = -1;
-				int maxSourceId = -1;
+				//Change to String to handle timestamp and bigint
+				String maxGPId = "-1";
+				String maxSourceId = "-1";
 
 				location = 3200;
 				if (!(refreshType.equals("transform")))
@@ -199,15 +200,24 @@ public class ExternalDataThread implements Runnable
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " get max id from source");
 					maxSourceId = CommonDB.getMaxId(sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, sourceUser, sourcePass, columnName);
+					if (debug)
+						Logger.printMsg("maxSourceId: " + maxSourceId);
 
-					location = 5500;	
-					if (maxGPId != maxSourceId)
+					if (debug)
+						Logger.printMsg("maxGPId: " + maxGPId);
+
+					location = 5500;
+					if (!(maxGPId.equals(maxSourceId)))
 					{
+						if (debug)
+							Logger.printMsg("check if table should be refreshed or appended");
 						location = 5600;
-						if (maxGPId == -1)
+						if (maxGPId.equals("-1"))
 						{
 							location = 5700;
 							//GP has no data in it so change to a refresh
+							if (debug)
+								Logger.printMsg("GP has no data in it so change to a refresh");
 							refreshTypeAction = "refresh";
 						}
 
@@ -384,7 +394,7 @@ public class ExternalDataThread implements Runnable
 
 						if (debug)
 							Logger.printMsg("QueueID: " + queueId + " maxSourceId: " + maxSourceId);
-						if ((maxGPId != maxSourceId) && maxSourceId != -1)
+						if ((!(maxGPId.equals(maxSourceId))) && !(maxSourceId.equals(-1)))
 						{
 							location = 8550;
 							//drop repl external table
@@ -403,9 +413,6 @@ public class ExternalDataThread implements Runnable
 							if (debug)
 								Logger.printMsg("QueueID: " + queueId + " create external table");
 							GP.createReplExternalTable(conn, osServer, refreshTypeAction, targetSchema, targetTable, sourceType, sourceTable, maxGPId, queueId, jobPort);
-
-							//old version that worked with replication
-							//GP.createReplExternalTable(conn, osServer, targetSchema, targetTable, sourceType, sourceServer, sourceInstance, sourcePort, sourceDatabase, sourceSchema, sourceTable, refreshType, columnName, maxGPId, gpDatabase, gpPort, queueId);
 
 							location = 8700;
 							//Insert into target table, selecting from external table

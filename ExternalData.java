@@ -16,7 +16,7 @@ public class ExternalData
 
 		String configFile = "";
 		int queueId = 0;
-		int appendColumnMax = 0;
+		String appendColumnMax = "0";
 		String refreshType = "";
 		String sourceTable = "";
 		int customSQLId = 0;
@@ -29,7 +29,7 @@ public class ExternalData
 			//this is an external table Outsourcer defines
 			configFile = args[0];
 			queueId = Integer.parseInt(args[1]);
-			appendColumnMax = Integer.parseInt(args[2]);
+			appendColumnMax = args[2];
 			refreshType = args[3];
 			sourceTable = args[4];
 			executeOS(configFile, queueId, appendColumnMax, refreshType, sourceTable);
@@ -42,9 +42,9 @@ public class ExternalData
 			customSQLId = Integer.parseInt(args[1]);
 			executeExt(configFile, customSQLId);
 		}
-        }
+	}
 
-	private static void executeOS(String configFile, int queueId, int appendColumnMax, String refreshType, String sourceTable) throws Exception 
+	private static void executeOS(String configFile, int queueId, String appendColumnMax, String refreshType, String sourceTable) throws Exception 
 	{
 		String method = "executeOS";
 		int location = 1000;
@@ -98,6 +98,9 @@ public class ExternalData
 			}
 
 			location = 3090;
+
+			appendColumnMax = appendColumnMax.replace("SPACE", " ");
+
 			if (sourceType.equals("sqlserver"))
 			{
 				location = 3100;
@@ -154,7 +157,7 @@ public class ExternalData
 			if (gpConn != null)
 				gpConn.close();
 		}
-        }
+	}
 
 	private static void executeExt(String configFile, int customSQLId) throws Exception
 	{
@@ -252,6 +255,6 @@ public class ExternalData
 			if (gpConn != null)
 	 			gpConn.close();
 		}
-        }
+	}
 
 }

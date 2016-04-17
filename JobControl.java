@@ -173,7 +173,7 @@ public class JobControl
 				}
 				else
 				{
-                                	JobModel.deleteTable();
+					JobModel.deleteTable();
 					rs = JobModel.getList(search, limit, offset, sortBy, sort);
 					msg = JobView.viewList(search, rs, limit, offset, sortBy, sort);
 				}

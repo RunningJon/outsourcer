@@ -234,55 +234,55 @@ public class CustomSQLView
 		msg += "<tr id=\"r_columns_grid\"><td><b>Columns</b></td>\n";
 		msg += "<td>";
 
-                        msg += "<div id=\"table-wrapper\">\n";
-                        msg += "  <div id=\"table-scroll\">\n";
-                        msg += "    <table class=\"tftable\" border=\"1\">\n";
+			msg += "<div id=\"table-wrapper\">\n";
+			msg += "  <div id=\"table-scroll\">\n";
+			msg += "    <table class=\"tftable\" border=\"1\">\n";
 
-                        int counter = 0;
-                        String strColumn = "";
-                        String strColumnName = "";
+			int counter = 0;
+			String strColumn = "";
+			String strColumnName = "";
 			String strColumnDataType = "";
 
-                        //display all of the columns in the external table
-                        for (int i = 0; i < columns.size(); i++)
-                        {
-                                counter++;
-                                strColumn = columns.get(i);
+			//display all of the columns in the external table
+			for (int i = 0; i < columns.size(); i++)
+			{
+				counter++;
+				strColumn = columns.get(i);
 				strColumnDataType = columnDataTypes.get(i);
-                                strColumnName = "column" + i;
+				strColumnName = "column" + i;
 
-                                msg += "<tr><td><input type=\"text\" id=\"" + strColumnName + "\" name=\"" + strColumnName + "\" value=\"" + strColumn + "\" readonly></td>\n";
-                                msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
-                                for (int x = 0; x < dataTypes.size(); x++)
-                                {
-                                        msg += "<option value=\"" + dataTypes.get(x) + "\"";
-                                        if (dataTypes.get(x).equals(strColumnDataType))
-                                                msg += " selected";
-                                        msg += ">" + dataTypes.get(x) + "</option>\n";
-                                }
-                                msg += "</select></td></tr>";
-                        }
+				msg += "<tr><td><input type=\"text\" id=\"" + strColumnName + "\" name=\"" + strColumnName + "\" value=\"" + strColumn + "\" readonly></td>\n";
+				msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+				for (int x = 0; x < dataTypes.size(); x++)
+				{
+					msg += "<option value=\"" + dataTypes.get(x) + "\"";
+					if (dataTypes.get(x).equals(strColumnDataType))
+						msg += " selected";
+					msg += ">" + dataTypes.get(x) + "</option>\n";
+				}
+				msg += "</select></td></tr>";
+			}
 
-                        //display the rest of the available columns
-                        for (int i=counter; i < CustomSQLModel.maxColumns; i++)
-                        {
-                                msg += "<tr><td><input type=\"text\" id=\"column" + i + "\" name=\"column" + i + "\"></td>\n";
-                                msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
-                                for (int x = 0; x < dataTypes.size(); x++)
-                                {
-                                        msg += "<option value=\"" + dataTypes.get(x) + "\"";
-                                        if (dataTypes.get(x).equals("text"))
-                                                msg += " selected";
-                                        msg += ">" + dataTypes.get(x) + "</option>\n";
-                                }
-                                msg += "</select></td></tr>";
+			//display the rest of the available columns
+			for (int i=counter; i < CustomSQLModel.maxColumns; i++)
+			{
+				msg += "<tr><td><input type=\"text\" id=\"column" + i + "\" name=\"column" + i + "\"></td>\n";
+				msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\" onfocus=\"this.defaultIndex=this.selectedIndex;\" onchange=\"this.selectedIndex=this.defaultIndex;\">\n";
+				for (int x = 0; x < dataTypes.size(); x++)
+				{
+					msg += "<option value=\"" + dataTypes.get(x) + "\"";
+					if (dataTypes.get(x).equals("text"))
+						msg += " selected";
+					msg += ">" + dataTypes.get(x) + "</option>\n";
+				}
+				msg += "</select></td></tr>";
 
-                        }
+			}
 
-                        msg += "    </table>\n";
-                        msg += "  </div>\n";
-                        msg += "</div>\n";
-                        msg += "</td></tr>\n";
+			msg += "    </table>\n";
+			msg += "  </div>\n";
+			msg += "</div>\n";
+			msg += "</td></tr>\n";
 
 		msg += "<tr id=\"r_sql_text\"><td><b>SQL Text</b></td>\n";
 		msg += "<td><textarea readonly cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>";
@@ -412,55 +412,55 @@ public class CustomSQLView
 		msg += "<td><input type=\"text\" id=\"table_name\" name=\"table_name\" value=" + tableName + ">";
 		msg += "</td></tr>\n";
 
-                msg += "<tr id=\"r_columns_grid\"><td><b>Columns</b></td>\n";
-                msg += "<td>";
-                        msg += "<div id=\"table-wrapper\">\n";
-                        msg += "  <div id=\"table-scroll\">\n";
-                        msg += "    <table class=\"tftable\" border=\"1\">\n";
+		msg += "<tr id=\"r_columns_grid\"><td><b>Columns</b></td>\n";
+		msg += "<td>";
+			msg += "<div id=\"table-wrapper\">\n";
+			msg += "  <div id=\"table-scroll\">\n";
+			msg += "    <table class=\"tftable\" border=\"1\">\n";
 
-                        int counter = 0;
-                        String strColumn = "";
-                        String strColumnName = "";
+			int counter = 0;
+			String strColumn = "";
+			String strColumnName = "";
 
-                        //display all of the columns in the external table
-                        for (int i = 0; i < columns.size(); i++)
-                        {
-                                counter++;
-                                strColumn = columns.get(i);
-                                strColumnName = "column" + i;
+			//display all of the columns in the external table
+			for (int i = 0; i < columns.size(); i++)
+			{
+				counter++;
+				strColumn = columns.get(i);
+				strColumnName = "column" + i;
 
-                                msg += "<tr><td><input type=\"text\" id=\"" + strColumnName + "\" name=\"" + strColumnName + "\" value=" + strColumn + "></td>\n";
-                                msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\">\n";
-                                for (int x = 0; x < dataTypes.size(); x++)
-                                {
-                                        msg += "<option value=\"" + dataTypes.get(x) + "\"";
-                                        if (dataTypes.get(x).equals("text"))
-                                                msg += " selected";
-                                        msg += ">" + dataTypes.get(x) + "</option>\n";
-                                }
-                                msg += "</select></td></tr>";
-                        }
+				msg += "<tr><td><input type=\"text\" id=\"" + strColumnName + "\" name=\"" + strColumnName + "\" value=" + strColumn + "></td>\n";
+				msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\">\n";
+				for (int x = 0; x < dataTypes.size(); x++)
+				{
+					msg += "<option value=\"" + dataTypes.get(x) + "\"";
+					if (dataTypes.get(x).equals("text"))
+						msg += " selected";
+					msg += ">" + dataTypes.get(x) + "</option>\n";
+				}
+				msg += "</select></td></tr>";
+			}
 
-                        //display the rest of the available columns
-                        for (int i=counter; i < CustomSQLModel.maxColumns; i++)
-                        {
-                                msg += "<tr><td><input type=\"text\" id=\"column" + i + "\" name=\"column" + i + "\"></td>\n";
-                                msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\">\n";
-                                for (int x = 0; x < dataTypes.size(); x++)
-                                {
-                                        msg += "<option value=\"" + dataTypes.get(x) + "\"";
-                                        if (dataTypes.get(x).equals("text"))
-                                                msg += " selected";
-                                        msg += ">" + dataTypes.get(x) + "</option>\n";
-                                }
-                                msg += "</select></td></tr>";
+			//display the rest of the available columns
+			for (int i=counter; i < CustomSQLModel.maxColumns; i++)
+			{
+				msg += "<tr><td><input type=\"text\" id=\"column" + i + "\" name=\"column" + i + "\"></td>\n";
+				msg += "<td><select id=\"data_type" + i + "\" name=\"data_type" + i + "\">\n";
+				for (int x = 0; x < dataTypes.size(); x++)
+				{
+					msg += "<option value=\"" + dataTypes.get(x) + "\"";
+					if (dataTypes.get(x).equals("text"))
+						msg += " selected";
+					msg += ">" + dataTypes.get(x) + "</option>\n";
+				}
+				msg += "</select></td></tr>";
 
-                        }
+			}
 
-                        msg += "    </table>\n";
-                        msg += "  </div>\n";
-                        msg += "</div>\n";
-                        msg += "</td></tr>\n";
+			msg += "    </table>\n";
+			msg += "  </div>\n";
+			msg += "</div>\n";
+			msg += "</td></tr>\n";
 
 		msg += "<tr id=\"r_sql_text\"><td><b>SQL Text</b></td>\n";
 		msg += "<td><textarea cols=\"50\" rows=\"10\" id=\"sql_text\" name=\"sql_text\">" + sqlText + "</textarea>";
