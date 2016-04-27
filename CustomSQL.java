@@ -17,6 +17,7 @@ public class CustomSQL
 
 		configFile = args[0];
 		String action = args[1];
+		Connection conn = null;
 
 		location = 2000;
 		try
@@ -24,7 +25,7 @@ public class CustomSQL
 			location = 3000;
 			if (action.equals("start"))
 			{
-				Connection conn = CommonDB.connectGP(configFile);
+				conn = CommonDB.connectGP(configFile);
 				startAll(conn);
 				conn.close();
 			} 
@@ -32,6 +33,11 @@ public class CustomSQL
 		catch (SQLException ex)
 		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
+		}
+		finally
+		{
+			if (conn != null)
+				conn.close();
 		}
 	}
 

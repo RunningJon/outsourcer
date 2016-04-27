@@ -14,12 +14,13 @@ public class AgentD
 		int location = 1000;
 
 		String configFile = args[0];
+		Connection conn = null;
 
 		location = 2000;
 		try
 		{
 			location = 3000;	
-			Connection conn = CommonDB.connectGP(configFile);
+			conn = CommonDB.connectGP(configFile);
 
 			location = 3100;
     			Statement stmt = conn.createStatement();
@@ -48,6 +49,11 @@ public class AgentD
 		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
 		}
+		finally
+		{
+			if (conn != null)
+				conn.close();
+		}
 	}
 
 	private static void loadLoop(String configFile) throws Exception
@@ -57,13 +63,14 @@ public class AgentD
 		int location = 1000;
 
 		boolean loop = true;
+		Connection conn = null;
 
 		while (loop)
 		{
 			try
 			{
 				location = 2000;
-				Connection conn = CommonDB.connectGP(configFile);
+				conn = CommonDB.connectGP(configFile);
 
 				location = 2100;
     				Statement stmt = conn.createStatement();
@@ -85,6 +92,11 @@ public class AgentD
 			{
 				Logger.printMsg("(" + method + ":" + location + ":" + ex.getMessage() + ")");
 				Thread.sleep(10000);
+			}
+			finally
+			{
+				if (conn != null)
+					conn.close();
 			}
 		}
    	
