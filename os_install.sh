@@ -423,9 +423,6 @@ if [ $os_custom_sql_gpfdist_check -eq 0 ]; then
 	done
 fi
 
-echo "Notice: making sure all sequences have a cache of 1"
-psql -t -A -c "SELECT 'ALTER SEQUENCE ' || n.nspname || '.' || c.relname || ' CACHE 1;' FROM pg_class c JOIN pg_namespace n ON c.relnamespace = n.oid WHERE n.nspname = 'os' AND c.relkind = 'S'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport | psql -e -U $gpusername -d $gpdatabase -h $gpserver -p $gpport 
-
 cd $OSHOME
 
 echo ""

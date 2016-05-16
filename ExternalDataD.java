@@ -15,6 +15,7 @@ public class ExternalDataD
 		String method = "main";
 		int location = 1000;
 		int argsCount = args.length;
+		Connection conn = null;
 
 		configFile = args[0];
 		String action = args[1];
@@ -25,7 +26,7 @@ public class ExternalDataD
 			location = 3000;
 			if (action.equals("start"))
 			{
-				Connection conn = CommonDB.connectGP(configFile);
+				conn = CommonDB.connectGP(configFile);
 				GP.cancelJobs(conn);
 				dbVersion = GP.getVersion(conn);
 				conn.close();
@@ -33,7 +34,7 @@ public class ExternalDataD
 			} 
 			else if (action.equals("stop"))
 			{
-				Connection conn = CommonDB.connectGP(configFile);
+				conn = CommonDB.connectGP(configFile);
 				GP.failJobs(conn);
 				GP.cancelJobs(conn);
 				conn.close();
@@ -43,6 +44,11 @@ public class ExternalDataD
 		{
 			throw new SQLException("(" + myclass + ":" + method + ":" + location + ":" + ex.getMessage() + ")");
 		}
+		finally
+		{
+			if (conn != null)
+				conn.close();
+		}
 	}
 
 	private static void loadLoop() throws Exception
@@ -50,6 +56,7 @@ public class ExternalDataD
 
 		String method = "loadLoop";
 		int location = 1000;
+		Connection conn = null;
 
 		boolean loop = true;
 
@@ -87,7 +94,7 @@ public class ExternalDataD
 				boolean snapshot = false;
 
 				location = 3000;
-				Connection conn = CommonDB.connectGP(configFile);
+				conn = CommonDB.connectGP(configFile);
 
 				location = 3100;
 				strSQL = "SELECT queue_id, queue_date, start_date,\n";
@@ -133,7 +140,8 @@ public class ExternalDataD
 				}
 
 				location = 4100;
-				conn.close();
+				if (conn != null)
+					conn.close();
 
 				location = 4200;
 				if (id != 0)
@@ -166,6 +174,11 @@ public class ExternalDataD
 			{
 				Logger.printMsg("(" + method + ":" + location + ":" + ex.getMessage() + ")");
 				Thread.sleep(5000);
+			}
+			finally
+			{
+				if (conn != null)
+					conn.close();
 			}
 		}
    	

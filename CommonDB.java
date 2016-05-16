@@ -14,7 +14,7 @@ public class CommonDB
 	{
 		String method = "checkSourceObjects";
 		int location = 1000;
-		Connection conn = null;
+		Connection extConn = null;
 
 		try
 		{
@@ -26,61 +26,61 @@ public class CommonDB
 			if (sourceType.equals("sqlserver"))
 			{
 				location = 3000;
-				conn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
+				extConn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
 
 				location = 3100;
-				SQLServer.checkSourceSchema(conn, sourceDatabase, sourceSchema);
+				SQLServer.checkSourceSchema(extConn, sourceDatabase, sourceSchema);
 
 				location = 3200;
-				SQLServer.checkSourceTable(conn, sourceDatabase, sourceSchema, sourceTable);
+				SQLServer.checkSourceTable(extConn, sourceDatabase, sourceSchema, sourceTable);
 
 				location = 3300;
 				if (refreshType.equals("append"))
 				{
 					location = 3400;
-					SQLServer.checkAppendColumnName(conn, sourceDatabase, sourceSchema, sourceTable, columnName);
+					SQLServer.checkAppendColumnName(extConn, sourceDatabase, sourceSchema, sourceTable, columnName);
 				}
 				else if (refreshType.equals("replication"))
 				{
 					location = 3500;
-					SQLServer.checkReplAppendColumnName(conn, sourceDatabase, sourceSchema, sourceTable, columnName);
+					SQLServer.checkReplAppendColumnName(extConn, sourceDatabase, sourceSchema, sourceTable, columnName);
 
 					location = 3600;
-					SQLServer.checkReplPrimaryKey(conn, sourceDatabase, sourceSchema, sourceTable);
+					SQLServer.checkReplPrimaryKey(extConn, sourceDatabase, sourceSchema, sourceTable);
 				}
 
 				location = 3700;
-				conn.close();
+				extConn.close();
 
 			}
 			else if (sourceType.equals("oracle"))
 			{
 				location = 4000;
-				conn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
+				extConn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
 
 				location = 4100;
-				Oracle.checkSourceSchema(conn, sourceDatabase, sourceSchema);
+				Oracle.checkSourceSchema(extConn, sourceDatabase, sourceSchema);
 
 				location = 4200;
-				Oracle.checkSourceTable(conn, sourceDatabase, sourceSchema, sourceTable);
+				Oracle.checkSourceTable(extConn, sourceDatabase, sourceSchema, sourceTable);
 				
 				location = 4300;
 				if (refreshType.equals("append"))
 				{
 					location = 4400;
-					Oracle.checkAppendColumnName(conn, sourceDatabase, sourceSchema, sourceTable, columnName);
+					Oracle.checkAppendColumnName(extConn, sourceDatabase, sourceSchema, sourceTable, columnName);
 				}
 				else if (refreshType.equals("replication"))
 				{
 					location = 4500;
-					Oracle.checkReplAppendColumnName(conn, sourceDatabase, sourceSchema, sourceTable, columnName);
+					Oracle.checkReplAppendColumnName(extConn, sourceDatabase, sourceSchema, sourceTable, columnName);
 
 					location = 4600;
-					Oracle.checkReplPrimaryKey(conn, sourceDatabase, sourceSchema, sourceTable);
+					Oracle.checkReplPrimaryKey(extConn, sourceDatabase, sourceSchema, sourceTable);
 				}
 
 				location = 4700;
-				conn.close();
+				extConn.close();
 
 			}
 
@@ -91,8 +91,8 @@ public class CommonDB
 		}
 		finally 
 		{
-			if (conn != null) 
-				conn.close();
+			if (extConn != null) 
+				extConn.close();
 		}
 	}
 
@@ -181,7 +181,7 @@ public class CommonDB
 			if (targetAppendOnly)
 			{
 				output += "WITH (APPENDONLY=TRUE";
-				if (ExternalDataD.dbVersion.equals("HAWQ"))
+				if (ExternalDataD.dbVersion.startsWith("HAWQ"))
 				{
 					if (targetCompressed)
 					{
@@ -224,49 +224,51 @@ public class CommonDB
 		try
 		{
 			location = 2000;
-			if (debug)
-				Logger.printMsg("Execting SQL: " + strSQL);
-
-			location = 2100;
-			Statement stmt = conn.createStatement();
-
-			location = 2200;
-			ResultSet rs = stmt.executeQuery(strSQL);
-
-			location = 2300;
-			String columnName = "";
 			String distributedBy = "";
-			String output = "";
-
-			location = 2400;
-			while (rs.next())
-			{
-				columnName = rs.getString(1);
-
-				if (rs.getRow() == 1)
-				{
-					distributedBy = "DISTRIBUTED BY (" + columnName;
-				}
-				else
-				{
-					distributedBy = distributedBy + ", " + columnName;
-				}
-			}
-			if (!(distributedBy.equals("")))
-			{
-				distributedBy = distributedBy + "); \n";
-			}
-			else
+			if (ExternalDataD.dbVersion.equals("HAWQ_2"))
 			{
 				distributedBy = "DISTRIBUTED RANDOMLY; \n";
 			}
+			else
+			{
 
+				if (debug)
+					Logger.printMsg("Execting SQL: " + strSQL);
+
+				location = 2100;
+				Statement stmt = conn.createStatement();
+
+				location = 2200;
+				ResultSet rs = stmt.executeQuery(strSQL);
+
+				location = 2300;
+				String columnName = "";
+
+				location = 2400;
+				while (rs.next())
+				{
+					columnName = rs.getString(1);
+
+					if (rs.getRow() == 1)
+					{
+						distributedBy = "DISTRIBUTED BY (" + columnName;
+					}
+					else
+					{
+						distributedBy = distributedBy + ", " + columnName;
+					}
+				}
+				if (!(distributedBy.equals("")))
+				{
+					distributedBy = distributedBy + "); \n";
+				}
+				else
+				{
+					distributedBy = "DISTRIBUTED RANDOMLY; \n";
+				}
+			}
 			location = 3000;
-			output = distributedBy;
-
-			location = 3100;
-			return output;
-			
+			return distributedBy;
 		}
 
 		catch (SQLException ex)
@@ -280,7 +282,7 @@ public class CommonDB
 	{
 		String method = "GetGPTableDDL";
 		int location = 1000;
-		Connection conn = null;
+		Connection extConn = null;
 
 		try
 		{
@@ -290,51 +292,49 @@ public class CommonDB
 			if (sourceType.equals("sqlserver"))
 			{
 				location = 3000;
-				conn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
+				extConn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
 
 				location = 3100;
 				//Get the SQL needed to generate CREATE TABLE
-				strSQL = SQLServer.getSQLForCreateTable(conn, sourceDatabase, sourceSchema, sourceTable);
+				strSQL = SQLServer.getSQLForCreateTable(extConn, sourceDatabase, sourceSchema, sourceTable);
 
 				//Get the GP DDL based on source DDL
 				location = 3200;
-				output = getGPCreateTableDDL(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, strSQL);
+				output = getGPCreateTableDDL(extConn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, strSQL);
 
 				location = 3300;
-				strSQL = SQLServer.getSQLForDistribution(conn, sourceDatabase, sourceSchema, sourceTable);
+				strSQL = SQLServer.getSQLForDistribution(extConn, sourceDatabase, sourceSchema, sourceTable);
 
 				//Get the table distribution based on Primary Key of source
 				location = 3400;
-				output = output + getDistributionDDL(conn, targetSchema, targetTable, strSQL);
+				output = output + getDistributionDDL(extConn, targetSchema, targetTable, strSQL);
 
 				location = 3500;
-				conn.close();
-
+				extConn.close();
 			}
 			else if (sourceType.equals("oracle"))
 			{
 				location = 4000;
-				conn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
+				extConn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
 
 				location = 4100;
 				//Get the SQL needed to generate CREATE TABLE
-				strSQL = Oracle.getSQLForCreateTable(conn, sourceSchema, sourceTable);
+				strSQL = Oracle.getSQLForCreateTable(extConn, sourceSchema, sourceTable);
 
 				location = 4200;
 				//Get the GP DDL based on source DDL
-				output = getGPCreateTableDDL(conn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, strSQL);
+				output = getGPCreateTableDDL(extConn, targetSchema, targetTable, targetAppendOnly, targetCompressed, targetRowOrientation, strSQL);
 
 				location = 4300;
 				//Get the SQL needed to generate the table distribution based on Primary Key of source
-				strSQL = Oracle.getSQLForDistribution(conn, sourceSchema, sourceTable);
+				strSQL = Oracle.getSQLForDistribution(extConn, sourceSchema, sourceTable);
 
 				location = 4400;
 				//Get the table distribution based on Primary Key of source
-				output = output + getDistributionDDL(conn, targetSchema, targetTable, strSQL);
+				output = output + getDistributionDDL(extConn, targetSchema, targetTable, strSQL);
 
 				location = 4500;
-				conn.close();
-
+				extConn.close();
 			}
 
 			//output the DDL for the table to be created in GP
@@ -348,8 +348,8 @@ public class CommonDB
 		}
 		finally 
 		{
-			if (conn != null) 
-				conn.close();
+			if (extConn != null) 
+				extConn.close();
 		}
 	}
 
@@ -357,7 +357,7 @@ public class CommonDB
 	{
 		String method = "checkSourceReplObjects";
 		int location = 1000;
-		Connection conn = null;
+		Connection extConn = null;
 
 		try
 		{
@@ -367,25 +367,25 @@ public class CommonDB
 			if (sourceType.equals("sqlserver"))
 			{
 				location = 3000;
-				conn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
+				extConn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
 
 				location = 3100;
-				found = SQLServer.snapshotSourceTable(conn, sourceDatabase, sourceSchema, sourceTable);
+				found = SQLServer.snapshotSourceTable(extConn, sourceDatabase, sourceSchema, sourceTable);
 
 				location = 3200;
-				conn.close();
+				extConn.close();
 
 			}
 			else if (sourceType.equals("oracle"))
 			{
 				location = 4000;
-				conn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
+				extConn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
 
 				location = 4100;
-				found = Oracle.snapshotSourceTable(conn, sourceSchema, sourceTable);
+				found = Oracle.snapshotSourceTable(extConn, sourceSchema, sourceTable);
 
 				location = 4200;
-				conn.close();
+				extConn.close();
 
 			}
 
@@ -398,8 +398,8 @@ public class CommonDB
 		}
 		finally 
 		{
-			if (conn != null) 
-				conn.close();
+			if (extConn != null) 
+				extConn.close();
 		}
 	}
 
@@ -408,7 +408,7 @@ public class CommonDB
 		String method = "configureReplication";
 		int location = 1000;
 
-		Connection conn = null;
+		Connection extConn = null;
 
 		try
 		{
@@ -416,25 +416,25 @@ public class CommonDB
 			if (sourceType.equals("sqlserver"))
 			{
 				location = 2100;
-				conn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
+				extConn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
 
 				location = 2200;
-				SQLServer.configureReplication(conn, sourceDatabase, sourceSchema, sourceTable, columnName);	
+				SQLServer.configureReplication(extConn, sourceDatabase, sourceSchema, sourceTable, columnName);	
 
 				location = 2300;
-				conn.close();
+				extConn.close();
 
 			}
 			else if (sourceType.equals("oracle"))
 			{
 				location = 3100;
-				conn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
+				extConn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
 
 				location = 3200;
-				Oracle.configureReplication(conn, sourceDatabase, sourceSchema, sourceTable, columnName);	
+				Oracle.configureReplication(extConn, sourceDatabase, sourceSchema, sourceTable, columnName);	
 
 				location = 3300;
-				conn.close();
+				extConn.close();
 
 			}
 
@@ -445,8 +445,8 @@ public class CommonDB
 		}
 		finally 
 		{
-			if (conn != null) 
-				conn.close();
+			if (extConn != null) 
+				extConn.close();
 		}
 	}
 
@@ -454,7 +454,7 @@ public class CommonDB
 	{	
 		String method = "getReplMaxId";
 		int location = 1000;
-		Connection conn = null;
+		Connection extConn = null;
 
 		try
 		{
@@ -466,25 +466,25 @@ public class CommonDB
 			if (sourceType.equals("sqlserver"))
 			{
 				location = 3000;
-				conn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
+				extConn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
 
 				location = 3100;
-				maxId = SQLServer.getMaxId(conn, sourceDatabase, sourceSchema, replTable, columnName);
+				maxId = SQLServer.getMaxId(extConn, sourceDatabase, sourceSchema, replTable, columnName);
 
 				location = 3200;
-				conn.close();
+				extConn.close();
 
 			}
 			else if (sourceType.equals("oracle"))
 			{
 				location = 4000;
-				conn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
+				extConn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
 
 				location = 4100;
-				maxId = Oracle.getMaxId(conn, sourceSchema, replTable, columnName);
+				maxId = Oracle.getMaxId(extConn, sourceSchema, replTable, columnName);
 
 				location = 4200;
-				conn.close();
+				extConn.close();
 
 			}
 
@@ -499,8 +499,8 @@ public class CommonDB
 		}
 		finally 
 		{
-			if (conn != null) 
-				conn.close();
+			if (extConn != null) 
+				extConn.close();
 		}
 
 	}
@@ -509,7 +509,7 @@ public class CommonDB
 	{
 		String method = "getMaxId";
 		int location = 1000;
-		Connection conn = null;
+		Connection extConn = null;
 
 		try
 		{
@@ -519,25 +519,25 @@ public class CommonDB
 			if (sourceType.equals("sqlserver"))
 			{
 				location = 3000;
-				conn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
+				extConn = connectSQLServer(sourceServer, sourceInstance, sourceUser, sourcePass);
 
 				location = 3100;
-				maxId = SQLServer.getMaxId(conn, sourceDatabase, sourceSchema, sourceTable, columnName);
+				maxId = SQLServer.getMaxId(extConn, sourceDatabase, sourceSchema, sourceTable, columnName);
 
 				location = 3200;
-				conn.close();
+				extConn.close();
 
 			}
 			else if (sourceType.equals("oracle"))
 			{
 				location = 4000;
-				conn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
+				extConn = connectOracle(sourceServer, sourceDatabase, sourcePort, sourceUser, sourcePass, 10);
 
 				location = 4100;
-				maxId = Oracle.getMaxId(conn, sourceSchema, sourceTable, columnName);
+				maxId = Oracle.getMaxId(extConn, sourceSchema, sourceTable, columnName);
 
 				location = 4200;
-				conn.close();
+				extConn.close();
 
 			}
 
@@ -552,8 +552,8 @@ public class CommonDB
 		}
 		finally 
 		{
-			if (conn != null) 
-				conn.close();
+			if (extConn != null) 
+				extConn.close();
 		}
 
 	}
@@ -678,10 +678,10 @@ public class CommonDB
 			if (debug)
 				Logger.printMsg("attempting to connect");
 
-			Connection conn = DriverManager.getConnection(connectionUrl, sourceUser, sourcePass);
+			Connection extConn = DriverManager.getConnection(connectionUrl, sourceUser, sourcePass);
 
 			location = 6100;
-			return conn;
+			return extConn;
 		}
 		catch(ClassNotFoundException e)
 		{
@@ -726,9 +726,9 @@ public class CommonDB
 			String connectionUrl = "jdbc:oracle:thin:@" + sourceServer + ":" + sourcePort + "/" + sourceDatabase;
 
 			location = 2400;
-			Connection conn = DriverManager.getConnection(connectionUrl, props);
+			Connection extConn = DriverManager.getConnection(connectionUrl, props);
 
-			return conn;
+			return extConn;
 		}
 		catch(ClassNotFoundException e)
 		{

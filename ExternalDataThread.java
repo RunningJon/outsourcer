@@ -74,7 +74,7 @@ public class ExternalDataThread implements Runnable
 		{
 			location = 2000;
 			String configFile = ExternalDataD.configFile;
-			Connection conn = CommonDB.connectGP(configFile);
+			conn = CommonDB.connectGP(configFile);
 
 			location = 2100;
 			String osServer = OSProperties.osServer;
@@ -509,7 +509,8 @@ public class ExternalDataThread implements Runnable
 			}
 			finally
 			{
-				conn.close();
+				if (conn != null)
+					conn.close();
 			}
 		}
 		catch (Exception e)

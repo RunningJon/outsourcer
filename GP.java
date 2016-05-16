@@ -20,10 +20,11 @@ public class GP
 
 			location = 2100;
 			Statement stmt = conn.createStatement();
-			String strSQL = "SELECT CASE WHEN POSITION ('HAWQ' IN ver) > 0 THEN 'HAWQ' " + 
-					"WHEN POSITION ('Greenplum' IN ver) > 0 THEN 'GPDB' END " + 
-					"FROM version() AS ver";
-
+			String strSQL = "SELECT CASE WHEN POSITION ('HAWQ 2' in version) > 0 THEN 'HAWQ_2' " +
+					"WHEN POSITION ('HAWQ 1' in version) > 0 THEN 'HAWQ_1' " +
+					"WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database' IN version) > 0 THEN 'GPDB' " +
+					"ELSE 'OTHER' END " +
+					"FROM version()";
 			if (debug)
 				Logger.printMsg("Getting Variable: " + strSQL);
 		
