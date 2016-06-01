@@ -139,7 +139,7 @@ public class ExternalDataThread implements Runnable
 					location = 4300;
 					//Create the external table 
 					//hard coded the column name and max id for refresh because it is ignored
-					columnName = "column";
+					columnName = "";
 					if (debug)
 						Logger.printMsg("QueueID: " + queueId + " creating external table");
 					GP.createExternalTable(conn, osServer, refreshTypeAction, sourceTable, targetSchema, targetTable, maxGPId, queueId, jobPort);

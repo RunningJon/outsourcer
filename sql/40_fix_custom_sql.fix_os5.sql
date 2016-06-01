@@ -19,7 +19,8 @@ CREATE TABLE os.ao_custom_sql
   deleted boolean NOT NULL DEFAULT FALSE,
   insert_id serial NOT NULL)
  WITH (appendonly=true)
- DISTRIBUTED BY (id);
+:DISTRIBUTED_BY;
+ --DISTRIBUTED BY (id);
 
 CREATE VIEW os.custom_sql AS
 SELECT id, table_name, columns, column_datatypes, sql_text, source_type, source_server_name, source_instance_name, source_port,

@@ -33,7 +33,8 @@ CREATE TABLE os.ao_queue
   deleted boolean NOT NULL DEFAULT FALSE,
   insert_id serial NOT NULL)
  WITH (appendonly=true)
- DISTRIBUTED BY (queue_id);
+:DISTRIBUTED_BY;
+ --DISTRIBUTED BY (queue_id);
 
 CREATE VIEW os.queue AS
 SELECT queue_id, status, queue_date, start_date, end_date, error_message, 

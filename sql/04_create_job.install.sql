@@ -29,7 +29,8 @@ CREATE TABLE os.ao_job
   deleted boolean NOT NULL DEFAULT FALSE,
   insert_id serial NOT NULL)
  WITH (appendonly=true)
- DISTRIBUTED BY (id);
+:DISTRIBUTED_BY;
+--DISTRIBUTED BY (id);
 
 CREATE VIEW os.job AS
 SELECT id, refresh_type, target_schema_name, target_table_name, target_append_only, 

@@ -120,6 +120,9 @@ if [ ! -f $MSJAR ]; then
 	fi
 fi
 
+VERSION=$(psql -v ON_ERROR_STOP=1 -t -A -c "SELECT CASE WHEN POSITION ('HAWQ 2' in version) > 0 THEN 'hawq_2' WHEN POSITION ('HAWQ 1' in version) > 0 THEN 'hawq_1' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 4.2' IN version) > 0 THEN 'gpdb_4_2' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 4.3' IN version) > 0 THEN 'gpdb_4_3' ELSE 'OTHER' END FROM version();")
+echo "Version: $VERSION"
+
 echo "oshome=$PWD" > $configFile
 echo ""
 echo "osport=$OSPORT" >> $configFile
@@ -362,7 +365,19 @@ if [ $os_create_tables = 1 ]; then
 	#install the sql files
 	echo "Notice: creating tables in the os schema"
 	for i in $( ls *.install.sql ); do
-		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
+		table_name=$(echo $i | awk -F 'create_' '{print $2}' | awk -F '.' '{print "ao_"$1}')
+		for z in $(cat distribution.txt); do 
+			table_name2=$(echo $z | awk -F '|' '{print $2}')
+			if [ "$table_name2" == "$table_name" ]; then
+				distribution=$(echo $z | awk -F '|' '{print $3}')
+			fi
+		done
+		if [ "$VERSION" == "hawq_2" ]; then
+			DISTRIBUTED_BY="DISTRIBUTED RANDOMLY"
+		else 
+			DISTRIBUTED_BY="DISTRIBUTED BY (""$distribution"")"
+		fi
+		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport -v DISTRIBUTED_BY="$DISTRIBUTED_BY" >> $installSQLLog 2>&1
 	done
 else
 	echo "Notice: os schema already exists so skipping table creation"
@@ -370,7 +385,19 @@ fi
 
 echo "Notice: create external table function create/replace"
 for i in $( ls *.variables.sql ); do
-	psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
+	table_name=$(echo $i | awk -F 'create_' '{print $2}' | awk -F '.' '{print "ao_"$1}')
+	for z in $(cat distribution.txt); do 
+		table_name2=$(echo $z | awk -F '|' '{print $2}')
+		if [ "$table_name2" == "$table_name" ]; then
+			distribution=$(echo $z | awk -F '|' '{print $3}')
+		fi
+	done
+	if [ "$VERSION" == "hawq_2" ]; then
+		DISTRIBUTED_BY="DISTRIBUTED RANDOMLY"
+	else 
+		DISTRIBUTED_BY="DISTRIBUTED BY (""$distribution"")"
+	fi
+	psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport -v DISTRIBUTED_BY="$DISTRIBUTED_BY" >> $installSQLLog 2>&1
 done
 
 echo "Notice: creating or replacing objects" 
@@ -410,7 +437,19 @@ os_custom_sql_exists=$(psql -t -A -c "SELECT COUNT(*) FROM pg_class c JOIN pg_na
 if [ $os_custom_sql_exists -eq 0 ]; then
 	echo "Notice: Installing Version 5 custom_sql table"
 	for i in $( ls *.install_os5.sql ); do
-		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1 
+		table_name=$(echo $i | awk -F 'create_' '{print $2}' | awk -F '.' '{print "ao_"$1}')
+		for z in $(cat distribution.txt); do 
+			table_name2=$(echo $z | awk -F '|' '{print $2}')
+			if [ "$table_name2" == "$table_name" ]; then
+				distribution=$(echo $z | awk -F '|' '{print $3}')
+			fi
+		done
+		if [ "$VERSION" == "hawq_2" ]; then
+			DISTRIBUTED_BY="DISTRIBUTED RANDOMLY"
+		else 
+			DISTRIBUTED_BY="DISTRIBUTED BY (""$distribution"")"
+		fi
+		psql -f $i -U $gpusername -d $gpdatabase -h $gpserver -p $gpport -v DISTRIBUTED_BY="$DISTRIBUTED_BY" >> $installSQLLog 2>&1 
 	done
 fi
 

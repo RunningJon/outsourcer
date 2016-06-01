@@ -9,7 +9,8 @@ CREATE TABLE os.ao_variables
   insert_id serial NOT NULL
 )
  WITH (appendonly=true)
- DISTRIBUTED BY (name);
+:DISTRIBUTED_BY;
+ --DISTRIBUTED BY (name);
 
 INSERT INTO os.ao_variables (name, value, restart) VALUES ('max_jobs', '4', false);
 INSERT INTO os.ao_variables (name, value, restart) VALUES ('oFetchSize', '2000', false);

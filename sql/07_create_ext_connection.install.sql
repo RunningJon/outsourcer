@@ -10,7 +10,8 @@ CREATE TABLE os.ao_ext_connection
   deleted boolean NOT NULL DEFAULT FALSE,
   insert_id serial NOT NULL)
  WITH (appendonly=true)
- DISTRIBUTED BY (id);
+:DISTRIBUTED_BY;
+ --DISTRIBUTED BY (id);
 
 CREATE VIEW os.ext_connection AS
 SELECT id, source_type, source_server_name, source_instance_name, source_port, 

@@ -6,7 +6,8 @@ CREATE TABLE os.ao_schedule
  insert_id serial NOT NULL
  ) 
  WITH (appendonly=true)
- DISTRIBUTED BY (description);
+:DISTRIBUTED_BY;
+ --DISTRIBUTED BY (description);
 
 CREATE VIEW os.schedule AS
 SELECT description, interval_trunc, interval_quantity
