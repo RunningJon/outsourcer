@@ -185,7 +185,8 @@ public class CommonDB
 				{
 					if (targetCompressed)
 					{
-						if (targetRowOrientation)
+						//HAWQ 1 and 2.0.0 uses quicklz for row orientation while 2.0.1 and later uses snappy
+						if (targetRowOrientation && (ExternalDataD.dbVersion.equals("HAWQ_1") || ExternalDataD.dbVersion.equals("HAWQ_2_0_0")))
 							output += ", COMPRESSTYPE=quicklz";
 						else
 							output += ", COMPRESSTYPE=snappy";

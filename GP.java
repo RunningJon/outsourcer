@@ -20,7 +20,9 @@ public class GP
 
 			location = 2100;
 			Statement stmt = conn.createStatement();
-			String strSQL = "SELECT CASE WHEN POSITION ('HAWQ 2' in version) > 0 THEN 'HAWQ_2' " +
+			String strSQL = "SELECT CASE " +
+					"WHEN POSITION ('HAWQ 2.0.1' in version) > 0 THEN 'HAWQ_2_0_1' " + 
+					"WHEN POSITION ('HAWQ 2.0.0' in version) > 0 THEN 'HAWQ_2_0_0' " + 
 					"WHEN POSITION ('HAWQ 1' in version) > 0 THEN 'HAWQ_1' " +
 					"WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database' IN version) > 0 THEN 'GPDB' " +
 					"ELSE 'OTHER' END " +
