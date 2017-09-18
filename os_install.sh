@@ -8,7 +8,7 @@ set -e
 PWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $PWD/os_path.sh
 configFile=$OSHOME/config.properties
-myHost=`hostname`
+myHost=$(hostname)
 installLog=$OSHOME/log/install.log
 installSQLLog=$OSHOME/log/install_sql.log
 
@@ -20,7 +20,7 @@ echo "Outsourcer installer"
 echo "http://pivotalguru.com"
 echo "##############################################################################################"
 echo ""
-d=`date`
+d=$(date)
 echo ""
 echo "Installation started at: $d"
 echo "Installation started at: $d" > $installSQLLog
@@ -51,7 +51,8 @@ echo "Checking prerequisites"
 echo "##############################################################################################"
 echo ""
 echo "Checking for psql..."
-gpclient=`psql --version 2> /dev/null | grep PostgreSQL | grep 8.2 | wc -l`
+gpclient=$(psql --version 2> /dev/null | grep PostgreSQL | grep "8.[2-3]" | wc -l)
+
 	if [ $gpclient -eq 0 ]; then
 		echo "psql not found.  Please install the Greenplum / HAWQ client and try again."
 		echo "##############################################################################################"
@@ -62,7 +63,7 @@ gpclient=`psql --version 2> /dev/null | grep PostgreSQL | grep 8.2 | wc -l`
 		echo "Found!"
 	fi
 echo "Checking for gpfdist..."
-gpfdistclient=`gpfdist --version 2> /dev/null | wc -l`
+gpfdistclient=$(gpfdist --version 2> /dev/null | wc -l)
 	if [ $gpfdistclient -eq 0 ]; then
 		echo "gpfdist not found.  Please install the Greenplum / HAWQ gpfdist utility and try again."
 		echo "##############################################################################################"
@@ -94,7 +95,7 @@ if [ ! -f $MSJAR ]; then
 	echo "##############################################################################################"
 	echo "Microsoft SQL Server JDBC driver is missing."
 	echo "##############################################################################################"
-	p=`ping -c 1 -W 1 download.microsoft.com 2>&1 | grep transmitted | awk -F ',' '{ print $2 }' | awk -F ' ' '{ print $1 }'`
+	p=$(ping -c 1 -W 1 download.microsoft.com 2>&1 | grep transmitted | awk -F ',' '{ print $2 }' | awk -F ' ' '{ print $1 }')
 	if [ $p -eq 1 ]; then
 		echo "Downloading Microsoft SQL Server JDBC Driver"
 		curl -L 'http://download.microsoft.com/download/0/2/A/02AAE597-3865-456C-AE7F-613F99F850A8/sqljdbc_4.0.2206.100_enu.tar.gz' | tar xz
@@ -120,7 +121,7 @@ if [ ! -f $MSJAR ]; then
 	fi
 fi
 
-VERSION=$(psql -v ON_ERROR_STOP=1 -t -A -c "SELECT CASE WHEN POSITION ('HAWQ 2' in version) > 0 THEN 'hawq_2' WHEN POSITION ('HAWQ 1' in version) > 0 THEN 'hawq_1' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 4.2' IN version) > 0 THEN 'gpdb_4_2' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 4.3' IN version) > 0 THEN 'gpdb_4_3' ELSE 'OTHER' END FROM version();")
+VERSION=$(psql -v ON_ERROR_STOP=1 -t -A -c "SELECT CASE WHEN POSITION ('HAWQ 2' in version) > 0 THEN 'hawq_2' WHEN POSITION ('HAWQ 1' in version) > 0 THEN 'hawq_1' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 4.2' IN version) > 0 THEN 'gpdb_4_2' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 4.3' IN version) > 0 THEN 'gpdb_4_3' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 5' IN version) > 0 THEN 'gpdb_5' ELSE 'OTHER' END FROM version();")
 echo "Version: $VERSION"
 
 echo "oshome=$PWD" > $configFile
@@ -209,14 +210,14 @@ echo "##########################################################################
 echo "$gpserver:$gpport:$gpdatabase:$gpusername:$gppassword" > ~/.pgpass_os
 
 if [ -f ~/.pgpass ]; then
-	gpmon=`grep gpmon ~/.pgpass | wc -l`
+	gpmon=$(grep gpmon ~/.pgpass | wc -l)
 	if [ "$gpmon" -ge "1" ]; then
 		grep "gpmon" ~/.pgpass >> ~/.pgpass_os
 	fi
 	echo "Making new .pgpass file"
 	i=0
 	while [ -z $pgpass_backup ]; do
-		i=`expr $i + 1`
+		i=$((i + 1))
 		if [ ! -f ~/.pgpass_backup_$i ]; then
 			pgpass_backup=.pgpass_backup_$i
 		fi
@@ -237,7 +238,7 @@ if [ -f ~/.bash_profile ]; then
 	grep -v PGPORT ~/.bash_profile | grep -v os_path | grep -v PGDATABASE > ~/.bash_profile_os
 	i=0
 	while [ -z $bash_profile_backup ]; do
-		i=`expr $i + 1`
+		i=$((i + 1))
 		if [ ! -f ~/.bash_profile_backup_$i ]; then
 			bash_profile_backup=.bash_profile_backup_$i
 		fi
@@ -257,7 +258,7 @@ echo "Adding source to os_path.sh to your .bashrc file"
 echo "source $OSHOME/os_path.sh" >> ~/.bashrc_os
 i=0
 while [ -z $bashrc_backup ]; do
-        i=`expr $i + 1`
+        i=$((i + 1))
         if [ ! -f ~/.bashrc_backup_$i ]; then
                 bashrc_backup=.bashrc_backup_$i
         fi
@@ -270,7 +271,7 @@ echo ""
 echo "##############################################################################################"
 echo "Validate database connection"
 echo "##############################################################################################"
-t=`psql -A -t -c "SELECT version()" -U $gpusername -d $gpdatabase -h $gpserver 2> /dev/null | wc -l`
+t=$(psql -A -t -c "SELECT version()" -U $gpusername -d $gpdatabase -h $gpserver 2> /dev/null | wc -l)
 if [ $t -eq 1 ]; then
 	echo "Database connection test passed!"
 	echo ""
@@ -333,7 +334,7 @@ if [ $os_exists = 1 ]; then
 		i=0
 		while [ -z $os_backup_schema ]
 		do
-		i=`expr $i + 1`
+		i=$((i + 1))
 		check=$(psql -t -A -c "SELECT COUNT(*) FROM pg_namespace WHERE nspname = 'os_backup_$i'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport)
 
 		if [ $check = 0 ]; then
@@ -407,7 +408,7 @@ done
 
 echo "Notice: creating or replacing external tables that use gpfdist"
 for i in $( ls *.gpfdist.sql ); do
-	c=`echo $i | awk -F '_' '{print $3}' | awk -F '.' '{print $1}'`
+	c=$(echo $i | awk -F '_' '{print $3}' | awk -F '.' '{print $1}')
 	psql -f $i -v LOCATION="'gpfdist://$osserver:$OSPORT/foo#transform=$c'" -U $gpusername -d $gpdatabase -h $gpserver -p $gpport >> $installSQLLog 2>&1
 done
 

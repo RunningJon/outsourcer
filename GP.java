@@ -21,9 +21,7 @@ public class GP
 			location = 2100;
 			Statement stmt = conn.createStatement();
 			String strSQL = "SELECT CASE " +
-					"WHEN POSITION ('HAWQ 2.0.1' in version) > 0 THEN 'HAWQ_2_0_1' " + 
-					"WHEN POSITION ('HAWQ 2.0.0' in version) > 0 THEN 'HAWQ_2_0_0' " + 
-					"WHEN POSITION ('HAWQ 1' in version) > 0 THEN 'HAWQ_1' " +
+					"WHEN POSITION ('HAWQ' in version) > 0 THEN 'HAWQ' " + 
 					"WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database' IN version) > 0 THEN 'GPDB' " +
 					"ELSE 'OTHER' END " +
 					"FROM version()";
@@ -809,7 +807,7 @@ public class GP
 			String extLocation =    "LOCATION ('gpfdist://" + osServer + ":" + jobPort +
 						"/config.properties+" + queueId + "+" + maxId + "+" + refreshType + "+" + sourceTable + "#transform=externaldata" + "')";
 			location = 3400;
-			extLocation = extLocation + "\n" + "FORMAT 'TEXT' (delimiter '|' null 'null' escape '\\\\')";
+			extLocation = extLocation + "\n" + "FORMAT 'TEXT' (delimiter '|' null 'null')";
 
 			////////////////////////////////////////////
 			//Add createSQL with Java Command to exec.

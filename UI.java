@@ -6,7 +6,7 @@ import java.io.IOException;
 public class UI extends NanoHTTPD 
 {
 	public static int webPort = 8080;
-	public static String gpVersion = "HEAP";
+	public static String gpVersion = "AO";
 	public static String sessions = "";
 	public static String configFile = "";
 

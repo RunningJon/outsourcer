@@ -181,15 +181,11 @@ public class CommonDB
 			if (targetAppendOnly)
 			{
 				output += "WITH (APPENDONLY=TRUE";
-				if (ExternalDataD.dbVersion.startsWith("HAWQ"))
+				if (ExternalDataD.dbVersion.equals("HAWQ"))
 				{
 					if (targetCompressed)
 					{
-						//HAWQ 1 and 2.0.0 uses quicklz for row orientation while 2.0.1 and later uses snappy
-						if (targetRowOrientation && (ExternalDataD.dbVersion.equals("HAWQ_1") || ExternalDataD.dbVersion.equals("HAWQ_2_0_0")))
-							output += ", COMPRESSTYPE=quicklz";
-						else
-							output += ", COMPRESSTYPE=snappy";
+						output += ", COMPRESSTYPE=snappy";
 					}
 					if (targetRowOrientation)
 						output += ", ORIENTATION=row";
@@ -226,7 +222,7 @@ public class CommonDB
 		{
 			location = 2000;
 			String distributedBy = "";
-			if (ExternalDataD.dbVersion.equals("HAWQ_2"))
+			if (ExternalDataD.dbVersion.equals("HAWQ"))
 			{
 				distributedBy = "DISTRIBUTED RANDOMLY; \n";
 			}

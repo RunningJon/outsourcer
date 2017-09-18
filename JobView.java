@@ -124,7 +124,7 @@ public class JobView
 		myScript += "			document.getElementById(\"r_snapshot\").style.display = \"none\";\n";
 		myScript += "			document.getElementById(\"snapshot\").value = \"false\";\n";
 		myScript += "			document.getElementById(\"r_sql_text\").style.display = \"\";\n";
-		myScript += "			if (ver == \"HEAP\" || ver == \"AO\")\n";
+		myScript += "			if (ver == \"AO\")\n";
 		myScript += "			{\n";
 		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"\";\n";  
 		myScript += "			} else\n";
@@ -149,7 +149,7 @@ public class JobView
 		myScript += "			document.getElementById(\"column_name\").value = \"\";\n";
 		myScript += "			document.getElementById(\"r_sql_text\").style.display = \"\";\n";
 		myScript += "			document.getElementById(\"snapshot\").value = \"false\";\n";
-		myScript += "			if (ver == \"HEAP\" || ver == \"AO\")\n";
+		myScript += "			if (ver == \"AO\")\n";
 		myScript += "			{\n";
 		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"\";\n";  
 		myScript += "			} else\n";
@@ -172,15 +172,6 @@ public class JobView
 		myScript += "			document.getElementById(\"r_column_name\").style.display = \"\";\n";
 		myScript += "			document.getElementById(\"r_snapshot\").style.display = \"\";\n";
 		myScript += "			document.getElementById(\"r_sql_text\").style.display = \"\";\n";
-		myScript += "			if (ver == \"HEAP\")\n";
-		myScript += "			{\n";
-		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"none\";\n";  
-		myScript += "				document.getElementById(\"r_target_compressed\").style.display = \"none\";\n";
-		myScript += "				document.getElementById(\"r_target_row_orientation\").style.display = \"none\";\n";
-		myScript += "				document.getElementById(\"target_append_only\").value = \"false\";\n";
-		myScript += "				document.getElementById(\"target_compressed\").value = \"false\";\n";
-		myScript += "			document.getElementById(\"target_row_orientation\").value = \"true\";\n";
-		myScript += "			} else\n";
 		myScript += "			if (ver == \"AO\")\n";  
 		myScript += "			{\n";
 		myScript += "				document.getElementById(\"r_target_append_only\").style.display = \"\";\n";  

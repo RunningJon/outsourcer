@@ -139,18 +139,14 @@ public class UIModel
 
 	public static String getVersion() 
 	{
-		String version = "HEAP";
+		String version = "AO";
 
 		try
 		{
 			Connection conn = UIConnectionFactory.getConnection();
 			Statement stmt = conn.createStatement();
 
-			String strSQL = "SELECT CASE WHEN position ('HAWQ' IN version()) > 0 THEN 'HAWQ'\n";
-			strSQL += "	WHEN position ('HAWQ' IN version()) = 0\n";
-			strSQL += "	AND (split_part(split_part(substr(version(), position('Greenplum Database' in version())+19), ' ', 1), '.', 1))::int >= 4\n";
-			strSQL += "	AND (split_part(split_part(substr(version(), position('Greenplum Database' in version())+19), ' ', 1), '.', 2))::int >= 3 THEN 'AO'\n";
-			strSQL += "	ELSE 'HEAP'\n";
+			String strSQL = "SELECT CASE WHEN position ('HAWQ' IN version()) > 0 THEN 'HAWQ' ELSE 'AO' END";
 			strSQL += "END";
 
 			ResultSet rs = stmt.executeQuery(strSQL);
