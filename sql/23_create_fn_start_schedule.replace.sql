@@ -5,6 +5,7 @@ DECLARE
         v_function_name text := 'os.fn_start_schedule';
         v_location int;
 BEGIN
+	SET OPTIMIZER=OFF;
 
         v_location := 1000;
         INSERT INTO os.ao_job

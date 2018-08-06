@@ -7,6 +7,7 @@ DECLARE
         v_procpid int;
         v_found boolean := FALSE;
 BEGIN
+	SET OPTIMIZER=OFF;
         v_location := 1000;
         --check for External Tables loading data
         WITH q as       (SELECT 'INSERT INTO "' || target_schema_name || '"."' || target_table_name || '"' AS current_query

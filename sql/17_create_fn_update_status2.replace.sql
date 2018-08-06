@@ -6,6 +6,7 @@ CREATE OR REPLACE FUNCTION os.fn_update_status(p_queue_id int, p_status text, p_
        p_source_user_name text, p_source_pass text, p_column_name text, p_sql_text text, p_snapshot boolean)
   RETURNS void AS
 $$
+	SET OPTIMIZER=OFF;
 
         INSERT INTO os.ao_queue 
         (queue_id, status, queue_date, start_date, end_date, error_message, 

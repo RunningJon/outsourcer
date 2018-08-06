@@ -5,6 +5,7 @@ DECLARE
         v_function_name text := 'os.fn_queue';
         v_location int;
 BEGIN
+	SET OPTIMIZER=OFF;
         v_location := 1000;
         INSERT INTO os.ao_queue(status, queue_date, id, refresh_type,                 
                 target_schema_name, target_table_name, target_append_only, target_compressed, target_row_orientation,

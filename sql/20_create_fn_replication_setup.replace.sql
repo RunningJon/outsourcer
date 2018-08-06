@@ -9,6 +9,7 @@ DECLARE
         v_debug BOOLEAN := true;
 
 BEGIN
+	SET OPTIMIZER=OFF;
         v_location := 1000;
         v_sql := 'DROP TABLE IF EXISTS "' || p_ext_schema || '"."' || p_stage_table || '"';
 

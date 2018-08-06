@@ -94,31 +94,19 @@ fi
 if [ ! -f $MSJAR ]; then
 	echo "##############################################################################################"
 	echo "Microsoft SQL Server JDBC driver is missing."
+	echo "- Download sql jar from "
+	echo "  https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-2017"
+	echo "- Place the correct jar file for your JRE version in $OSHOME/jar directory named as sqljdbc4.jar"
+	echo "- sqljdbc_4.2/enu/jre7/sqljdbc41.jar"
+	echo "- sqljdbc_4.2/enu/jre8/sqljdbc42.jar"
+	echo "- Restart Outsourcer"
+	echo "Note: You can rename the jar file but be sure to set this value with OJAR in:"
+	echo "$OSHOME/os_path.sh"
+	echo ""
 	echo "##############################################################################################"
-	p=$(ping -c 1 -W 1 download.microsoft.com 2>&1 | grep transmitted | awk -F ',' '{ print $2 }' | awk -F ' ' '{ print $1 }')
-	if [ $p -eq 1 ]; then
-		echo "Downloading Microsoft SQL Server JDBC Driver"
-		curl -L 'http://download.microsoft.com/download/0/2/A/02AAE597-3865-456C-AE7F-613F99F850A8/sqljdbc_4.0.2206.100_enu.tar.gz' | tar xz
-		mv sqljdbc_4.0/enu/sqljdbc4.jar $OSHOME/jar/
-		rm -r sqljdbc_4.0
-		echo ""
-		echo "Succesfully installed Microsoft SQL Server JDBC driver."
-	else
-
-		echo "##############################################################################################"
-		echo "Unable to connect to download.microsoft.com.  Please download the driver from"
-		echo "http://download.microsoft.com/download/0/2/A/02AAE597-3865-456C-AE7F-613F99F850A8/sqljdbc_4.0.2206.100_enu.tar.gz"
-		echo "After downloading, gunzip and extract with tar"
-		echo "Next, mv sqljdbc_4.0/enu/sqljdbc4.jar to $OSHOME/jar"
-		echo "Note: You can rename the jar file but be sure to set this value with MSJAR in:"
-		echo "$OSHOME/os_path.sh"
-		echo "##############################################################################################"
-		echo ""
-		echo "##############################################################################################"
-		echo "Installation failed!"
-		echo "##############################################################################################"
-		exit 1
-	fi
+	echo "Installation failed!"
+	echo "##############################################################################################"
+	exit 1
 fi
 
 VERSION=$(psql -v ON_ERROR_STOP=1 -t -A -c "SELECT CASE WHEN POSITION ('HAWQ 2' in version) > 0 THEN 'hawq_2' WHEN POSITION ('HAWQ 1' in version) > 0 THEN 'hawq_1' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 4.2' IN version) > 0 THEN 'gpdb_4_2' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 4.3' IN version) > 0 THEN 'gpdb_4_3' WHEN POSITION ('HAWQ' in version) = 0 AND POSITION ('Greenplum Database 5' IN version) > 0 THEN 'gpdb_5' ELSE 'OTHER' END FROM version();")

@@ -147,7 +147,6 @@ public class UIModel
 			Statement stmt = conn.createStatement();
 
 			String strSQL = "SELECT CASE WHEN position ('HAWQ' IN version()) > 0 THEN 'HAWQ' ELSE 'AO' END";
-			strSQL += "END";
 
 			ResultSet rs = stmt.executeQuery(strSQL);
 			while (rs.next())

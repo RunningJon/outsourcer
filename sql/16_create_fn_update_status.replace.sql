@@ -12,6 +12,7 @@ DECLARE
         v_rec os.queue%rowtype;
 
 BEGIN
+	SET OPTIMIZER=OFF;
         v_location := 1000;
         select max_jobs::int 
         into v_max

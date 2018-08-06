@@ -5,6 +5,7 @@ DECLARE
         v_function_name text := 'os.fn_queue_all';
         v_location int;
 BEGIN
+	SET OPTIMIZER=OFF;
         v_location := 1000;
         --insert only inserts jobs that aren't already in the queue as processing or queued
         INSERT INTO os.ao_queue(status, queue_date, id, refresh_type,                 

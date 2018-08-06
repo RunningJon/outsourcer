@@ -17,6 +17,7 @@ DECLARE
         v_stage_table TEXT;
         
 BEGIN
+	SET OPTIMIZER=OFF;
         v_location := 1000;
         --take the columns from the primary key and create the join statement for the DELETE below
 

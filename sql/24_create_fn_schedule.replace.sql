@@ -6,6 +6,8 @@ DECLARE
         v_location int;
         v_rec record;
 BEGIN
+	SET OPTIMIZER=OFF;
+
         v_location := 1000;
         --insert jobs into the queue that have a schedule_next less than now
         FOR v_rec IN (SELECT id FROM os.job WHERE schedule_next < clock_timestamp()::timestamp) LOOP

@@ -374,12 +374,9 @@ public class SQLServer
 			location = 5000;
 			strSQL = "SELECT COLUMN_NAME, \n" +
 				"	DATA_TYPE + \n" +
-				"	CASE WHEN DATA_TYPE in ('nchar', 'char', 'varchar', 'nvarchar', 'sysname') \n" +
-				"	AND CHARACTER_MAXIMUM_LENGTH <> -1 \n" + 
-				"	THEN '(' + CAST(CHARACTER_MAXIMUM_LENGTH AS VARCHAR(8000)) + ')' \n" +
-				"	WHEN DATA_TYPE in ('nchar', 'char', 'varchar', 'nvarchar') \n" +
-				"	AND CHARACTER_MAXIMUM_LENGTH = -1 \n" + 
-				"	THEN '(MAX)' \n" + 
+				"	CASE WHEN DATA_TYPE in ('nchar', 'char', 'varchar', 'nvarchar', 'sysname') AND CHARACTER_MAXIMUM_LENGTH <> -1 THEN '(' + CAST(CHARACTER_MAXIMUM_LENGTH AS VARCHAR(8000)) + ')' \n" +
+				"	WHEN DATA_TYPE in ('nchar', 'char', 'varchar', 'nvarchar') AND CHARACTER_MAXIMUM_LENGTH = -1 THEN '(MAX)' \n" + 
+				"	WHEN DATA_TYPE in ('decimal', 'numeric') THEN '(' + CAST(NUMERIC_PRECISION AS VARCHAR(8000)) + ',' + CAST(NUMERIC_SCALE AS VARCHAR(8000)) + ')' \n" +
 				"	ELSE '' END + \n" +
 				"	CASE WHEN IS_NULLABLE = 'NO' THEN ' NOT NULL' ELSE ' NULL' END AS ATTRIBUTES \n" +
 				"FROM [" + sourceDatabase + "].INFORMATION_SCHEMA.COLUMNS \n" +
